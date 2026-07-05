@@ -21,4 +21,15 @@ class WhatsAppService {
 
     return Map<String, dynamic>.from(result.data as Map);
   }
+
+  /// Fetch a signed URL for a media id stored by the WhatsApp webhook.
+  static Future<String> fetchMediaUrl({required String mediaId}) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    final callable = _functions.httpsCallable('fetchWhatsAppMedia');
+    final result = await callable.call(<String, dynamic>{'mediaId': mediaId});
+    final data = result.data as Map<String, dynamic>;
+    return data['url'] as String;
+  }
 }

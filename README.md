@@ -43,6 +43,12 @@ cd firebase/functions
 ```
 
 The scripts deploy the functions and POST a sample incoming message to the webhook to verify Firestore writes.
+
+Media download flow
+
+- A callable Cloud Function `fetchWhatsAppMedia` downloads media from the WhatsApp Graph API (using the media id), saves the blob to your project's default Cloud Storage bucket under `whatsapp_media/`, and returns a signed URL valid for 1 hour. The Flutter client uses this signed URL to display images.
+- Ensure the Cloud Functions service account has `roles/storage.objectAdmin` (or at least `roles/storage.objectCreator`/`roles/storage.objectViewer`) on the Storage bucket. Also enable the Cloud Storage API if not already enabled.
+
 - Configure WhatsApp credentials for Cloud Functions (replace placeholders):
 
 ```bash

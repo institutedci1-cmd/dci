@@ -17,7 +17,7 @@ Write-Host "Webhook URL: $webhookUrl"
 
 Write-Host "Verifying webhook (GET challenge)..."
 $challenge = "health-check-$(Get-Date -UFormat %s)"
-$response = curl -UseBasicParsing -Uri "$webhookUrl?hub.mode=subscribe&hub.challenge=$challenge&hub.verify_token=$VerifyToken" -Method Get
+$response = Invoke-RestMethod -Uri "$webhookUrl?hub.mode=subscribe&hub.challenge=$challenge&hub.verify_token=$VerifyToken" -Method Get
 Write-Host "Response: $($response.Content)"
 
 Write-Host "Simulating incoming message (POST)..."
