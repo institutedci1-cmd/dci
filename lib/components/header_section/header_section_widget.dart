@@ -13,16 +13,21 @@ class HeaderSectionWidget extends StatefulWidget {
     String? subtitle,
     String? description,
     this.onBackPressed,
-    this.onHelpPressed,
+    this.onActionPressed,
+    this.actionIcon,
+    bool? showActionIcon,
   })  : title = title ?? 'Assign Homework',
         subtitle = subtitle ?? 'Deshmukh Coaching Institute',
-        description = description ?? 'Create and manage student assignments';
+        description = description ?? 'Create and manage student assignments',
+        showActionIcon = showActionIcon ?? true;
 
   final String title;
   final String subtitle;
   final String description;
   final Future Function()? onBackPressed;
-  final Future Function()? onHelpPressed;
+  final Future Function()? onActionPressed;
+  final Widget? actionIcon;
+  final bool showActionIcon;
 
   @override
   State<HeaderSectionWidget> createState() => _HeaderSectionWidgetState();
@@ -116,21 +121,25 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  FlutterFlowIconButton(
-                    borderRadius: 8.0,
-                    buttonSize: 40.0,
-                    fillColor: Colors.transparent,
-                    icon: Icon(
-                      Icons.help_outline_rounded,
-                      color: FlutterFlowTheme.of(context).onPrimary,
-                      size: 24.0,
-                    ),
-                    onPressed: () async {
-                      if (widget.onHelpPressed != null) {
-                        await widget.onHelpPressed!();
-                      }
-                    },
-                  ),
+                  if (widget.showActionIcon)
+                    FlutterFlowIconButton(
+                      borderRadius: 8.0,
+                      buttonSize: 40.0,
+                      fillColor: Colors.transparent,
+                      icon: widget.actionIcon ??
+                          Icon(
+                            Icons.help_outline_rounded,
+                            color: FlutterFlowTheme.of(context).onPrimary,
+                            size: 24.0,
+                          ),
+                      onPressed: () async {
+                        if (widget.onActionPressed != null) {
+                          await widget.onActionPressed!();
+                        }
+                      },
+                    )
+                  else
+                    const SizedBox(width: 40.0),
                 ],
               ),
               Column(

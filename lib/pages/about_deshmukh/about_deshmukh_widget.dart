@@ -60,7 +60,7 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
               primary: false,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: Method.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(
@@ -89,8 +89,8 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
                           child: Padding(
                             padding: const EdgeInsets.all(32.0),
                             child: Column(
-                              mainAxisSize: Method.min,
-                              mainAxisAlignment: Method.center,
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
@@ -185,8 +185,8 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
                   Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
-                      mainAxisSize: Method.min,
-                      mainAxisAlignment: Method.start,
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         wrapWithModel(
@@ -218,8 +218,8 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
                           ),
                         ),
                         Row(
-                          mainAxisSize: Method.max,
-                          mainAxisAlignment: Method.start,
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
@@ -242,8 +242,8 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
                                     child: SizedBox(
                                       height: 68.0,
                                       child: Column(
-                                        mainAxisSize: Method.min,
-                                        mainAxisAlignment: Method.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
@@ -306,8 +306,8 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
                                     child: SizedBox(
                                       height: 68.0,
                                       child: Column(
-                                        mainAxisSize: Method.min,
-                                        mainAxisAlignment: Method.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
@@ -370,8 +370,8 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
                                     child: SizedBox(
                                       height: 68.0,
                                       child: Column(
-                                        mainAxisSize: Method.min,
-                                        mainAxisAlignment: Method.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
@@ -451,67 +451,67 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
                               Icons.phone_rounded,
                               color: FlutterFlowTheme.of(context).primary,
                               size: 20.0,
+                            ),
+                            label: 'Phone Number',
+                            value: info?['phone'] ?? '+91 98765 43210',
+                          ),
                         ),
-                        label: 'Phone Number',
-                        value: info?['phone'] ?? '+91 98765 43210',
-                      ),
-                    ),
-                    wrapWithModel(
-                      model: _model.contactItemModel2,
-                      updateCallback: () => safeSetState(() {}),
-                      child: ContactItemWidget(
-                        icon: Icon(
-                          Icons.email_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
+                        wrapWithModel(
+                          model: _model.contactItemModel2,
+                          updateCallback: () => safeSetState(() {}),
+                          child: ContactItemWidget(
+                            icon: Icon(
+                              Icons.email_rounded,
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 20.0,
+                            ),
+                            label: 'Email Address',
+                            value: info?['email'] ?? 'info@deshmukhcoaching.com',
+                          ),
                         ),
-                        label: 'Email Address',
-                        value: info?['email'] ?? 'info@deshmukhcoaching.com',
-                      ),
-                    ),
-                    wrapWithModel(
-                      model: _model.contactItemModel3,
-                      updateCallback: () => safeSetState(() {}),
-                      child: ContactItemWidget(
-                        icon: Icon(
-                          Icons.location_on_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
+                        wrapWithModel(
+                          model: _model.contactItemModel3,
+                          updateCallback: () => safeSetState(() {}),
+                          child: ContactItemWidget(
+                            icon: Icon(
+                              Icons.location_on_rounded,
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 20.0,
+                            ),
+                            label: 'Office Address',
+                            value: info?['address'] ??
+                                'Main Branch, City Center, Maharashtra',
+                          ),
                         ),
-                        label: 'Office Address',
-                        value: info?['address'] ??
-                            'Main Branch, City Center, Maharashtra',
-                      ),
-                    ),
-                    Container(
-                      height: 24.0,
-                    ),
-                    Column(
-                      mainAxisSize: Method.min,
-                      mainAxisAlignment: Method.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Deshmukh Teacher App ${info?['version'] ?? 'v2.4.0'}',
-                          style: FlutterFlowTheme.of(context).labelSmall,
+                        Container(
+                          height: 24.0,
                         ),
-                        Text(
-                          'Made with ❤️ for Deshmukh Faculty',
-                          style: FlutterFlowTheme.of(context).labelSmall,
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Deshmukh Teacher App ${info?['version'] ?? 'v2.4.0'}',
+                              style: FlutterFlowTheme.of(context).labelSmall,
+                            ),
+                            Text(
+                              'Made with ❤️ for Deshmukh Faculty',
+                              style: FlutterFlowTheme.of(context).labelSmall,
+                            ),
+                          ].divide(const SizedBox(height: 4.0)),
                         ),
-                      ].divide(const SizedBox(height: 4.0)),
+                        Container(
+                          height: 32.0,
+                        ),
+                      ].divide(const SizedBox(height: 16.0)),
                     ),
-                    Container(
-                      height: 32.0,
-                    ),
-                  ].divide(const SizedBox(height: 16.0)),
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
-    ),
+            );
+          },
+        ),
       ),
     );
   }

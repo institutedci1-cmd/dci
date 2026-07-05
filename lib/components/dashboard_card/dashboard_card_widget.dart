@@ -61,6 +61,7 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
       'TeacherProfile' => TeacherProfileWidget.routeName,
       'Announcements' => AnnouncementsFeedWidget.routeName,
       'AboutDeshmukh' => AboutDeshmukhWidget.routeName,
+      'Students' => StudentListWidget.routeName,
       _ => DailyReportFormWidget.routeName,
     };
     return routeName;

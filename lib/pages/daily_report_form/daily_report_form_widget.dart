@@ -121,154 +121,22 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: FlutterFlowTheme.of(context).primary,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(24.0),
-                  bottomRight: Radius.circular(24.0),
+            wrapWithModel(
+              model: createModel(context, () => HeaderSectionModel()),
+              updateCallback: () => safeSetState(() {}),
+              child: HeaderSectionWidget(
+                title: 'Daily Report',
+                subtitle: dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
+                description: 'Deshmukh Coaching Institute',
+                onBackPressed: () async =>
+                    context.goNamed(HomeDashboardWidget.routeName),
+                actionIcon: Icon(
+                  Icons.history_rounded,
+                  color: FlutterFlowTheme.of(context).onPrimary,
+                  size: 24.0,
                 ),
-                shape: BoxShape.rectangle,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          FlutterFlowIconButton(
-                            borderRadius: 8.0,
-                            buttonSize: 40.0,
-                            fillColor: Colors.transparent,
-                            icon: Icon(
-                              Icons.arrow_back_rounded,
-                              color: FlutterFlowTheme.of(context).onPrimary,
-                              size: 24.0,
-                            ),
-                            onPressed: () async {
-                              context.goNamed(HomeDashboardWidget.routeName);
-                            },
-                          ),
-                          Text(
-                            'Daily Report',
-                            style: FlutterFlowTheme.of(context)
-                                .titleLarge
-                                .override(
-                                  font: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleLarge
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).onPrimary,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .titleLarge
-                                      .fontStyle,
-                                  lineHeight: 1.27,
-                                ),
-                          ),
-                          FlutterFlowIconButton(
-                            borderRadius: 8.0,
-                            buttonSize: 40.0,
-                            fillColor: Colors.transparent,
-                            icon: Icon(
-                              Icons.refresh_rounded,
-                              color: FlutterFlowTheme.of(context).onPrimary,
-                              size: 24.0,
-                            ),
-                            onPressed: () {
-                              // print('IconButton pressed ...');
-                            },
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 48.0,
-                            height: 48.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context).onPrimary20,
-                              borderRadius: BorderRadius.circular(9999.0),
-                              shape: BoxShape.rectangle,
-                            ),
-                            alignment: const AlignmentDirectional(0.0, 0.0),
-                            child: Icon(
-                              Icons.calendar_today_rounded,
-                              color: FlutterFlowTheme.of(context).onSurface,
-                              size: 24.0,
-                            ),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyLarge
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .onPrimary,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                      lineHeight: 1.5,
-                                    ),
-                              ),
-                              Text(
-                                'Deshmukh Coaching Institute',
-                                style: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .labelMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .labelMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .onPrimary80,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .labelMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .labelMedium
-                                          .fontStyle,
-                                      lineHeight: 1.38,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ].divide(const SizedBox(width: 16.0)),
-                      ),
-                    ].divide(const SizedBox(height: 16.0)),
-                  ),
-                ),
+                onActionPressed: () async =>
+                    context.pushNamed(ReportHistoryWidget.routeName),
               ),
             ),
             Expanded(
@@ -481,13 +349,13 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                             value: _presentCount.toString().padLeft(2, '0'),
                                             onDecrement: () {
                                               if (_presentCount > 0) {
-                                                setState(() {
+                                                safeSetState(() {
                                                   _presentCount -= 1;
                                                 });
                                               }
                                             },
                                             onIncrement: () {
-                                              setState(() {
+                                              safeSetState(() {
                                                 _presentCount += 1;
                                               });
                                             },
@@ -506,13 +374,13 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                             value: _absentCount.toString().padLeft(2, '0'),
                                             onDecrement: () {
                                               if (_absentCount > 0) {
-                                                setState(() {
+                                                safeSetState(() {
                                                   _absentCount -= 1;
                                                 });
                                               }
                                             },
                                             onIncrement: () {
-                                              setState(() {
+                                              safeSetState(() {
                                                 _absentCount += 1;
                                               });
                                             },

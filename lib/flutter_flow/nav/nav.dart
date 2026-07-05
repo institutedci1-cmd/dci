@@ -108,10 +108,22 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const DailyReportFormWidget(),
         ),
         FFRoute(
+          name: ReportHistoryWidget.routeName,
+          path: ReportHistoryWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const ReportHistoryWidget(),
+        ),
+        FFRoute(
           name: AttendanceTrackerWidget.routeName,
           path: AttendanceTrackerWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const AttendanceTrackerWidget(),
+        ),
+        FFRoute(
+          name: StudentListWidget.routeName,
+          path: StudentListWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const StudentListWidget(),
         ),
         FFRoute(
           name: HomeworkAssignmentWidget.routeName,
@@ -130,6 +142,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: TeacherProfileWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const TeacherProfileWidget(),
+        ),
+        FFRoute(
+          name: EditProfileWidget.routeName,
+          path: EditProfileWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const EditProfileWidget(),
         ),
         FFRoute(
           name: AboutDeshmukhWidget.routeName,

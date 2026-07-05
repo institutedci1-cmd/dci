@@ -106,6 +106,9 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
                               fullWidth: true,
                               loading: false,
                               disabled: false,
+                              onPressed: () async {
+                                context.pushNamed(EditProfileWidget.routeName);
+                              },
                             ),
                           ),
                         ),
@@ -305,6 +308,70 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
                             label: 'Experience',
                             value: userData?['experience'] ??
                                 '12 Years in Competitive Coaching',
+                          ),
+                        ),
+                        Container(
+                          height: 24.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 16.0),
+                          child: Container(
+                            child: Text(
+                              'Settings & Preferences',
+                              style: FlutterFlowTheme.of(context)
+                                  .titleMedium
+                                  .override(
+                                    font: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .titleMedium
+                                          .fontStyle,
+                                    ),
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .titleMedium
+                                        .fontStyle,
+                                    lineHeight: 1.35,
+                                  ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: FlutterFlowTheme.of(context)
+                                .secondaryBackground,
+                            borderRadius: BorderRadius.circular(16.0),
+                            border: Border.all(
+                              color: FlutterFlowTheme.of(context).alternate,
+                            ),
+                          ),
+                          child: SwitchListTile.adaptive(
+                            value: userData?['notifications_enabled'] ?? true,
+                            onChanged: (newValue) async {
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(currentUserUid)
+                                  .update({
+                                'notifications_enabled': newValue,
+                              });
+                            },
+                            title: Text(
+                              'Push Notifications',
+                              style: FlutterFlowTheme.of(context).bodyLarge,
+                            ),
+                            subtitle: Text(
+                              'Receive alerts for new announcements and schedules.',
+                              style: FlutterFlowTheme.of(context).labelSmall,
+                            ),
+                            activeColor: FlutterFlowTheme.of(context).primary,
+                            activeTrackColor:
+                                FlutterFlowTheme.of(context).primary10,
+                            dense: false,
+                            controlAffinity: ListTileControlAffinity.trailing,
                           ),
                         ),
                         Container(

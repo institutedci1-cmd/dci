@@ -4,6 +4,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_dashboard_model.dart';
@@ -90,7 +91,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                       ),
                       child: Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
-                            20.0, 24.0, 20.0, 32.0),
+                            20.0, 48.0, 20.0, 32.0),
                         child: Container(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -141,9 +142,9 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                       ),
                                       Text(
                                         userData?['display_name'] ??
-                                            currentUserDisplayName != ''
-                                            ? currentUserDisplayName
-                                            : 'Prof. Rajesh Deshmukh',
+                                            (currentUserDisplayName != ''
+                                                ? currentUserDisplayName
+                                                : 'Prof. Rajesh Deshmukh'),
                                         style: FlutterFlowTheme.of(context)
                                             .headlineSmall
                                             .override(
@@ -455,9 +456,45 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                                   updateCallback: () =>
                                                       safeSetState(() {}),
                                                   child: DashboardCardWidget(
-                                                    bgColor: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryContainer,
+                                                    bgColor:
+                                                        const Color(0x00000000),
+                                                    icon: Icon(
+                                                      Icons.people_rounded,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .secondary,
+                                                      size: 28.0,
+                                                    ),
+                                                    iconColor:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .secondary,
+                                                    target: 'Students',
+                                                    title: 'Students',
+                                                  ),
+                                                ),
+                                              ),
+                                            ].divide(
+                                                const SizedBox(width: 16.0)),
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Expanded(
+                                                flex: 1,
+                                                child: wrapWithModel(
+                                                  model: createModel(context,
+                                                      () => DashboardCardModel()),
+                                                  updateCallback: () =>
+                                                      safeSetState(() {}),
+                                                  child: DashboardCardWidget(
+                                                    bgColor:
+                                                        const Color(0x00000000),
                                                     icon: Icon(
                                                       Icons.info_rounded,
                                                       color:
@@ -471,11 +508,11 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                                                 context)
                                                             .secondary,
                                                     target: 'AboutDeshmukh',
-                                                    title:
-                                                        'About Deshmukh Institute',
+                                                    title: 'About Institute',
                                                   ),
                                                 ),
                                               ),
+                                              const Spacer(flex: 1),
                                             ].divide(
                                                 const SizedBox(width: 16.0)),
                                           ),
@@ -850,7 +887,6 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
           },
         ),
       ),
-
     );
   }
 }
