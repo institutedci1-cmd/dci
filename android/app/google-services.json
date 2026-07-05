@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "185309718906",
+    "project_id": "d-c-i-teacher-app-lffjyu",
+    "storage_bucket": "d-c-i-teacher-app-lffjyu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185309718906:android:b7183fa10298724e6d8ec3",
+        "android_client_info": {
+          "package_name": "com.dciteacherapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185309718906-63gicrep1c71b79fercl1acvkqkepivp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCknvyWpsKdjc9pkyWJSH_6SYU_bG1WuDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185309718906-63gicrep1c71b79fercl1acvkqkepivp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "185309718906-o293t0njhs9pgef697i7roalfea5c27o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dciteacherapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185309718906:android:a92f4f408e8d8b2e6d8ec3",
+        "android_client_info": {
+          "package_name": "com.dciteacherapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185309718906-4o4dqg9tlqaak4m35glil8bn8qtf10f9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dciteacherapp",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "185309718906-63gicrep1c71b79fercl1acvkqkepivp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCknvyWpsKdjc9pkyWJSH_6SYU_bG1WuDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185309718906-63gicrep1c71b79fercl1acvkqkepivp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "185309718906-o293t0njhs9pgef697i7roalfea5c27o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dciteacherapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
