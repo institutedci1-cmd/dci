@@ -28,13 +28,75 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
 
   final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  int _presentCount = 0;
+  int _absentCount = 0;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => DailyReportFormModel());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      safeSetState(() {});
+      _loadLastReport();
+    });
+  }
+
+  void _clearForm() {
+    setState(() {
+      _presentCount = 0;
+      _absentCount = 0;
+      _model.textFieldModel1.inputTextController?.clear();
+      _model.textFieldModel2.inputTextController?.clear();
+      _model.textFieldModel3.inputTextController?.clear();
+      _model.textFieldModel4.inputTextController?.clear();
+      _model.textFieldModel5.inputTextController?.clear();
+      _model.textFieldModel6.inputTextController?.clear();
+    });
+  }
+
+  Future<void> _loadLastReport() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('daily_reports')
+          .where('createdBy', isEqualTo: user.uid)
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isEmpty) {
+        return;
+      }
+
+      final data = querySnapshot.docs.first.data();
+      final classValue = (data['class'] ?? '').toString();
+      final subjectValue = (data['subject'] ?? '').toString();
+      final chapterValue = (data['chapter'] ?? '').toString();
+      final topicsValue = (data['topics'] ?? '').toString();
+      final homeworkValue = (data['homeworkAssigned'] ?? '').toString();
+      final remarksValue = (data['remarks'] ?? '').toString();
+      final presentValue = int.tryParse(data['presentCount']?.toString() ?? '') ??
+          _presentCount;
+      final absentValue = int.tryParse(data['absentCount']?.toString() ?? '') ??
+          _absentCount;
+
+      setState(() {
+        _presentCount = presentValue;
+        _absentCount = absentValue;
+        _model.textFieldModel1.inputTextController?.text = classValue;
+        _model.textFieldModel2.inputTextController?.text = subjectValue;
+        _model.textFieldModel3.inputTextController?.text = chapterValue;
+        _model.textFieldModel4.inputTextController?.text = topicsValue;
+        _model.textFieldModel5.inputTextController?.text = homeworkValue;
+        _model.textFieldModel6.inputTextController?.text = remarksValue;
+      });
+    } catch (e) {
+      // Ignore load errors and allow the form to continue.
+    }
   }
 
   @override
@@ -155,7 +217,7 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Monday, Oct 23, 2023',
+                                dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
                                 style: FlutterFlowTheme.of(context)
                                     .bodyLarge
                                     .override(
@@ -413,10 +475,22 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                           model: _model.studentCounterModel1,
                                           updateCallback: () =>
                                               safeSetState(() {}),
-                                          child: const StudentCounterWidget(
+                                          child: StudentCounterWidget(
                                             label: 'Present',
                                             subtitle: 'Students in class',
-                                            value: '42',
+                                            value: _presentCount.toString().padLeft(2, '0'),
+                                            onDecrement: () {
+                                              if (_presentCount > 0) {
+                                                setState(() {
+                                                  _presentCount -= 1;
+                                                });
+                                              }
+                                            },
+                                            onIncrement: () {
+                                              setState(() {
+                                                _presentCount += 1;
+                                              });
+                                            },
                                           ),
                                         ),
                                       ),
@@ -426,10 +500,22 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                           model: _model.studentCounterModel2,
                                           updateCallback: () =>
                                               safeSetState(() {}),
-                                          child: const StudentCounterWidget(
+                                          child: StudentCounterWidget(
                                             label: 'Absent',
                                             subtitle: 'Students missing',
-                                            value: '03',
+                                            value: _absentCount.toString().padLeft(2, '0'),
+                                            onDecrement: () {
+                                              if (_absentCount > 0) {
+                                                setState(() {
+                                                  _absentCount -= 1;
+                                                });
+                                              }
+                                            },
+                                            onIncrement: () {
+                                              setState(() {
+                                                _absentCount += 1;
+                                              });
+                                            },
                                           ),
                                         ),
                                       ),
@@ -592,14 +678,44 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                     await FirebaseFirestore.instance
                                         .collection('daily_reports')
                                         .add({
-                                      'class': '10th Grade',
-                                      'subject': 'Mathematics',
-                                      'chapter': 'Chapter 5 - Polynomials',
-                                      'topics': 'Factorization, Identities',
-                                      'presentCount': '42',
-                                      'absentCount': '03',
-                                      'homeworkAssigned': 'Exercise 5.1 and 5.2',
-                                      'remarks': 'Good class participation',
+                                      'class': _model
+                                              .textFieldModel1
+                                              .inputTextController
+                                              ?.text
+                                              .trim() ??
+                                          '',
+                                      'subject': _model
+                                              .textFieldModel2
+                                              .inputTextController
+                                              ?.text
+                                              .trim() ??
+                                          '',
+                                      'chapter': _model
+                                              .textFieldModel3
+                                              .inputTextController
+                                              ?.text
+                                              .trim() ??
+                                          '',
+                                      'topics': _model
+                                              .textFieldModel4
+                                              .inputTextController
+                                              ?.text
+                                              .trim() ??
+                                          '',
+                                      'presentCount': _presentCount,
+                                      'absentCount': _absentCount,
+                                      'homeworkAssigned': _model
+                                              .textFieldModel5
+                                              .inputTextController
+                                              ?.text
+                                              .trim() ??
+                                          '',
+                                      'remarks': _model
+                                              .textFieldModel6
+                                              .inputTextController
+                                              ?.text
+                                              .trim() ??
+                                          '',
                                       'createdBy': FirebaseAuth.instance
                                               .currentUser?.uid ??
                                           '',
@@ -631,19 +747,47 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                               ),
                             ),
                           ),
-                          Container(
-                            width: 56.0,
-                            height: 56.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context).error10,
-                              borderRadius: BorderRadius.circular(16.0),
-                              shape: BoxShape.rectangle,
-                            ),
-                            alignment: const AlignmentDirectional(0.0, 0.0),
-                            child: Icon(
-                              Icons.delete_sweep_rounded,
-                              color: FlutterFlowTheme.of(context).onError,
-                              size: 24.0,
+                          InkWell(
+                            onTap: () async {
+                              final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Clear Form'),
+                                      content: const Text(
+                                          'Are you sure you want to clear all fields?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          child: const Text('Clear'),
+                                        ),
+                                      ],
+                                    ),
+                                  ) ??
+                                  false;
+                              if (confirm) {
+                                _clearForm();
+                              }
+                            },
+                            child: Container(
+                              width: 56.0,
+                              height: 56.0,
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context).error10,
+                                borderRadius: BorderRadius.circular(16.0),
+                                shape: BoxShape.rectangle,
+                              ),
+                              alignment: const AlignmentDirectional(0.0, 0.0),
+                              child: Icon(
+                                Icons.delete_sweep_rounded,
+                                color: FlutterFlowTheme.of(context).onError,
+                                size: 24.0,
+                              ),
                             ),
                           ),
                         ].divide(const SizedBox(width: 16.0)),

@@ -1,3 +1,4 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/components/attendance_option/attendance_option_widget.dart';
 import '/components/button/button_widget.dart';
 import '/components/text_field/text_field_widget.dart';
@@ -180,7 +181,13 @@ class _AttendanceTrackerWidgetState extends State<AttendanceTrackerWidget> {
                                       ),
                                       alignment: const AlignmentDirectional(0.0, 0.0),
                                       child: Text(
-                                        'JD',
+                                        valueOrDefault<String>(
+                                          currentUserDisplayName
+                                              .split(' ')
+                                              .map((e) => e.isNotEmpty ? e[0] : '')
+                                              .join(),
+                                          'JD',
+                                        ),
                                         textAlign: TextAlign.center,
                                         maxLines: 1,
                                         style: FlutterFlowTheme.of(context)
@@ -213,10 +220,10 @@ class _AttendanceTrackerWidgetState extends State<AttendanceTrackerWidget> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Welcome, John Doe',
+                                          'Welcome, ${currentUserDisplayName != '' ? currentUserDisplayName : 'John Doe'}',
                                           style: FlutterFlowTheme.of(context)
                                               .titleMedium
                                               .override(
@@ -289,59 +296,111 @@ class _AttendanceTrackerWidgetState extends State<AttendanceTrackerWidget> {
             ),
             Expanded(
               flex: 1,
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  primary: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Container(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('attendance_records')
+                    .where('createdBy', isEqualTo: currentUserUid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  final records = snapshot.data?.docs ?? [];
+                  final now = DateTime.now();
+                  final firstDayOfMonth = DateTime(now.year, now.month, 1);
+                  final monthlyRecords = records.where((doc) {
+                    final createdAt =
+                        (doc.data() as Map<String, dynamic>)['createdAt']
+                            as Timestamp?;
+                    return createdAt != null &&
+                        createdAt.toDate().isAfter(firstDayOfMonth);
+                  }).toList();
+
+                  final presentCount = monthlyRecords
+                      .where((doc) =>
+                          (doc.data() as Map<String, dynamic>)['status'] ==
+                          'Present')
+                      .length;
+                  final totalDaysInMonth =
+                      DateTime(now.year, now.month + 1, 0).day;
+                  // Assuming 26 working days for progress bar simplicity or just use total records
+                  final workingDays = 26;
+                  final progressPercent = monthlyRecords.isEmpty
+                      ? 0.0
+                      : (presentCount / monthlyRecords.length);
+                  final presentPercentage = monthlyRecords.isEmpty
+                      ? 0
+                      : ((presentCount / monthlyRecords.length) * 100).toInt();
+
+                  return Form(
+                    key: _formKey,
+                    child: SingleChildScrollView(
+                      primary: false,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Container(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      shape: BoxShape.rectangle,
-                                      border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Container(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Date',
-                                              style:
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryBackground,
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                            shape: BoxShape.rectangle,
+                                            border: Border.all(
+                                              color:
                                                   FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .override(
-                                                        font: GoogleFonts.inter(
+                                                      .alternate,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Container(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    'Date',
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .labelSmall
+                                                        .override(
+                                                          font: GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .labelSmall
+                                                                    .fontWeight,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .labelSmall
+                                                                    .fontStyle,
+                                                          ),
+                                                          color:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .secondaryText,
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -352,104 +411,118 @@ class _AttendanceTrackerWidgetState extends State<AttendanceTrackerWidget> {
                                                                       context)
                                                                   .labelSmall
                                                                   .fontStyle,
+                                                          lineHeight: 1.27,
                                                         ),
+                                                  ),
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .calendar_today_rounded,
                                                         color:
                                                             FlutterFlowTheme.of(
                                                                     context)
-                                                                .secondaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontStyle,
-                                                        lineHeight: 1.27,
+                                                                .primary,
+                                                        size: 16.0,
                                                       ),
-                                            ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.calendar_today_rounded,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 16.0,
-                                                ),
-                                                Text(
-                                                  'Oct 24, 2023',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontStyle:
+                                                      Text(
+                                                        dateTimeFormat(
+                                                            'yMMMd',
+                                                            getCurrentTimestamp),
+                                                        style:
                                                             FlutterFlowTheme.of(
                                                                     context)
                                                                 .bodyMedium
-                                                                .fontStyle,
-                                                        lineHeight: 1.47,
+                                                                .override(
+                                                                  font: GoogleFonts
+                                                                      .inter(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontStyle:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                  ),
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontStyle:
+                                                                      FlutterFlowTheme.of(context)
+                                                                          .bodyMedium
+                                                                          .fontStyle,
+                                                                  lineHeight:
+                                                                      1.47,
+                                                                ),
                                                       ),
-                                                ),
-                                              ].divide(const SizedBox(width: 8.0)),
+                                                    ].divide(const SizedBox(
+                                                        width: 8.0)),
+                                                  ),
+                                                ].divide(const SizedBox(
+                                                    height: 4.0)),
+                                              ),
                                             ),
-                                          ].divide(const SizedBox(height: 4.0)),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      shape: BoxShape.rectangle,
-                                      border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Container(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Shift',
-                                              style:
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryBackground,
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                            shape: BoxShape.rectangle,
+                                            border: Border.all(
+                                              color:
                                                   FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .override(
-                                                        font: GoogleFonts.inter(
+                                                      .alternate,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Container(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    'Shift',
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .labelSmall
+                                                        .override(
+                                                          font: GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .labelSmall
+                                                                    .fontWeight,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .labelSmall
+                                                                    .fontStyle,
+                                                          ),
+                                                          color:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .secondaryText,
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -460,232 +533,84 @@ class _AttendanceTrackerWidgetState extends State<AttendanceTrackerWidget> {
                                                                       context)
                                                                   .labelSmall
                                                                   .fontStyle,
+                                                          lineHeight: 1.27,
                                                         ),
+                                                  ),
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.schedule_rounded,
                                                         color:
                                                             FlutterFlowTheme.of(
                                                                     context)
-                                                                .secondaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontStyle,
-                                                        lineHeight: 1.27,
+                                                                .primary,
+                                                        size: 16.0,
                                                       ),
-                                            ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.schedule_rounded,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 16.0,
-                                                ),
-                                                Text(
-                                                  'Morning',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontStyle:
+                                                      Text(
+                                                        'Morning',
+                                                        style:
                                                             FlutterFlowTheme.of(
                                                                     context)
                                                                 .bodyMedium
-                                                                .fontStyle,
-                                                        lineHeight: 1.47,
+                                                                .override(
+                                                                  font: GoogleFonts
+                                                                      .inter(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontStyle:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                  ),
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontStyle:
+                                                                      FlutterFlowTheme.of(context)
+                                                                          .bodyMedium
+                                                                          .fontStyle,
+                                                                  lineHeight:
+                                                                      1.47,
+                                                                ),
                                                       ),
-                                                ),
-                                              ].divide(const SizedBox(width: 8.0)),
+                                                    ].divide(const SizedBox(
+                                                        width: 8.0)),
+                                                  ),
+                                                ].divide(const SizedBox(
+                                                    height: 4.0)),
+                                              ),
                                             ),
-                                          ].divide(const SizedBox(height: 4.0)),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                    ].divide(const SizedBox(width: 16.0)),
                                   ),
-                                ),
-                              ].divide(const SizedBox(width: 16.0)),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Current Status',
-                                  style: FlutterFlowTheme.of(context)
-                                      .titleMedium
-                                      .override(
-                                        font: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleMedium
-                                            .fontStyle,
-                                        lineHeight: 1.35,
-                                      ),
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: wrapWithModel(
-                                        model: _model.attendanceOptionModel1,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: AttendanceOptionWidget(
-                                          icon: Icon(
-                                            Icons.check_circle_rounded,
-                                            color: FlutterFlowTheme.of(context)
-                                                .onPrimary,
-                                            size: 24.0,
-                                          ),
-                                          label: 'Present',
-                                          selected: _attendanceStatus == 'Present',
-                                          onTap: () => setState(() {
-                                            _attendanceStatus = 'Present';
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: wrapWithModel(
-                                        model: _model.attendanceOptionModel2,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: AttendanceOptionWidget(
-                                          icon: Icon(
-                                            Icons.cancel_rounded,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 24.0,
-                                          ),
-                                          label: 'Absent',
-                                          selected: _attendanceStatus == 'Absent',
-                                          onTap: () => setState(() {
-                                            _attendanceStatus = 'Absent';
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                                  ].divide(const SizedBox(width: 16.0)),
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: wrapWithModel(
-                                        model: _model.attendanceOptionModel3,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: AttendanceOptionWidget(
-                                          icon: Icon(
-                                            Icons.event_busy_rounded,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 24.0,
-                                          ),
-                                          label: 'Leave',
-                                          selected: _attendanceStatus == 'Leave',
-                                          onTap: () => setState(() {
-                                            _attendanceStatus = 'Leave';
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: wrapWithModel(
-                                        model: _model.attendanceOptionModel4,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: AttendanceOptionWidget(
-                                          icon: Icon(
-                                            Icons.hourglass_empty_rounded,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 24.0,
-                                          ),
-                                          label: 'Half Day',
-                                          selected: _attendanceStatus == 'Half Day',
-                                          onTap: () => setState(() {
-                                            _attendanceStatus = 'Half Day';
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                                  ].divide(const SizedBox(width: 16.0)),
-                                ),
-                              ].divide(const SizedBox(height: 16.0)),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(16.0),
-                                shape: BoxShape.rectangle,
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).alternate,
-                                  width: 1.0,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(24.0),
-                                child: Container(
-                                  child: Column(
+                                  Column(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Additional Remarks',
+                                        'Current Status',
                                         style: FlutterFlowTheme.of(context)
-                                            .labelLarge
+                                            .titleMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.bold,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
-                                                        .labelLarge
+                                                        .titleMedium
                                                         .fontStyle,
                                               ),
                                               color:
@@ -695,138 +620,10 @@ class _AttendanceTrackerWidgetState extends State<AttendanceTrackerWidget> {
                                               fontWeight: FontWeight.bold,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
-                                                      .labelLarge
+                                                      .titleMedium
                                                       .fontStyle,
-                                              lineHeight: 1.33,
+                                              lineHeight: 1.35,
                                             ),
-                                      ),
-                                      wrapWithModel(
-                                        model: _model.textFieldModel,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: const TextFieldWidget(
-                                          label: '',
-                                          labelPresent: false,
-                                          helper: '',
-                                          helperPresent: false,
-                                          leadingIconPresent: false,
-                                          trailingIconPresent: false,
-                                          hint:
-                                              'Enter any specific reason for leave or half-day...',
-                                          value: '',
-                                          onChange: '',
-                                          onSubmit: '',
-                                          variant: 'outlined',
-                                          error: false,
-                                        ),
-                                      ),
-                                    ].divide(const SizedBox(height: 16.0)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(16.0),
-                                shape: BoxShape.rectangle,
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).alternate,
-                                  width: 1.0,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(24.0),
-                                child: Container(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Monthly Progress',
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontWeight,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryText,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                  lineHeight: 1.47,
-                                                ),
-                                          ),
-                                          Text(
-                                            '22/26 Days',
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                  lineHeight: 1.47,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      LinearPercentIndicator(
-                                        percent: 0.84,
-                                        lineHeight: 8.0,
-                                        animation: true,
-                                        animateFromLastPercent: true,
-                                        progressColor:
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                        backgroundColor:
-                                            FlutterFlowTheme.of(context)
-                                                .alternate,
-                                        barRadius: const Radius.circular(4.0),
-                                        padding: EdgeInsets.zero,
                                       ),
                                       Row(
                                         mainAxisSize: MainAxisSize.max,
@@ -835,234 +632,570 @@ class _AttendanceTrackerWidgetState extends State<AttendanceTrackerWidget> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                width: 8.0,
-                                                height: 8.0,
-                                                decoration: BoxDecoration(
+                                          Expanded(
+                                            flex: 1,
+                                            child: wrapWithModel(
+                                              model: _model
+                                                  .attendanceOptionModel1,
+                                              updateCallback: () =>
+                                                  safeSetState(() {}),
+                                              child: AttendanceOptionWidget(
+                                                icon: Icon(
+                                                  Icons.check_circle_rounded,
                                                   color: FlutterFlowTheme.of(
                                                           context)
-                                                      .success,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          9999.0),
-                                                  shape: BoxShape.rectangle,
+                                                      .onPrimary,
+                                                  size: 24.0,
                                                 ),
+                                                label: 'Present',
+                                                selected: _attendanceStatus ==
+                                                    'Present',
+                                                onTap: () => setState(() {
+                                                  _attendanceStatus = 'Present';
+                                                }),
                                               ),
-                                              Text(
-                                                '84% Present',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .labelSmall
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .labelSmall
-                                                              .fontWeight,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .labelSmall
-                                                              .fontStyle,
-                                                      lineHeight: 1.27,
-                                                    ),
-                                              ),
-                                            ].divide(const SizedBox(width: 4.0)),
+                                            ),
                                           ),
-                                          Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                width: 8.0,
-                                                height: 8.0,
-                                                decoration: BoxDecoration(
+                                          Expanded(
+                                            flex: 1,
+                                            child: wrapWithModel(
+                                              model: _model
+                                                  .attendanceOptionModel2,
+                                              updateCallback: () =>
+                                                  safeSetState(() {}),
+                                              child: AttendanceOptionWidget(
+                                                icon: Icon(
+                                                  Icons.cancel_rounded,
                                                   color: FlutterFlowTheme.of(
                                                           context)
-                                                      .error,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          9999.0),
-                                                  shape: BoxShape.rectangle,
+                                                      .secondaryText,
+                                                  size: 24.0,
                                                 ),
+                                                label: 'Absent',
+                                                selected: _attendanceStatus ==
+                                                    'Absent',
+                                                onTap: () => setState(() {
+                                                  _attendanceStatus = 'Absent';
+                                                }),
                                               ),
-                                              Text(
-                                                '16% Absent/Leave',
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .labelSmall
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .labelSmall
-                                                              .fontWeight,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .labelSmall
-                                                              .fontStyle,
-                                                      lineHeight: 1.27,
-                                                    ),
-                                              ),
-                                            ].divide(const SizedBox(width: 4.0)),
+                                            ),
                                           ),
-                                        ].divide(const SizedBox(width: 24.0)),
+                                        ].divide(const SizedBox(width: 16.0)),
                                       ),
-                                    ].divide(const SizedBox(height: 8.0)),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            flex: 1,
+                                            child: wrapWithModel(
+                                              model: _model
+                                                  .attendanceOptionModel3,
+                                              updateCallback: () =>
+                                                  safeSetState(() {}),
+                                              child: AttendanceOptionWidget(
+                                                icon: Icon(
+                                                  Icons.event_busy_rounded,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  size: 24.0,
+                                                ),
+                                                label: 'Leave',
+                                                selected: _attendanceStatus ==
+                                                    'Leave',
+                                                onTap: () => setState(() {
+                                                  _attendanceStatus = 'Leave';
+                                                }),
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 1,
+                                            child: wrapWithModel(
+                                              model: _model
+                                                  .attendanceOptionModel4,
+                                              updateCallback: () =>
+                                                  safeSetState(() {}),
+                                              child: AttendanceOptionWidget(
+                                                icon: Icon(
+                                                  Icons.hourglass_empty_rounded,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  size: 24.0,
+                                                ),
+                                                label: 'Half Day',
+                                                selected: _attendanceStatus ==
+                                                    'Half Day',
+                                                onTap: () => setState(() {
+                                                  _attendanceStatus =
+                                                      'Half Day';
+                                                }),
+                                              ),
+                                            ),
+                                          ),
+                                        ].divide(const SizedBox(width: 16.0)),
+                                      ),
+                                    ].divide(const SizedBox(height: 16.0)),
                                   ),
-                                ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryBackground,
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      shape: BoxShape.rectangle,
+                                      border: Border.all(
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24.0),
+                                      child: Container(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Text(
+                                              'Additional Remarks',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .labelLarge
+                                                  .override(
+                                                    font: GoogleFonts.inter(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontStyle:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .labelLarge
+                                                              .fontStyle,
+                                                    ),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelLarge
+                                                            .fontStyle,
+                                                    lineHeight: 1.33,
+                                                  ),
+                                            ),
+                                            wrapWithModel(
+                                              model: _model.textFieldModel,
+                                              updateCallback: () =>
+                                                  safeSetState(() {}),
+                                              child: const TextFieldWidget(
+                                                label: '',
+                                                labelPresent: false,
+                                                helper: '',
+                                                helperPresent: false,
+                                                leadingIconPresent: false,
+                                                trailingIconPresent: false,
+                                                hint:
+                                                    'Enter any specific reason for leave or half-day...',
+                                                value: '',
+                                                onChange: '',
+                                                onSubmit: '',
+                                                variant: 'outlined',
+                                                error: false,
+                                              ),
+                                            ),
+                                          ].divide(const SizedBox(height: 16.0)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryBackground,
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      shape: BoxShape.rectangle,
+                                      border: Border.all(
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24.0),
+                                      child: Container(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  'Monthly Progress',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontWeight,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontWeight,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontStyle,
+                                                        lineHeight: 1.47,
+                                                      ),
+                                                ),
+                                                Text(
+                                                  '$presentCount/$workingDays Days',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primary,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .fontStyle,
+                                                        lineHeight: 1.47,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                            LinearPercentIndicator(
+                                              percent: progressPercent > 1.0
+                                                  ? 1.0
+                                                  : progressPercent,
+                                              lineHeight: 8.0,
+                                              animation: true,
+                                              animateFromLastPercent: true,
+                                              progressColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              backgroundColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                              barRadius:
+                                                  const Radius.circular(4.0),
+                                              padding: EdgeInsets.zero,
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .center,
+                                                  children: [
+                                                    Container(
+                                                      width: 8.0,
+                                                      height: 8.0,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .success,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    9999.0),
+                                                        shape:
+                                                            BoxShape.rectangle,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '$presentPercentage% Present',
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .labelSmall
+                                                              .override(
+                                                                font: GoogleFonts
+                                                                    .inter(
+                                                                  fontWeight:
+                                                                      FlutterFlowTheme.of(context)
+                                                                          .labelSmall
+                                                                          .fontWeight,
+                                                                  fontStyle:
+                                                                      FlutterFlowTheme.of(context)
+                                                                          .labelSmall
+                                                                          .fontStyle,
+                                                                ),
+                                                                color:
+                                                                    FlutterFlowTheme.of(context)
+                                                                        .secondaryText,
+                                                                letterSpacing:
+                                                                    0.0,
+                                                                fontWeight:
+                                                                    FlutterFlowTheme.of(context)
+                                                                        .labelSmall
+                                                                        .fontWeight,
+                                                                fontStyle:
+                                                                    FlutterFlowTheme.of(context)
+                                                                        .labelSmall
+                                                                        .fontStyle,
+                                                                lineHeight:
+                                                                    1.27,
+                                                              ),
+                                                    ),
+                                                  ].divide(const SizedBox(
+                                                      width: 4.0)),
+                                                ),
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .center,
+                                                  children: [
+                                                    Container(
+                                                      width: 8.0,
+                                                      height: 8.0,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .error,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    9999.0),
+                                                        shape:
+                                                            BoxShape.rectangle,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '${100 - presentPercentage}% Absent/Leave',
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .labelSmall
+                                                              .override(
+                                                                font: GoogleFonts
+                                                                    .inter(
+                                                                  fontWeight:
+                                                                      FlutterFlowTheme.of(context)
+                                                                          .labelSmall
+                                                                          .fontWeight,
+                                                                  fontStyle:
+                                                                      FlutterFlowTheme.of(context)
+                                                                          .labelSmall
+                                                                          .fontStyle,
+                                                                ),
+                                                                color:
+                                                                    FlutterFlowTheme.of(context)
+                                                                        .secondaryText,
+                                                                letterSpacing:
+                                                                    0.0,
+                                                                fontWeight:
+                                                                    FlutterFlowTheme.of(context)
+                                                                        .labelSmall
+                                                                        .fontWeight,
+                                                                fontStyle:
+                                                                    FlutterFlowTheme.of(context)
+                                                                        .labelSmall
+                                                                        .fontStyle,
+                                                                lineHeight:
+                                                                    1.27,
+                                                              ),
+                                                    ),
+                                                  ].divide(const SizedBox(
+                                                      width: 4.0)),
+                                                ),
+                                              ].divide(const SizedBox(
+                                                  width: 24.0)),
+                                            ),
+                                          ].divide(const SizedBox(height: 8.0)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  wrapWithModel(
+                                    model: _model.buttonModel,
+                                    updateCallback: () => safeSetState(() {}),
+                                    child: ButtonWidget(
+                                      icon: Icon(
+                                        Icons.save_rounded,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        size: 24.0,
+                                      ),
+                                      iconPresent: true,
+                                      iconEndPresent: false,
+                                      content: 'Save Attendance Record',
+                                      variant: 'primary',
+                                      size: 'large',
+                                      fullWidth: true,
+                                      loading: false,
+                                      disabled: false,
+                                      onPressed: () async {
+                                        // Validate user is authenticated
+                                        if (FirebaseAuth.instance.currentUser ==
+                                            null) {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Please sign in to record attendance.'),
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        if (!_formKey.currentState!
+                                            .validate()) {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Please complete all required fields.'),
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        // Validate attendance status is selected
+                                        if (_attendanceStatus.isEmpty) {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Please select an attendance status.'),
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        try {
+                                          await FirebaseFirestore.instance
+                                              .collection('attendance_records')
+                                              .add({
+                                            'status': _attendanceStatus,
+                                            'remarks': _model
+                                                    .textFieldModel
+                                                    .inputTextController
+                                                    ?.text
+                                                    .trim() ??
+                                                '',
+                                            'createdBy': FirebaseAuth
+                                                    .instance
+                                                    .currentUser
+                                                    ?.uid ??
+                                                '',
+                                            'createdByEmail': FirebaseAuth
+                                                    .instance
+                                                    .currentUser
+                                                    ?.email ??
+                                                '',
+                                            'createdAt':
+                                                FieldValue.serverTimestamp(),
+                                          });
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Attendance record saved to Firebase.'),
+                                            ),
+                                          );
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  'Error saving attendance: $e'),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 32.0,
+                                  ),
+                                ].divide(const SizedBox(height: 24.0)),
                               ),
                             ),
-                            wrapWithModel(
-                              model: _model.buttonModel,
-                              updateCallback: () => safeSetState(() {}),
-                              child: ButtonWidget(
-                                icon: Icon(
-                                  Icons.save_rounded,
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  size: 24.0,
-                                ),
-                                iconPresent: true,
-                                iconEndPresent: false,
-                                content: 'Save Attendance Record',
-                                variant: 'primary',
-                                size: 'large',
-                                fullWidth: true,
-                                loading: false,
-                                disabled: false,
-                                onPressed: () async {
-                                  // Validate user is authenticated
-                                  if (FirebaseAuth.instance.currentUser == null) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please sign in to record attendance.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  if (!_formKey.currentState!.validate()) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please complete all required fields.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  // Validate attendance status is selected
-                                  if (_attendanceStatus.isEmpty) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please select an attendance status.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  try {
-                                    await FirebaseFirestore.instance
-                                        .collection('attendance_records')
-                                        .add({
-                                      'status': _attendanceStatus,
-                                      'remarks': _model
-                                              .textFieldModel
-                                              .inputTextController
-                                              ?.text
-                                              .trim() ??
-                                          '',
-                                      'createdBy': FirebaseAuth.instance
-                                              .currentUser?.uid ??
-                                          '',
-                                      'createdByEmail': FirebaseAuth.instance
-                                              .currentUser?.email ??
-                                          '',
-                                      'createdAt': FieldValue.serverTimestamp(),
-                                    });
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Attendance record saved to Firebase.'),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            'Error saving attendance: $e'),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                            Container(
-                              height: 32.0,
-                            ),
-                          ].divide(const SizedBox(height: 24.0)),
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  );
+                },
+              ),
+            ),
                 ),
               ),
             ),

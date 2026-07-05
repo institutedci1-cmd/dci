@@ -1,5 +1,6 @@
 // Export pages
 export '/pages/login/login_widget.dart' show LoginWidget;
+export '/pages/sign_up/sign_up_widget.dart' show SignUpWidget;
 export '/pages/home_dashboard/home_dashboard_widget.dart'
     show HomeDashboardWidget;
 export '/pages/daily_report_form/daily_report_form_widget.dart'

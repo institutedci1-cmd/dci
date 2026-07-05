@@ -3,6 +3,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'announcements_feed_model.dart';
@@ -165,77 +166,114 @@ class _AnnouncementsFeedWidgetState extends State<AnnouncementsFeedWidget> {
             Expanded(
               flex: 1,
               child: Container(
-                child: SingleChildScrollView(
-                  primary: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('announcements')
+                      .orderBy('createdAt', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    final announcements = snapshot.data!.docs;
+                    if (announcements.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No announcements found.',
+                          style: FlutterFlowTheme.of(context).bodyMedium,
+                        ),
+                      );
+                    }
+                    return SingleChildScrollView(
+                      primary: false,
+                      child: Padding(
                         padding: const EdgeInsets.all(24.0),
-                        child: Container(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              wrapWithModel(
-                                model: _model.announcementCardModel1,
-                                updateCallback: () => safeSetState(() {}),
-                                child: const AnnouncementCardWidget(
-                                  category: 'EXAM NOTICE',
-                                  date: '24 Oct 2023',
-                                  description:
-                                      'The final term examination schedule for the Fall 2023 semester has been published. Please check the student portal for specific timings and room assignments.',
-                                  title:
-                                      'Final Term Examination Schedule Released',
-                                ),
-                              ),
-                              wrapWithModel(
-                                model: _model.announcementCardModel2,
-                                updateCallback: () => safeSetState(() {}),
-                                child: const AnnouncementCardWidget(
-                                  category: 'HOLIDAY',
-                                  date: '22 Oct 2023',
-                                  description:
-                                      'The institute will remain closed from Oct 30 to Nov 5 for Diwali festivities. Classes will resume on Nov 6 with the regular schedule.',
-                                  title: 'Diwali Break Announcement',
-                                ),
-                              ),
-                              wrapWithModel(
-                                model: _model.announcementCardModel3,
-                                updateCallback: () => safeSetState(() {}),
-                                child: const AnnouncementCardWidget(
-                                  category: 'EVENT',
-                                  date: '20 Oct 2023',
-                                  description:
-                                      'Join us for a day of athletic excellence and team spirit at the Deshmukh Annual Sports Meet. Participation forms are available at the admin office.',
-                                  title: 'Annual Sports Day 2023',
-                                ),
-                              ),
-                              wrapWithModel(
-                                model: _model.announcementCardModel4,
-                                updateCallback: () => safeSetState(() {}),
-                                child: const AnnouncementCardWidget(
-                                  category: 'ACADEMIC',
-                                  date: '18 Oct 2023',
-                                  description:
-                                      'Starting next Monday, we are launching a specialized batch for Advanced Physics focusing on quantum mechanics and thermodynamics.',
-                                  title: 'New Advanced Physics Batch',
-                                ),
-                              ),
-                              wrapWithModel(
-                                model: _model.announcementCardModel5,
-                                updateCallback: () => safeSetState(() {}),
-                                child: const AnnouncementCardWidget(
-                                  category: 'FACULTY',
-                                  date: '15 Oct 2023',
-                                  description:
-                                      'We are pleased to announce that three new experienced teachers have joined the Deshmukh family this month. Please give them a warm welcome.',
-                                  title: 'Welcome New Faculty Members',
-                                ),
-                              ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: announcements.map((doc) {
+                            final data = doc.data() as Map<String, dynamic>;
+                            return AnnouncementCardWidget(
+                              category: data['category'] ?? 'GENERAL',
+                              date: data['date'] ??
+                                  dateTimeFormat(
+                                      'yMMMd',
+                                      (data['createdAt'] as Timestamp?)
+                                          ?.toDate()),
+                              description: data['description'] ?? '',
+                              title: data['title'] ?? '',
+                              onTap: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(data['title'] ?? 'Notice'),
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            data['category'] ?? 'GENERAL',
+                                            style: FlutterFlowTheme.of(context)
+                                                .labelSmall
+                                                .override(
+                                                  font: GoogleFonts.inter(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            data['description'] ?? '',
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium,
+                                          ),
+                                          if (data['link'] != null) ...[
+                                            const SizedBox(height: 16),
+                                            InkWell(
+                                              onTap: () =>
+                                                  launchURL(data['link']),
+                                              child: Text(
+                                                'View Attachment/Link',
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      font: GoogleFonts.inter(
+                                                        decoration:
+                                                            TextDecoration
+                                                                .underline,
+                                                      ),
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primary,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Close'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          }).toList()
+                            ..add(
                               Container(
                                 child: Padding(
                                   padding: const EdgeInsets.all(24.0),
@@ -296,15 +334,15 @@ class _AnnouncementsFeedWidgetState extends State<AnnouncementsFeedWidget> {
                                   ),
                                 ),
                               ),
-                            ].divide(const SizedBox(height: 16.0)),
-                          ),
+                            ),
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
+
             Container(
               height: 80.0,
               decoration: BoxDecoration(

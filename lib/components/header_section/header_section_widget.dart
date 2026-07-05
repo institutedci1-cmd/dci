@@ -7,7 +7,22 @@ import 'header_section_model.dart';
 export 'header_section_model.dart';
 
 class HeaderSectionWidget extends StatefulWidget {
-  const HeaderSectionWidget({super.key});
+  const HeaderSectionWidget({
+    super.key,
+    String? title,
+    String? subtitle,
+    String? description,
+    this.onBackPressed,
+    this.onHelpPressed,
+  })  : title = title ?? 'Assign Homework',
+        subtitle = subtitle ?? 'Deshmukh Coaching Institute',
+        description = description ?? 'Create and manage student assignments';
+
+  final String title;
+  final String subtitle;
+  final String description;
+  final Future Function()? onBackPressed;
+  final Future Function()? onHelpPressed;
 
   @override
   State<HeaderSectionWidget> createState() => _HeaderSectionWidgetState();
@@ -70,14 +85,18 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
                       color: FlutterFlowTheme.of(context).onPrimary,
                       size: 24.0,
                     ),
-                    onPressed: () {
-                      // print('IconButton pressed ...');
+                    onPressed: () async {
+                      if (widget.onBackPressed != null) {
+                        await widget.onBackPressed!();
+                      } else {
+                        context.safePop();
+                      }
                     },
                   ),
                   Flexible(
                     flex: 1,
                     child: Text(
-                      'Assign Homework',
+                      widget.title,
                       maxLines: 1,
                       style: FlutterFlowTheme.of(context).titleLarge.override(
                             font: GoogleFonts.plusJakartaSans(
@@ -106,8 +125,10 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
                       color: FlutterFlowTheme.of(context).onPrimary,
                       size: 24.0,
                     ),
-                    onPressed: () {
-                      // print('IconButton pressed ...');
+                    onPressed: () async {
+                      if (widget.onHelpPressed != null) {
+                        await widget.onHelpPressed!();
+                      }
                     },
                   ),
                 ],
@@ -118,7 +139,7 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Deshmukh Coaching Institute',
+                    widget.subtitle,
                     style: FlutterFlowTheme.of(context).labelMedium.override(
                           font: GoogleFonts.inter(
                             fontWeight: FlutterFlowTheme.of(context)
@@ -140,7 +161,7 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
                         ),
                   ),
                   Text(
-                    'Create and manage student assignments',
+                    widget.description,
                     style: FlutterFlowTheme.of(context).bodySmall.override(
                           font: GoogleFonts.inter(
                             fontWeight: FlutterFlowTheme.of(context)
@@ -161,6 +182,14 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
                   ),
                 ].divide(const SizedBox(height: 4.0)),
               ),
+            ].divide(const SizedBox(height: 16.0)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
             ].divide(const SizedBox(height: 16.0)),
           ),
         ),

@@ -31,6 +31,8 @@ class HomeworkAssignmentModel
   late TextFieldModel textFieldModel2;
   // Model for FormLabel.
   late FormLabelModel formLabelModel4;
+  // State field(s) for due date.
+  DateTime? dueDate;
   // Model for Button.
   late ButtonModel buttonModel1;
   // Model for Button.

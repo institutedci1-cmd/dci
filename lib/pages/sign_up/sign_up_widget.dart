@@ -7,21 +7,21 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'login_model.dart';
-export 'login_model.dart';
+import 'sign_up_model.dart';
+export 'sign_up_model.dart';
 
-class LoginWidget extends StatefulWidget {
-  const LoginWidget({super.key});
+class SignUpWidget extends StatefulWidget {
+  const SignUpWidget({super.key});
 
-  static String routeName = 'Login';
-  static String routePath = '/login';
+  static String routeName = 'SignUp';
+  static String routePath = '/signUp';
 
   @override
-  State<LoginWidget> createState() => _LoginWidgetState();
+  State<SignUpWidget> createState() => _SignUpWidgetState();
 }
 
-class _LoginWidgetState extends State<LoginWidget> {
-  late LoginModel _model;
+class _SignUpWidgetState extends State<SignUpWidget> {
+  late SignUpModel _model;
 
   final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -29,7 +29,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => LoginModel());
+    _model = createModel(context, () => SignUpModel());
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -97,7 +97,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'Welcome Back',
+                                      'Create Account',
                                       style: FlutterFlowTheme.of(context)
                                           .titleLarge
                                           .override(
@@ -120,7 +120,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                           ),
                                     ),
                                     Text(
-                                      'Sign in to manage your classes',
+                                      'Join Deshmukh Coaching Institute',
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
@@ -179,68 +179,69 @@ class _LoginWidgetState extends State<LoginWidget> {
                                         error: false,
                                       ),
                                     ),
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        wrapWithModel(
-                                          model: _model.textFieldModel2,
-                                          updateCallback: () =>
-                                              safeSetState(() {}),
-                                          child: TextFieldWidget(
-                                            label: 'Password',
-                                            labelPresent: true,
-                                            helper: '',
-                                            helperPresent: false,
-                                            leadingIcon: Icon(
-                                              Icons.lock_outlined,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              size: 24.0,
-                                            ),
-                                            leadingIconPresent: true,
-                                            trailingIcon: Icon(
-                                              Icons.visibility_off_outlined,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              size: 24.0,
-                                            ),
-                                            trailingIconPresent: true,
-                                            hint: 'Enter your password',
-                                            value: '',
-                                            onChange: '',
-                                            onSubmit: '',
-                                            variant: 'outlined',
-                                            error: false,
-                                          ),
+                                    wrapWithModel(
+                                      model: _model.textFieldModel2,
+                                      updateCallback: () => safeSetState(() {}),
+                                      child: TextFieldWidget(
+                                        label: 'Password',
+                                        labelPresent: true,
+                                        helper: '',
+                                        helperPresent: false,
+                                        leadingIcon: Icon(
+                                          Icons.lock_outlined,
+                                          color:
+                                              FlutterFlowTheme.of(context)
+                                                  .primaryText,
+                                          size: 24.0,
                                         ),
-                                        Align(
-                                          alignment:
-                                              const AlignmentDirectional(1.0, 0.0),
-                                          child: Container(
-                                            child: wrapWithModel(
-                                              model: _model.buttonModel1,
-                                              updateCallback: () =>
-                                                  safeSetState(() {}),
-                                              child: const ButtonWidget(
-                                                iconPresent: false,
-                                                iconEndPresent: false,
-                                                content: 'Forgot Password?',
-                                                variant: 'ghost',
-                                                size: 'small',
-                                                fullWidth: false,
-                                                loading: false,
-                                                disabled: false,
-                                              ),
-                                            ),
-                                          ),
+                                        leadingIconPresent: true,
+                                        trailingIcon: Icon(
+                                          Icons.visibility_off_outlined,
+                                          color:
+                                              FlutterFlowTheme.of(context)
+                                                  .primaryText,
+                                          size: 24.0,
                                         ),
-                                      ].divide(const SizedBox(height: 4.0)),
+                                        trailingIconPresent: true,
+                                        hint: 'Enter your password',
+                                        value: '',
+                                        onChange: '',
+                                        onSubmit: '',
+                                        variant: 'outlined',
+                                        error: false,
+                                      ),
+                                    ),
+                                    wrapWithModel(
+                                      model: _model.textFieldModel3,
+                                      updateCallback: () => safeSetState(() {}),
+                                      child: TextFieldWidget(
+                                        label: 'Confirm Password',
+                                        labelPresent: true,
+                                        helper: '',
+                                        helperPresent: false,
+                                        leadingIcon: Icon(
+                                          Icons.lock_reset_outlined,
+                                          color:
+                                              FlutterFlowTheme.of(context)
+                                                  .primaryText,
+                                          size: 24.0,
+                                        ),
+                                        leadingIconPresent: true,
+                                        trailingIcon: Icon(
+                                          Icons.visibility_off_outlined,
+                                          color:
+                                              FlutterFlowTheme.of(context)
+                                                  .primaryText,
+                                          size: 24.0,
+                                        ),
+                                        trailingIconPresent: true,
+                                        hint: 'Confirm your password',
+                                        value: '',
+                                        onChange: '',
+                                        onSubmit: '',
+                                        variant: 'outlined',
+                                        error: false,
+                                      ),
                                     ),
                                   ].divide(const SizedBox(height: 16.0)),
                                 ),
@@ -256,20 +257,11 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       highlightColor: Colors.transparent,
                                       onTap: () async {
                                         if (!_formKey.currentState!.validate()) {
-                                          ScaffoldMessenger.of(context)
-                                              .hideCurrentSnackBar();
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  'Please complete all required fields.'),
-                                            ),
-                                          );
                                           return;
                                         }
 
                                         final user =
-                                            await authManager.signInWithEmail(
+                                            await authManager.createAccountWithEmail(
                                           context,
                                           _model.textFieldModel1
                                               .inputTextController!.text,
@@ -277,18 +269,19 @@ class _LoginWidgetState extends State<LoginWidget> {
                                               .inputTextController!.text,
                                         );
                                         if (user != null && context.mounted) {
+                                          await maybeCreateUser(user);
                                           context.goNamed(
                                               HomeDashboardWidget.routeName);
                                         }
                                       },
                                       child: wrapWithModel(
-                                        model: _model.buttonModel2,
+                                        model: _model.buttonModel1,
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: const ButtonWidget(
                                           iconPresent: false,
                                           iconEndPresent: false,
-                                          content: 'Login to Dashboard',
+                                          content: 'Sign Up',
                                           variant: 'primary',
                                           size: 'large',
                                           fullWidth: true,
@@ -359,7 +352,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       ].divide(const SizedBox(width: 16.0)),
                                     ),
                                     wrapWithModel(
-                                      model: _model.buttonModel3,
+                                      model: _model.buttonModel2,
                                       updateCallback: () => safeSetState(() {}),
                                       child: InkWell(
                                         splashColor: Colors.transparent,
@@ -386,7 +379,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                             size: 24.0,
                                           ),
                                           iconEndPresent: true,
-                                          content: 'Sign in with Google',
+                                          content: 'Sign up with Google',
                                           variant: 'outline',
                                           size: 'medium',
                                           fullWidth: true,
@@ -414,7 +407,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                'Don\'t have an account?',
+                                'Already have an account?',
                                 style: FlutterFlowTheme.of(context)
                                     .bodySmall
                                     .override(
@@ -440,10 +433,10 @@ class _LoginWidgetState extends State<LoginWidget> {
                               ),
                               InkWell(
                                 onTap: () async {
-                                  context.goNamed(SignUpWidget.routeName);
+                                  context.goNamed(LoginWidget.routeName);
                                 },
                                 child: Text(
-                                  'Sign Up',
+                                  'Sign In',
                                   style: FlutterFlowTheme.of(context)
                                       .bodySmall
                                       .override(
@@ -453,8 +446,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                                               .bodySmall
                                               .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
+                                        color:
+                                            FlutterFlowTheme.of(context).primary,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.bold,
                                         fontStyle: FlutterFlowTheme.of(context)

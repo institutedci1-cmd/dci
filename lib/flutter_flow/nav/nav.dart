@@ -91,6 +91,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const LoginWidget(),
         ),
         FFRoute(
+          name: SignUpWidget.routeName,
+          path: SignUpWidget.routePath,
+          builder: (context, params) => const SignUpWidget(),
+        ),
+        FFRoute(
           name: HomeDashboardWidget.routeName,
           path: HomeDashboardWidget.routePath,
           requireAuth: true,

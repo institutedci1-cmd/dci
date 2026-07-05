@@ -64,7 +64,14 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
             wrapWithModel(
               model: _model.headerSectionModel,
               updateCallback: () => safeSetState(() {}),
-              child: const HeaderSectionWidget(),
+              child: HeaderSectionWidget(
+                title: 'Assign Homework',
+                subtitle: 'Deshmukh Coaching Institute',
+                description: 'Create and manage student assignments',
+                onBackPressed: () async {
+                  context.safePop();
+                },
+              ),
             ),
             Expanded(
               child: Container(
@@ -407,7 +414,12 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                                   size: 20.0,
                                                 ),
                                                 Text(
-                                                  'October 30, 2023',
+                                                  _model.dueDate != null
+                                                      ? dateTimeFormat(
+                                                          'yMMMd',
+                                                          _model.dueDate,
+                                                        )
+                                                      : 'Select Due Date',
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .bodyMedium
@@ -464,6 +476,28 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                                 fullWidth: false,
                                                 loading: false,
                                                 disabled: false,
+                                                onPressed: () async {
+                                                  final datePickedDate =
+                                                      await showDatePicker(
+                                                    context: context,
+                                                    initialDate:
+                                                        _model.dueDate ??
+                                                            DateTime.now(),
+                                                    firstDate: DateTime.now(),
+                                                    lastDate: DateTime(2050),
+                                                  );
+
+                                                  if (datePickedDate != null) {
+                                                    safeSetState(() {
+                                                      _model.dueDate =
+                                                          DateTime(
+                                                        datePickedDate.year,
+                                                        datePickedDate.month,
+                                                        datePickedDate.day,
+                                                      );
+                                                    });
+                                                  }
+                                                },
                                               ),
                                             ),
                                           ],
@@ -616,11 +650,16 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                     await FirebaseFirestore.instance
                                         .collection('homework_assignments')
                                         .add({
-                                      'class': '10th Grade',
-                                      'subject': 'English',
-                                      'title': 'Reading Comprehension Assignment',
-                                      'description': 'Read Chapter 3 and answer questions 1-10',
-                                      'dueDate': 'October 30, 2023',
+                                      'class': _model.dropdownValue1,
+                                      'subject': _model.dropdownValue2,
+                                      'title': _model.textFieldModel1
+                                          .inputTextController.text,
+                                      'description': _model.textFieldModel2
+                                          .inputTextController.text,
+                                      'dueDate': _model.dueDate != null
+                                          ? dateTimeFormat(
+                                              'yMMMd', _model.dueDate)
+                                          : 'No Due Date',
                                       'status': 'draft',
                                       'createdBy': FirebaseAuth.instance
                                               .currentUser?.uid ??
@@ -696,15 +735,48 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                     return;
                                   }
 
-                                  ScaffoldMessenger.of(context)
-                                      .hideCurrentSnackBar();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Homework published.'),
-                                    ),
-                                  );
-                                  context.goNamed(
-                                      HomeDashboardWidget.routeName);
+                                  try {
+                                    await FirebaseFirestore.instance
+                                        .collection('homework_assignments')
+                                        .add({
+                                      'class': _model.dropdownValue1,
+                                      'subject': _model.dropdownValue2,
+                                      'title': _model.textFieldModel1
+                                          .inputTextController.text,
+                                      'description': _model.textFieldModel2
+                                          .inputTextController.text,
+                                      'dueDate': _model.dueDate != null
+                                          ? dateTimeFormat(
+                                              'yMMMd', _model.dueDate)
+                                          : 'No Due Date',
+                                      'status': 'published',
+                                      'createdBy': FirebaseAuth.instance
+                                              .currentUser?.uid ??
+                                          '',
+                                      'createdByEmail': FirebaseAuth.instance
+                                              .currentUser?.email ??
+                                          '',
+                                      'createdAt': FieldValue.serverTimestamp(),
+                                    });
+                                    ScaffoldMessenger.of(context)
+                                        .hideCurrentSnackBar();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Homework published.'),
+                                      ),
+                                    );
+                                    context.goNamed(
+                                        HomeDashboardWidget.routeName);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context)
+                                        .hideCurrentSnackBar();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text('Error publishing homework: $e'),
+                                      ),
+                                    );
+                                  }
                                 },
                               ),
                             ),

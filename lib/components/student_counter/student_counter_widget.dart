@@ -12,6 +12,8 @@ class StudentCounterWidget extends StatefulWidget {
     String? label,
     String? subtitle,
     String? value,
+    this.onDecrement,
+    this.onIncrement,
   })  : label = label ?? 'Present',
         subtitle = subtitle ?? 'Students in class',
         value = value ?? '42';
@@ -19,6 +21,8 @@ class StudentCounterWidget extends StatefulWidget {
   final String label;
   final String subtitle;
   final String value;
+  final VoidCallback? onDecrement;
+  final VoidCallback? onIncrement;
 
   @override
   State<StudentCounterWidget> createState() => _StudentCounterWidgetState();
@@ -133,9 +137,7 @@ class _StudentCounterWidgetState extends State<StudentCounterWidget> {
                       color: FlutterFlowTheme.of(context).secondaryText,
                       size: 28.0,
                     ),
-                    onPressed: () {
-                      // print('IconButton pressed ...');
-                    },
+                    onPressed: widget.onDecrement,
                   ),
                   Text(
                     valueOrDefault<String>(
@@ -167,9 +169,7 @@ class _StudentCounterWidgetState extends State<StudentCounterWidget> {
                       color: FlutterFlowTheme.of(context).primary,
                       size: 28.0,
                     ),
-                    onPressed: () {
-                      // print('IconButton pressed ...');
-                    },
+                    onPressed: widget.onIncrement,
                   ),
                 ].divide(const SizedBox(width: 16.0)),
               ),
