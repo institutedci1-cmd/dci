@@ -55,14 +55,14 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
 
   String _routeNameForTarget(String target) {
     final routeName = switch (target) {
-      'DailyReport' => DailyReportFormWidget.routeName,
-      'Attendance' => AttendanceTrackerWidget.routeName,
+      'DailyReport' => ReportsDashboardWidget.routeName,
+      'Attendance' => AttendanceDashboardWidget.routeName,
       'Homework' => HomeworkAssignmentWidget.routeName,
       'TeacherProfile' => TeacherProfileWidget.routeName,
       'Announcements' => AnnouncementsFeedWidget.routeName,
       'AboutDeshmukh' => AboutDeshmukhWidget.routeName,
       'Students' => StudentListWidget.routeName,
-      _ => DailyReportFormWidget.routeName,
+      _ => ReportsDashboardWidget.routeName,
     };
     return routeName;
   }

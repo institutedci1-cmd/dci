@@ -194,7 +194,7 @@ class _AnnouncementsFeedWidgetState extends State<AnnouncementsFeedWidget> {
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: announcements.map((doc) {
+                          children: announcements.map<Widget>((doc) {
                             final data = doc.data() as Map<String, dynamic>;
                             return AnnouncementCardWidget(
                               category: data['category'] ?? 'GENERAL',

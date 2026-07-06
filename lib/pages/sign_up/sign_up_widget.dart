@@ -173,8 +173,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                         trailingIconPresent: false,
                                         hint: 'teacher@deshmukhcoaching.com',
                                         value: '',
-                                        onChange: '',
-                                        onSubmit: '',
                                         variant: 'outlined',
                                         error: false,
                                       ),
@@ -205,8 +203,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                         trailingIconPresent: true,
                                         hint: 'Enter your password',
                                         value: '',
-                                        onChange: '',
-                                        onSubmit: '',
                                         variant: 'outlined',
                                         error: false,
                                       ),
@@ -237,8 +233,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                         trailingIconPresent: true,
                                         hint: 'Confirm your password',
                                         value: '',
-                                        onChange: '',
-                                        onSubmit: '',
                                         variant: 'outlined',
                                         error: false,
                                       ),
@@ -401,6 +395,65 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Need help?',
+                                style: FlutterFlowTheme.of(context)
+                                    .bodySmall
+                                    .override(
+                                      font: GoogleFonts.inter(
+                                        fontWeight: FlutterFlowTheme.of(context)
+                                            .bodySmall
+                                            .fontWeight,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodySmall
+                                            .fontStyle,
+                                      ),
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryText,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FlutterFlowTheme.of(context)
+                                          .bodySmall
+                                          .fontWeight,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodySmall
+                                          .fontStyle,
+                                      lineHeight: 1.38,
+                                    ),
+                              ),
+                              InkWell(
+                                onTap: () async {
+                                  await launchURL(
+                                      'mailto:admin@deshmukhcoaching.com');
+                                },
+                                child: Text(
+                                  'Contact Admin',
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodySmall
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FlutterFlowTheme.of(context)
+                                              .bodySmall
+                                              .fontStyle,
+                                        ),
+                                        color: FlutterFlowTheme.of(context)
+                                            .primary,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodySmall
+                                            .fontStyle,
+                                        lineHeight: 1.38,
+                                      ),
+                                ),
+                              ),
+                            ].divide(const SizedBox(width: 4.0)),
+                          ),
                           Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,

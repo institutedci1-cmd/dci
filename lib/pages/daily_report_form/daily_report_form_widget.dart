@@ -1,10 +1,14 @@
+import '/backend/repositories/daily_report_repository.dart';
 import '/components/button/button_widget.dart';
 import '/components/form_section_header/form_section_header_widget.dart';
+import '/components/header_section/header_section_widget.dart';
 import '/components/student_counter/student_counter_widget.dart';
 import '/components/text_field/text_field_widget.dart';
+import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/form_field_controller.dart';
 import '/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,6 +29,7 @@ class DailyReportFormWidget extends StatefulWidget {
 
 class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
   late DailyReportFormModel _model;
+  final DailyReportRepository _repository = DailyReportRepository();
 
   final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -43,11 +48,15 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
   }
 
   void _clearForm() {
-    setState(() {
+    safeSetState(() {
       _presentCount = 0;
       _absentCount = 0;
-      _model.textFieldModel1.inputTextController?.clear();
-      _model.textFieldModel2.inputTextController?.clear();
+      _model.dropdownValue1 = null;
+      _model.dropdownValueController1?.reset();
+      _model.dropdownValue2 = null;
+      _model.dropdownValueController2?.reset();
+      _model.dropdownValue3 = null;
+      _model.dropdownValueController3?.reset();
       _model.textFieldModel3.inputTextController?.clear();
       _model.textFieldModel4.inputTextController?.clear();
       _model.textFieldModel5.inputTextController?.clear();
@@ -56,39 +65,32 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
   }
 
   Future<void> _loadLastReport() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-
     try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('daily_reports')
-          .where('createdBy', isEqualTo: user.uid)
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .get();
-      if (querySnapshot.docs.isEmpty) {
-        return;
-      }
+      final data = await _repository.getLastReport();
+      if (data == null) return;
 
-      final data = querySnapshot.docs.first.data();
       final classValue = (data['class'] ?? '').toString();
       final subjectValue = (data['subject'] ?? '').toString();
+      final teacherValue = (data['teacher'] ?? '').toString();
       final chapterValue = (data['chapter'] ?? '').toString();
       final topicsValue = (data['topics'] ?? '').toString();
       final homeworkValue = (data['homeworkAssigned'] ?? '').toString();
       final remarksValue = (data['remarks'] ?? '').toString();
-      final presentValue = int.tryParse(data['presentCount']?.toString() ?? '') ??
-          _presentCount;
-      final absentValue = int.tryParse(data['absentCount']?.toString() ?? '') ??
-          _absentCount;
+      final presentValue =
+          int.tryParse(data['presentCount']?.toString() ?? '') ?? _presentCount;
+      final absentValue =
+          int.tryParse(data['absentCount']?.toString() ?? '') ?? _absentCount;
 
-      setState(() {
+      if (!mounted) return;
+      safeSetState(() {
         _presentCount = presentValue;
         _absentCount = absentValue;
-        _model.textFieldModel1.inputTextController?.text = classValue;
-        _model.textFieldModel2.inputTextController?.text = subjectValue;
+        _model.dropdownValue1 = classValue;
+        _model.dropdownValueController1?.value = classValue;
+        _model.dropdownValue2 = subjectValue;
+        _model.dropdownValueController2?.value = subjectValue;
+        _model.dropdownValue3 = teacherValue;
+        _model.dropdownValueController3?.value = teacherValue;
         _model.textFieldModel3.inputTextController?.text = chapterValue;
         _model.textFieldModel4.inputTextController?.text = topicsValue;
         _model.textFieldModel5.inputTextController?.text = homeworkValue;
@@ -127,9 +129,8 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
               child: HeaderSectionWidget(
                 title: 'Daily Report',
                 subtitle: dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
-                description: 'Deshmukh Coaching Institute',
                 onBackPressed: () async =>
-                    context.goNamed(HomeDashboardWidget.routeName),
+                    context.goNamed(ReportsDashboardWidget.routeName),
                 actionIcon: Icon(
                   Icons.history_rounded,
                   color: FlutterFlowTheme.of(context).onPrimary,
@@ -184,63 +185,211 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                     children: [
                                       Expanded(
                                         flex: 1,
-                                        child: wrapWithModel(
-                                          model: _model.textFieldModel1,
-                                          updateCallback: () =>
-                                              safeSetState(() {}),
-                                          child: TextFieldWidget(
-                                            label: 'Class',
-                                            labelPresent: true,
-                                            helper: '',
-                                            helperPresent: false,
-                                            leadingIcon: Icon(
-                                              Icons.class_rounded,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              size: 24.0,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Text(
+                                              'Class',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .labelMedium,
                                             ),
-                                            leadingIconPresent: true,
-                                            trailingIconPresent: false,
-                                            hint: 'e.g. 10th A',
-                                            value: '',
-                                            onChange: '',
-                                            onSubmit: '',
-                                            variant: 'outlined',
-                                            error: false,
-                                          ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                      0.0, 8.0, 0.0, 0.0),
+                                              child: FlutterFlowDropDown<
+                                                  String>(
+                                                controller: _model
+                                                        .dropdownValueController1 ??=
+                                                    FormFieldController<
+                                                        String>(
+                                                  _model.dropdownValue1 ??=
+                                                      'Class 10',
+                                                ),
+                                                options: const [
+                                                  'Class 4',
+                                                  'Class 5',
+                                                  'Class 6',
+                                                  'Class 7',
+                                                  'Class 8',
+                                                  'Class 9',
+                                                  'Class 10'
+                                                ],
+                                                onChanged: (val) =>
+                                                    safeSetState(() => _model
+                                                        .dropdownValue1 = val),
+                                                width: 200.0,
+                                                height: 40.0,
+                                                textStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium,
+                                                hintText: 'Select Class',
+                                                icon: Icon(
+                                                  Icons
+                                                      .arrow_drop_down_rounded,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  size: 24.0,
+                                                ),
+                                                fillColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondaryBackground,
+                                                elevation: 2.0,
+                                                borderColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .alternate,
+                                                borderWidth: 1.0,
+                                                borderRadius: 12.0,
+                                                margin:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        16.0, 0.0, 16.0, 0.0),
+                                                hidesUnderline: true,
+                                                isOverButton: false,
+                                                isSearchable: false,
+                                                isMultiSelect: false,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       Expanded(
                                         flex: 1,
-                                        child: wrapWithModel(
-                                          model: _model.textFieldModel2,
-                                          updateCallback: () =>
-                                              safeSetState(() {}),
-                                          child: TextFieldWidget(
-                                            label: 'Subject',
-                                            labelPresent: true,
-                                            helper: '',
-                                            helperPresent: false,
-                                            leadingIcon: Icon(
-                                              Icons.menu_book_rounded,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              size: 24.0,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Text(
+                                              'Subject',
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .labelMedium,
                                             ),
-                                            leadingIconPresent: true,
-                                            trailingIconPresent: false,
-                                            hint: 'e.g. Mathematics',
-                                            value: '',
-                                            onChange: '',
-                                            onSubmit: '',
-                                            variant: 'outlined',
-                                            error: false,
-                                          ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                      0.0, 8.0, 0.0, 0.0),
+                                              child: FlutterFlowDropDown<
+                                                  String>(
+                                                controller: _model
+                                                        .dropdownValueController2 ??=
+                                                    FormFieldController<
+                                                        String>(
+                                                  _model.dropdownValue2 ??=
+                                                      'English',
+                                                ),
+                                                options: const [
+                                                  'English',
+                                                  'Marathi',
+                                                  'Science',
+                                                  'Math'
+                                                ],
+                                                onChanged: (val) =>
+                                                    safeSetState(() => _model
+                                                        .dropdownValue2 = val),
+                                                width: 200.0,
+                                                height: 40.0,
+                                                textStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium,
+                                                hintText: 'Select Subject',
+                                                icon: Icon(
+                                                  Icons.menu_book_rounded,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  size: 24.0,
+                                                ),
+                                                fillColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondaryBackground,
+                                                elevation: 2.0,
+                                                borderColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .alternate,
+                                                borderWidth: 1.0,
+                                                borderRadius: 12.0,
+                                                margin:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        16.0, 0.0, 16.0, 0.0),
+                                                hidesUnderline: true,
+                                                isOverButton: false,
+                                                isSearchable: false,
+                                                isMultiSelect: false,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ].divide(const SizedBox(width: 16.0)),
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        'Teacher',
+                                        style: FlutterFlowTheme.of(context)
+                                            .labelMedium,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(0.0, 8.0, 0.0, 0.0),
+                                        child: FlutterFlowDropDown<String>(
+                                          controller: _model
+                                                  .dropdownValueController3 ??=
+                                              FormFieldController<String>(
+                                            _model.dropdownValue3 ??=
+                                                'Ikram Sir',
+                                          ),
+                                          options: const [
+                                            'Ikram Sir',
+                                            'Irfan Sir',
+                                            'Seema Madam',
+                                            'Suraj Sir'
+                                          ],
+                                          onChanged: (val) => safeSetState(
+                                              () => _model.dropdownValue3 =
+                                                  val),
+                                          width: double.infinity,
+                                          height: 40.0,
+                                          textStyle: FlutterFlowTheme.of(
+                                                  context)
+                                              .bodyMedium,
+                                          hintText: 'Select Teacher',
+                                          icon: Icon(
+                                            Icons.person_rounded,
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryText,
+                                            size: 24.0,
+                                          ),
+                                          fillColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .secondaryBackground,
+                                          elevation: 2.0,
+                                          borderColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .alternate,
+                                          borderWidth: 1.0,
+                                          borderRadius: 12.0,
+                                          margin: const EdgeInsetsDirectional
+                                              .fromSTEB(16.0, 0.0, 16.0, 0.0),
+                                          hidesUnderline: true,
+                                          isOverButton: false,
+                                          isSearchable: false,
+                                          isMultiSelect: false,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   wrapWithModel(
                                     model: _model.textFieldModel3,
@@ -260,8 +409,6 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                       trailingIconPresent: false,
                                       hint: 'Enter chapter name',
                                       value: '',
-                                      onChange: '',
-                                      onSubmit: '',
                                       variant: 'outlined',
                                       error: false,
                                     ),
@@ -305,8 +452,6 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                       hint:
                                           'List the specific topics taught today...',
                                       value: '',
-                                      onChange: '',
-                                      onSubmit: '',
                                       variant: 'outlined',
                                       error: false,
                                     ),
@@ -427,8 +572,6 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                       trailingIconPresent: false,
                                       hint: 'Describe the homework...',
                                       value: '',
-                                      onChange: '',
-                                      onSubmit: '',
                                       variant: 'outlined',
                                       error: false,
                                     ),
@@ -451,8 +594,6 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                       trailingIconPresent: false,
                                       hint: 'Any other observations...',
                                       value: '',
-                                      onChange: '',
-                                      onSubmit: '',
                                       variant: 'outlined',
                                       error: false,
                                     ),
@@ -543,55 +684,39 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                   }
 
                                   try {
-                                    await FirebaseFirestore.instance
-                                        .collection('daily_reports')
-                                        .add({
-                                      'class': _model
-                                              .textFieldModel1
-                                              .inputTextController
-                                              ?.text
-                                              .trim() ??
-                                          '',
-                                      'subject': _model
-                                              .textFieldModel2
-                                              .inputTextController
-                                              ?.text
-                                              .trim() ??
-                                          '',
-                                      'chapter': _model
+                                    await _repository.submitReport(
+                                      className: _model.dropdownValue1 ?? '',
+                                      subject: _model.dropdownValue2 ?? '',
+                                      teacher: _model.dropdownValue3 ?? '',
+                                      chapter: _model
                                               .textFieldModel3
                                               .inputTextController
                                               ?.text
                                               .trim() ??
                                           '',
-                                      'topics': _model
+                                      topics: _model
                                               .textFieldModel4
                                               .inputTextController
                                               ?.text
                                               .trim() ??
                                           '',
-                                      'presentCount': _presentCount,
-                                      'absentCount': _absentCount,
-                                      'homeworkAssigned': _model
+                                      presentCount: _presentCount,
+                                      absentCount: _absentCount,
+                                      homeworkAssigned: _model
                                               .textFieldModel5
                                               .inputTextController
                                               ?.text
                                               .trim() ??
                                           '',
-                                      'remarks': _model
+                                      remarks: _model
                                               .textFieldModel6
                                               .inputTextController
                                               ?.text
                                               .trim() ??
                                           '',
-                                      'createdBy': FirebaseAuth.instance
-                                              .currentUser?.uid ??
-                                          '',
-                                      'createdByEmail': FirebaseAuth.instance
-                                              .currentUser?.email ??
-                                          '',
-                                      'createdAt': FieldValue.serverTimestamp(),
-                                    });
+                                    );
+
+                                    if (!mounted) return;
                                     ScaffoldMessenger.of(context)
                                         .hideCurrentSnackBar();
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -603,6 +728,7 @@ class _DailyReportFormWidgetState extends State<DailyReportFormWidget> {
                                     context.goNamed(
                                         HomeDashboardWidget.routeName);
                                   } catch (e) {
+                                    if (!mounted) return;
                                     ScaffoldMessenger.of(context)
                                         .hideCurrentSnackBar();
                                     ScaffoldMessenger.of(context).showSnackBar(

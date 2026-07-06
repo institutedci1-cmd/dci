@@ -2,8 +2,10 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'report_history_model.dart';
 export 'report_history_model.dart';
 
@@ -47,7 +49,7 @@ class _ReportHistoryWidgetState extends State<ReportHistoryWidget> {
               title: 'Report History',
               subtitle: 'Your submitted daily reports',
               description: 'Review and track your previous class activity.',
-              onBackPressed: () async => context.safePop(),
+              onBackPressed: () async => context.goNamed(ReportsDashboardWidget.routeName),
             ),
           ),
           Expanded(
@@ -99,6 +101,9 @@ class _ReportHistoryWidgetState extends State<ReportHistoryWidget> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Topic: ${report['chapter']}'),
+                            if (report['teacher'] != null)
+                              Text('Teacher: ${report['teacher']}',
+                                  style: FlutterFlowTheme.of(context).bodySmall),
                             Text(
                               dateTimeFormat('yMMMd', date),
                               style: FlutterFlowTheme.of(context).labelSmall,

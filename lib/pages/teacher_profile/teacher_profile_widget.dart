@@ -4,6 +4,7 @@ import '/components/profile_header/profile_header_widget.dart';
 import '/components/profile_info_tile/profile_info_tile_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -464,6 +465,52 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
                                 ].divide(const SizedBox(width: 16.0)),
                               ),
                             ),
+                          ),
+                        ),
+                        Container(
+                          height: 24.0,
+                        ),
+                        wrapWithModel(
+                          model: createModel(context, () => ButtonModel()),
+                          updateCallback: () => safeSetState(() {}),
+                          child: ButtonWidget(
+                            icon: Icon(
+                              Icons.logout_rounded,
+                              color: FlutterFlowTheme.of(context).onError,
+                              size: 24.0,
+                            ),
+                            iconPresent: true,
+                            content: 'Logout',
+                            variant: 'outline',
+                            size: 'large',
+                            fullWidth: true,
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Logout'),
+                                      content: const Text(
+                                          'Are you sure you want to log out?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          child: const Text('Logout'),
+                                        ),
+                                      ],
+                                    ),
+                                  ) ??
+                                  false;
+                              if (confirm) {
+                                await authManager.signOut();
+                                context.goNamed(LoginWidget.routeName);
+                              }
+                            },
                           ),
                         ),
                       ],

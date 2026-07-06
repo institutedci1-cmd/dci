@@ -1,3 +1,4 @@
+import '/backend/repositories/homework_repository.dart';
 import '/components/button/button_widget.dart';
 import '/components/form_label/form_label_widget.dart';
 import '/components/header_section/header_section_widget.dart';
@@ -27,6 +28,7 @@ class HomeworkAssignmentWidget extends StatefulWidget {
 
 class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
   late HomeworkAssignmentModel _model;
+  final HomeworkRepository _repository = HomeworkRepository();
 
   final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -66,10 +68,16 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
               updateCallback: () => safeSetState(() {}),
               child: HeaderSectionWidget(
                 title: 'Assign Homework',
-                subtitle: 'Deshmukh Coaching Institute',
-                description: 'Create and manage student assignments',
                 onBackPressed: () async {
                   context.safePop();
+                },
+                actionIcon: Icon(
+                  Icons.history_rounded,
+                  color: FlutterFlowTheme.of(context).onPrimary,
+                  size: 24.0,
+                ),
+                onActionPressed: () async {
+                  context.pushNamed(HomeworkHistoryWidget.routeName);
                 },
               ),
             ),
@@ -88,220 +96,239 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                           padding: const EdgeInsets.all(24.0),
                           child: Container(
                             child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      wrapWithModel(
-                                        model: _model.formLabelModel1,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: const FormLabelWidget(
-                                          label: 'Select Class',
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: FlutterFlowDropDown<String>(
-                                          controller: _model
-                                                  .dropdownValueController1 ??=
-                                              FormFieldController<String>(
-                                            _model.dropdownValue1 ??=
-                                                'Class 10',
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        wrapWithModel(
+                                          model: _model.formLabelModel1,
+                                          updateCallback: () =>
+                                              safeSetState(() {}),
+                                          child: const FormLabelWidget(
+                                            label: 'Select Class',
                                           ),
-                                          options: const [
-                                            'Class 10',
-                                            'Class 11',
-                                            'Class 12',
-                                            'JEE Prep',
-                                            'NEET Prep'
-                                          ],
-                                          onChanged: (val) => safeSetState(() =>
-                                              _model.dropdownValue1 = val),
-                                          width: 200.0,
-                                          height: 40.0,
-                                          textStyle: FlutterFlowTheme.of(
-                                                  context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                                lineHeight: 1.47,
-                                              ),
-                                          hintText: 'Choose a class',
-                                          icon: Icon(
-                                            Icons.arrow_drop_down_rounded,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 24.0,
-                                          ),
-                                          fillColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
-                                          elevation: 2.0,
-                                          borderColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .alternate,
-                                          borderWidth: 1.0,
-                                          borderRadius: 12.0,
-                                          margin:
-                                              const EdgeInsetsDirectional.fromSTEB(
-                                                  16.0, 0.0, 16.0, 0.0),
-                                          hidesUnderline: true,
-                                          isOverButton: false,
-                                          isSearchable: false,
-                                          isMultiSelect: false,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      wrapWithModel(
-                                        model: _model.formLabelModel2,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: const FormLabelWidget(
-                                          label: 'Subject',
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: FlutterFlowDropDown<String>(
-                                          controller: _model
-                                                  .dropdownValueController2 ??=
-                                              FormFieldController<String>(
-                                            _model.dropdownValue2 ??=
-                                                'Mathematics',
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: FlutterFlowDropDown<String>(
+                                            controller: _model
+                                                    .dropdownValueController1 ??=
+                                                FormFieldController<String>(
+                                              _model.dropdownValue1 ??=
+                                                  'Class 10',
+                                            ),
+                                            options: const [
+                                              'Class 4',
+                                              'Class 5',
+                                              'Class 6',
+                                              'Class 7',
+                                              'Class 8',
+                                              'Class 9',
+                                              'Class 10'
+                                            ],
+                                            onChanged: (val) => safeSetState(
+                                                () => _model.dropdownValue1 =
+                                                    val),
+                                            width: 200.0,
+                                            height: 40.0,
+                                            textStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMedium,
+                                            hintText: 'Choose a class',
+                                            icon: Icon(
+                                              Icons.arrow_drop_down_rounded,
+                                              color: FlutterFlowTheme.of(context)
+                                                  .secondaryText,
+                                              size: 24.0,
+                                            ),
+                                            fillColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .secondaryBackground,
+                                            elevation: 2.0,
+                                            borderColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .alternate,
+                                            borderWidth: 1.0,
+                                            borderRadius: 12.0,
+                                            margin: const EdgeInsetsDirectional
+                                                .fromSTEB(16.0, 0.0, 16.0, 0.0),
+                                            hidesUnderline: true,
+                                            isOverButton: false,
+                                            isSearchable: false,
+                                            isMultiSelect: false,
                                           ),
-                                          options: const [
-                                            'Mathematics',
-                                            'Physics',
-                                            'Chemistry',
-                                            'English',
-                                            'Biology'
-                                          ],
-                                          onChanged: (val) => safeSetState(() =>
-                                              _model.dropdownValue2 = val),
-                                          width: 200.0,
-                                          height: 40.0,
-                                          textStyle: FlutterFlowTheme.of(
-                                                  context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                                lineHeight: 1.47,
-                                              ),
-                                          hintText: 'Choose a subject',
-                                          icon: Icon(
-                                            Icons.menu_book_rounded,
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            size: 24.0,
-                                          ),
-                                          fillColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
-                                          elevation: 2.0,
-                                          borderColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .alternate,
-                                          borderWidth: 1.0,
-                                          borderRadius: 12.0,
-                                          margin:
-                                              const EdgeInsetsDirectional.fromSTEB(
-                                                  16.0, 0.0, 16.0, 0.0),
-                                          hidesUnderline: true,
-                                          isOverButton: false,
-                                          isSearchable: false,
-                                          isMultiSelect: false,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ].divide(const SizedBox(height: 16.0)),
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  wrapWithModel(
-                                    model: _model.formLabelModel3,
-                                    updateCallback: () => safeSetState(() {}),
-                                    child: const FormLabelWidget(
-                                      label: 'Assignment Details',
+                                      ],
                                     ),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(16.0),
-                                      shape: BoxShape.rectangle,
-                                      border: Border.all(
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        wrapWithModel(
+                                          model: _model.formLabelModel2,
+                                          updateCallback: () =>
+                                              safeSetState(() {}),
+                                          child: const FormLabelWidget(
+                                            label: 'Subject',
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: FlutterFlowDropDown<String>(
+                                            controller: _model
+                                                    .dropdownValueController2 ??=
+                                                FormFieldController<String>(
+                                              _model.dropdownValue2 ??=
+                                                  'English',
+                                            ),
+                                            options: const [
+                                              'English',
+                                              'Marathi',
+                                              'Science',
+                                              'Math'
+                                            ],
+                                            onChanged: (val) => safeSetState(
+                                                () => _model.dropdownValue2 =
+                                                    val),
+                                            width: 200.0,
+                                            height: 40.0,
+                                            textStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMedium,
+                                            hintText: 'Choose a subject',
+                                            icon: Icon(
+                                              Icons.menu_book_rounded,
+                                              color: FlutterFlowTheme.of(context)
+                                                  .secondaryText,
+                                              size: 24.0,
+                                            ),
+                                            fillColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .secondaryBackground,
+                                            elevation: 2.0,
+                                            borderColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .alternate,
+                                            borderWidth: 1.0,
+                                            borderRadius: 12.0,
+                                            margin: const EdgeInsetsDirectional
+                                                .fromSTEB(16.0, 0.0, 16.0, 0.0),
+                                            hidesUnderline: true,
+                                            isOverButton: false,
+                                            isSearchable: false,
+                                            isMultiSelect: false,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        wrapWithModel(
+                                          model: createModel(
+                                              context, () => FormLabelModel()),
+                                          updateCallback: () =>
+                                              safeSetState(() {}),
+                                          child: const FormLabelWidget(
+                                            label: 'Assigned By (Teacher)',
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: FlutterFlowDropDown<String>(
+                                            controller: _model
+                                                    .dropdownValueController3 ??=
+                                                FormFieldController<String>(
+                                              _model.dropdownValue3 ??=
+                                                  'Ikram Sir',
+                                            ),
+                                            options: const [
+                                              'Ikram Sir',
+                                              'Irfan Sir',
+                                              'Seema Madam',
+                                              'Suraj Sir'
+                                            ],
+                                            onChanged: (val) => safeSetState(
+                                                () => _model.dropdownValue3 =
+                                                    val),
+                                            width: 200.0,
+                                            height: 40.0,
+                                            textStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMedium,
+                                            hintText: 'Choose a teacher',
+                                            icon: Icon(
+                                              Icons.person_rounded,
+                                              color: FlutterFlowTheme.of(context)
+                                                  .secondaryText,
+                                              size: 24.0,
+                                            ),
+                                            fillColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .secondaryBackground,
+                                            elevation: 2.0,
+                                            borderColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .alternate,
+                                            borderWidth: 1.0,
+                                            borderRadius: 12.0,
+                                            margin: const EdgeInsetsDirectional
+                                                .fromSTEB(16.0, 0.0, 16.0, 0.0),
+                                            hidesUnderline: true,
+                                            isOverButton: false,
+                                            isSearchable: false,
+                                            isMultiSelect: false,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ].divide(const SizedBox(height: 16.0)),
+                                ),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    wrapWithModel(
+                                      model: _model.formLabelModel3,
+                                      updateCallback: () => safeSetState(() {}),
+                                      child: const FormLabelWidget(
+                                        label: 'Assignment Details',
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
                                         color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        width: 1.0,
+                                            .secondaryBackground,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                        shape: BoxShape.rectangle,
+                                        border: Border.all(
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                          width: 1.0,
+                                        ),
                                       ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           mainAxisAlignment:
@@ -323,8 +350,6 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                                 hint:
                                                     'e.g. Quadratic Equations Practice',
                                                 value: '',
-                                                onChange: '',
-                                                onSubmit: '',
                                                 variant: 'ghost',
                                                 error: false,
                                               ),
@@ -352,8 +377,6 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                                 hint:
                                                     'Describe the tasks or questions...',
                                                 value: '',
-                                                onChange: '',
-                                                onSubmit: '',
                                                 variant: 'ghost',
                                                 error: false,
                                               ),
@@ -362,36 +385,35 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ].divide(const SizedBox(height: 16.0)),
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  wrapWithModel(
-                                    model: _model.formLabelModel4,
-                                    updateCallback: () => safeSetState(() {}),
-                                    child: const FormLabelWidget(
-                                      label: 'Due Date',
-                                    ),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(16.0),
-                                      shape: BoxShape.rectangle,
-                                      border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        width: 1.0,
+                                  ].divide(const SizedBox(height: 16.0)),
+                                ),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    wrapWithModel(
+                                      model: _model.formLabelModel4,
+                                      updateCallback: () => safeSetState(() {}),
+                                      child: const FormLabelWidget(
+                                        label: 'Due Date',
                                       ),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Container(
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryBackground,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                        shape: BoxShape.rectangle,
+                                        border: Border.all(
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.max,
                                           mainAxisAlignment:
@@ -422,37 +444,7 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                                       : 'Select Due Date',
                                                   style: FlutterFlowTheme.of(
                                                           context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                        lineHeight: 1.47,
-                                                      ),
+                                                      .bodyMedium,
                                                 ),
                                               ].divide(const SizedBox(width: 16.0)),
                                             ),
@@ -504,21 +496,19 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ].divide(const SizedBox(height: 16.0)),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  shape: BoxShape.rectangle,
-                                  border: Border.all(
-                                    color: FlutterFlowTheme.of(context).info,
-                                    width: 1.0,
-                                  ),
+                                  ].divide(const SizedBox(height: 16.0)),
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(24.0),
-                                  child: Container(
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    shape: BoxShape.rectangle,
+                                    border: Border.all(
+                                      color: FlutterFlowTheme.of(context).info,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(24.0),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
@@ -535,54 +525,24 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                                           child: Text(
                                             'This assignment will be visible to all students in the selected class immediately after submission.',
                                             style: FlutterFlowTheme.of(context)
-                                                .bodySmall
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodySmall
-                                                            .fontWeight,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodySmall
-                                                            .fontStyle,
-                                                  ),
-                                                  letterSpacing: 0.0,
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodySmall
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodySmall
-                                                          .fontStyle,
-                                                  lineHeight: 1.38,
-                                                ),
+                                                .bodySmall,
                                           ),
                                         ),
                                       ].divide(const SizedBox(width: 16.0)),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Container(
-                                height: 24.0,
-                              ),
-                            ].divide(const SizedBox(height: 24.0)),
+                              ].divide(const SizedBox(height: 24.0)),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Container(
+            Container(
               decoration: BoxDecoration(
                 color: FlutterFlowTheme.of(context).secondaryBackground,
                 shape: BoxShape.rectangle,
@@ -600,189 +560,174 @@ class _HomeworkAssignmentWidgetState extends State<HomeworkAssignmentWidget> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: Container(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: wrapWithModel(
-                              model: _model.buttonModel2,
-                              updateCallback: () => safeSetState(() {}),
-                              child: ButtonWidget(
-                                iconPresent: false,
-                                iconEndPresent: false,
-                                content: 'Save Draft',
-                                variant: 'outline',
-                                size: 'medium',
-                                fullWidth: true,
-                                loading: false,
-                                disabled: false,
-                                onPressed: () async {
-                                  // Validate user is authenticated
-                                  if (FirebaseAuth.instance.currentUser == null) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please sign in to save homework.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: wrapWithModel(
+                            model: _model.buttonModel2,
+                            updateCallback: () => safeSetState(() {}),
+                            child: ButtonWidget(
+                              iconPresent: false,
+                              iconEndPresent: false,
+                              content: 'Save Draft',
+                              variant: 'outline',
+                              size: 'medium',
+                              fullWidth: true,
+                              loading: false,
+                              disabled: false,
+                              onPressed: () async {
+                                // Validate user is authenticated
+                                if (FirebaseAuth.instance.currentUser == null) {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Please sign in to save homework.'),
+                                    ),
+                                  );
+                                  return;
+                                }
 
-                                  if (!_formKey.currentState!.validate()) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please complete all required fields.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
+                                if (!_formKey.currentState!.validate()) {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Please complete all required fields.'),
+                                    ),
+                                  );
+                                  return;
+                                }
 
-                                  try {
-                                    await FirebaseFirestore.instance
-                                        .collection('homework_assignments')
-                                        .add({
-                                      'class': _model.dropdownValue1,
-                                      'subject': _model.dropdownValue2,
-                                      'title': _model.textFieldModel1
-                                          .inputTextController.text,
-                                      'description': _model.textFieldModel2
-                                          .inputTextController.text,
-                                      'dueDate': _model.dueDate != null
-                                          ? dateTimeFormat(
-                                              'yMMMd', _model.dueDate)
-                                          : 'No Due Date',
-                                      'status': 'draft',
-                                      'createdBy': FirebaseAuth.instance
-                                              .currentUser?.uid ??
-                                          '',
-                                      'createdByEmail': FirebaseAuth.instance
-                                              .currentUser?.email ??
-                                          '',
-                                      'createdAt': FieldValue.serverTimestamp(),
-                                    });
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Draft saved to Firebase.'),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Error saving draft: $e'),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
+                                try {
+                                  await _repository.saveHomework(
+                                    className: _model.dropdownValue1 ?? '',
+                                    subject: _model.dropdownValue2 ?? '',
+                                    teacher: _model.dropdownValue3 ?? '',
+                                    title: _model.textFieldModel1
+                                        .inputTextController!.text,
+                                    description: _model.textFieldModel2
+                                        .inputTextController!.text,
+                                    dueDate: _model.dueDate != null
+                                        ? dateTimeFormat(
+                                            'yMMMd', _model.dueDate)
+                                        : 'No Due Date',
+                                    status: 'draft',
+                                  );
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Draft saved to Firebase.'),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error saving draft: $e'),
+                                    ),
+                                  );
+                                }
+                              },
                             ),
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: wrapWithModel(
-                              model: _model.buttonModel3,
-                              updateCallback: () => safeSetState(() {}),
-                              child: ButtonWidget(
-                                icon: Icon(
-                                  Icons.send_rounded,
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  size: 24.0,
-                                ),
-                                iconPresent: true,
-                                iconEndPresent: false,
-                                content: 'Publish',
-                                variant: 'primary',
-                                size: 'medium',
-                                fullWidth: true,
-                                loading: false,
-                                disabled: false,
-                                onPressed: () {
-                                  // Validate user is authenticated
-                                  if (FirebaseAuth.instance.currentUser == null) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please sign in to publish homework.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  if (!_formKey.currentState!.validate()) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please complete all required fields.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  try {
-                                    await FirebaseFirestore.instance
-                                        .collection('homework_assignments')
-                                        .add({
-                                      'class': _model.dropdownValue1,
-                                      'subject': _model.dropdownValue2,
-                                      'title': _model.textFieldModel1
-                                          .inputTextController.text,
-                                      'description': _model.textFieldModel2
-                                          .inputTextController.text,
-                                      'dueDate': _model.dueDate != null
-                                          ? dateTimeFormat(
-                                              'yMMMd', _model.dueDate)
-                                          : 'No Due Date',
-                                      'status': 'published',
-                                      'createdBy': FirebaseAuth.instance
-                                              .currentUser?.uid ??
-                                          '',
-                                      'createdByEmail': FirebaseAuth.instance
-                                              .currentUser?.email ??
-                                          '',
-                                      'createdAt': FieldValue.serverTimestamp(),
-                                    });
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Homework published.'),
-                                      ),
-                                    );
-                                    context.goNamed(
-                                        HomeDashboardWidget.routeName);
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content:
-                                            Text('Error publishing homework: $e'),
-                                      ),
-                                    );
-                                  }
-                                },
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: wrapWithModel(
+                            model: _model.buttonModel3,
+                            updateCallback: () => safeSetState(() {}),
+                            child: ButtonWidget(
+                              icon: Icon(
+                                Icons.send_rounded,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                size: 24.0,
                               ),
+                              iconPresent: true,
+                              iconEndPresent: false,
+                              content: 'Publish',
+                              variant: 'primary',
+                              size: 'medium',
+                              fullWidth: true,
+                              loading: false,
+                              disabled: false,
+                              onPressed: () async {
+                                // Validate user is authenticated
+                                if (FirebaseAuth.instance.currentUser == null) {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Please sign in to publish homework.'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                if (!_formKey.currentState!.validate()) {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Please complete all required fields.'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                try {
+                                  await _repository.saveHomework(
+                                    className: _model.dropdownValue1 ?? '',
+                                    subject: _model.dropdownValue2 ?? '',
+                                    teacher: _model.dropdownValue3 ?? '',
+                                    title: _model.textFieldModel1
+                                        .inputTextController!.text,
+                                    description: _model.textFieldModel2
+                                        .inputTextController!.text,
+                                    dueDate: _model.dueDate != null
+                                        ? dateTimeFormat(
+                                            'yMMMd', _model.dueDate)
+                                        : 'No Due Date',
+                                    status: 'published',
+                                  );
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Homework published.'),
+                                    ),
+                                  );
+                                  context.goNamed(
+                                      HomeDashboardWidget.routeName);
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text('Error publishing homework: $e'),
+                                    ),
+                                  );
+                                }
+                              },
                             ),
                           ),
-                        ].divide(const SizedBox(width: 16.0)),
-                      ),
+                        ),
+                      ].divide(const SizedBox(width: 16.0)),
                     ),
                   ),
                 ],

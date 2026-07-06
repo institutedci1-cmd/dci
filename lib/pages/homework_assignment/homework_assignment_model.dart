@@ -23,6 +23,9 @@ class HomeworkAssignmentModel
   // State field(s) for Dropdown widget.
   String? dropdownValue2;
   FormFieldController<String>? dropdownValueController2;
+  // State field(s) for Dropdown widget (Teacher).
+  String? dropdownValue3;
+  FormFieldController<String>? dropdownValueController3;
   // Model for FormLabel.
   late FormLabelModel formLabelModel3;
   // Model for TextField.

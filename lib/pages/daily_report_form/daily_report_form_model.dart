@@ -3,6 +3,7 @@ import '/components/form_section_header/form_section_header_widget.dart';
 import '/components/student_counter/student_counter_widget.dart';
 import '/components/text_field/text_field_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/form_field_controller.dart';
 import '/index.dart';
 import 'daily_report_form_widget.dart' show DailyReportFormWidget;
 import 'package:flutter/material.dart';
@@ -12,15 +13,20 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
 
   // Model for FormSectionHeader.
   late FormSectionHeaderModel formSectionHeaderModel1;
-  // Model for TextField.
-  late TextFieldModel textFieldModel1;
-  // Model for TextField.
-  late TextFieldModel textFieldModel2;
-  // Model for TextField.
+  // State field(s) for Dropdown (Class).
+  String? dropdownValue1;
+  FormFieldController<String>? dropdownValueController1;
+  // State field(s) for Dropdown (Subject).
+  String? dropdownValue2;
+  FormFieldController<String>? dropdownValueController2;
+  // State field(s) for Dropdown (Teacher).
+  String? dropdownValue3;
+  FormFieldController<String>? dropdownValueController3;
+  // Model for TextField (Chapter).
   late TextFieldModel textFieldModel3;
   // Model for FormSectionHeader.
   late FormSectionHeaderModel formSectionHeaderModel2;
-  // Model for TextField.
+  // Model for TextField (Topics).
   late TextFieldModel textFieldModel4;
   // Model for FormSectionHeader.
   late FormSectionHeaderModel formSectionHeaderModel3;
@@ -30,9 +36,9 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
   late StudentCounterModel studentCounterModel2;
   // Model for FormSectionHeader.
   late FormSectionHeaderModel formSectionHeaderModel4;
-  // Model for TextField.
+  // Model for TextField (Homework).
   late TextFieldModel textFieldModel5;
-  // Model for TextField.
+  // Model for TextField (Remarks).
   late TextFieldModel textFieldModel6;
   // Model for Button.
   late ButtonModel buttonModel;
@@ -41,8 +47,6 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
   void initState(BuildContext context) {
     formSectionHeaderModel1 =
         createModel(context, () => FormSectionHeaderModel());
-    textFieldModel1 = createModel(context, () => TextFieldModel());
-    textFieldModel2 = createModel(context, () => TextFieldModel());
     textFieldModel3 = createModel(context, () => TextFieldModel());
     formSectionHeaderModel2 =
         createModel(context, () => FormSectionHeaderModel());
@@ -56,22 +60,6 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
     textFieldModel5 = createModel(context, () => TextFieldModel());
     textFieldModel6 = createModel(context, () => TextFieldModel());
     buttonModel = createModel(context, () => ButtonModel());
-
-    textFieldModel1.inputTextControllerValidator =
-        (BuildContext context, String? value) {
-      if (value == null || value.trim().isEmpty) {
-        return 'Class is required.';
-      }
-      return null;
-    };
-
-    textFieldModel2.inputTextControllerValidator =
-        (BuildContext context, String? value) {
-      if (value == null || value.trim().isEmpty) {
-        return 'Subject is required.';
-      }
-      return null;
-    };
 
     textFieldModel3.inputTextControllerValidator =
         (BuildContext context, String? value) {
@@ -101,8 +89,6 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
   @override
   void dispose() {
     formSectionHeaderModel1.dispose();
-    textFieldModel1.dispose();
-    textFieldModel2.dispose();
     textFieldModel3.dispose();
     formSectionHeaderModel2.dispose();
     textFieldModel4.dispose();

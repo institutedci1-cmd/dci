@@ -1,5 +1,7 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/repositories/daily_report_repository.dart';
 import '/components/dashboard_card/dashboard_card_widget.dart';
+import '/components/recent_activity_item/recent_activity_item_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -22,6 +24,7 @@ class HomeDashboardWidget extends StatefulWidget {
 
 class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
   late HomeDashboardModel _model;
+  final DailyReportRepository _repository = DailyReportRepository();
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -518,170 +521,10 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                           ),
                                         ].divide(const SizedBox(height: 16.0)),
                                       ),
-                                      InkWell(
-                                        onTap: () async {
-                                          if (dashboardConfig?['ai_help_url'] !=
-                                              null) {
-                                            await launchURL(dashboardConfig![
-                                                'ai_help_url']);
-                                          }
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            borderRadius:
-                                                BorderRadius.circular(16.0),
-                                            shape: BoxShape.rectangle,
-                                            border: Border.all(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .alternate,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(24.0),
-                                            child: Container(
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Container(
-                                                    width: 48.0,
-                                                    height: 48.0,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary10,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12.0),
-                                                      shape: BoxShape.rectangle,
-                                                    ),
-                                                    alignment:
-                                                        const AlignmentDirectional(
-                                                            0.0, 0.0),
-                                                    child: Icon(
-                                                      Icons.auto_awesome_rounded,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .onPrimary,
-                                                      size: 24.0,
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          dashboardConfig?[
-                                                                  'ai_title'] ??
-                                                              'Deshmukh AI Assistant',
-                                                          style:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelLarge
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .labelLarge
-                                                                              .fontStyle,
-                                                                    ),
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primary,
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle:
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .labelLarge
-                                                                            .fontStyle,
-                                                                    lineHeight:
-                                                                        1.33,
-                                                                  ),
-                                                        ),
-                                                        Text(
-                                                          dashboardConfig?[
-                                                                  'ai_description'] ??
-                                                              'Need help with lesson planning or student data?',
-                                                          maxLines: 2,
-                                                          style:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodySmall
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodySmall
-                                                                              .fontWeight,
-                                                                      fontStyle:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodySmall
-                                                                              .fontStyle,
-                                                                    ),
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryText,
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodySmall
-                                                                            .fontWeight,
-                                                                    fontStyle:
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodySmall
-                                                                            .fontStyle,
-                                                                    lineHeight:
-                                                                        1.38,
-                                                                  ),
-                                                          overflow:
-                                                              TextOverflow
-                                                                  .ellipsis,
-                                                        ),
-                                                      ].divide(const SizedBox(
-                                                          height: 4.0)),
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    Icons
-                                                        .chevron_right_rounded,
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryText,
-                                                    size: 24.0,
-                                                  ),
-                                                ].divide(const SizedBox(
-                                                    width: 16.0)),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                      const SizedBox(height: 24.0),
+                                      _buildRecentActivitySection(context),
+                                      const SizedBox(height: 24.0),
+                                      _buildAIHelpSection(context, dashboardConfig),
                                     ].divide(const SizedBox(height: 24.0)),
                                   ),
                                 ),
@@ -691,195 +534,242 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                         ),
                       ),
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                        shape: BoxShape.rectangle,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
-                            height: 1.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context).alternate,
-                              shape: BoxShape.rectangle,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(
-                                0.0, 12.0, 0.0, 24.0),
-                            child: Container(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: () {
-                                        context.goNamed(
-                                            HomeDashboardWidget.routeName);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.home_rounded,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              size: 26,
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Home',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primary,
-                                                      ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: () {
-                                        context.goNamed(
-                                            DailyReportFormWidget.routeName);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.description_outlined,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              size: 26,
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Reports',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .override(
-                                                        font:
-                                                            GoogleFonts.inter(),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                      ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: () {
-                                        context.goNamed(
-                                            AttendanceTrackerWidget.routeName);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.event_note_outlined,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              size: 26,
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Attend.',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .override(
-                                                        font:
-                                                            GoogleFonts.inter(),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                      ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: () {
-                                        context.goNamed(
-                                            TeacherProfileWidget.routeName);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.account_circle_outlined,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              size: 26,
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Profile',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .override(
-                                                        font:
-                                                            GoogleFonts.inter(),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                      ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                    _buildBottomNavBar(context),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentActivitySection(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Recent Activity',
+          style: FlutterFlowTheme.of(context).titleMedium.override(
+                font: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.bold,
+                ),
+                color: FlutterFlowTheme.of(context).primaryText,
+              ),
+        ),
+        const SizedBox(height: 12.0),
+        StreamBuilder<QuerySnapshot>(
+          stream: _repository.getRecentReports(limit: 3),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final reports = snapshot.data!.docs;
+            if (reports.isEmpty) {
+              return Text(
+                'No recent activity found.',
+                style: FlutterFlowTheme.of(context).bodySmall,
+              );
+            }
+            return Column(
+              children: reports.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                final date = (data['createdAt'] as Timestamp?)?.toDate();
+                return RecentActivityItemWidget(
+                  title: '${data['class']} - ${data['subject']}',
+                  subtitle: 'Topic: ${data['chapter']}\n${dateTimeFormat('yMMMd', date)}',
+                  onTap: () => context.pushNamed(ReportHistoryWidget.routeName),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAIHelpSection(BuildContext context, Map<String, dynamic>? dashboardConfig) {
+    return InkWell(
+      onTap: () async {
+        if (dashboardConfig?['ai_help_url'] != null) {
+          await launchURL(dashboardConfig!['ai_help_url']);
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+          borderRadius: BorderRadius.circular(16.0),
+          shape: BoxShape.rectangle,
+          border: Border.all(
+            color: FlutterFlowTheme.of(context).alternate,
+            width: 1.0,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Container(
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 48.0,
+                  height: 48.0,
+                  decoration: BoxDecoration(
+                    color: FlutterFlowTheme.of(context).primary10,
+                    borderRadius: BorderRadius.circular(12.0),
+                    shape: BoxShape.rectangle,
+                  ),
+                  alignment: const AlignmentDirectional(0.0, 0.0),
+                  child: Icon(
+                    Icons.auto_awesome_rounded,
+                    color: FlutterFlowTheme.of(context).onPrimary,
+                    size: 24.0,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        dashboardConfig?['ai_title'] ?? 'Deshmukh AI Assistant',
+                        style: FlutterFlowTheme.of(context).labelLarge.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.bold,
                               ),
+                              color: FlutterFlowTheme.of(context).primary,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.bold,
+                              lineHeight: 1.33,
                             ),
-                          ),
-                        ],
                       ),
+                      Text(
+                        dashboardConfig?['ai_description'] ??
+                            'Need help with lesson planning or student data?',
+                        maxLines: 2,
+                        style: FlutterFlowTheme.of(context).bodySmall.override(
+                              font: GoogleFonts.inter(),
+                              color: FlutterFlowTheme.of(context).secondaryText,
+                              letterSpacing: 0.0,
+                              lineHeight: 1.38,
+                            ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ].divide(const SizedBox(height: 4.0)),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: FlutterFlowTheme.of(context).secondaryText,
+                  size: 24.0,
+                ),
+              ].divide(const SizedBox(width: 16.0)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavBar(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: FlutterFlowTheme.of(context).secondaryBackground,
+        shape: BoxShape.rectangle,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: 1.0,
+            decoration: BoxDecoration(
+              color: FlutterFlowTheme.of(context).alternate,
+              shape: BoxShape.rectangle,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 24.0),
+            child: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavBarItem(
+                    context,
+                    icon: Icons.home_rounded,
+                    label: 'Home',
+                    isSelected: true,
+                    onTap: () => context.goNamed(HomeDashboardWidget.routeName),
+                  ),
+                  _buildNavBarItem(
+                    context,
+                    icon: Icons.description_outlined,
+                    label: 'Reports',
+                    onTap: () => context.goNamed(ReportsDashboardWidget.routeName),
+                  ),
+                  _buildNavBarItem(
+                    context,
+                    icon: Icons.event_note_outlined,
+                    label: 'Attend.',
+                    onTap: () => context.goNamed(AttendanceDashboardWidget.routeName),
+                  ),
+                  _buildNavBarItem(
+                    context,
+                    icon: Icons.account_circle_outlined,
+                    label: 'Profile',
+                    onTap: () => context.goNamed(TeacherProfileWidget.routeName),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavBarItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isSelected = false,
+  }) {
+    final color = isSelected
+        ? FlutterFlowTheme.of(context).primary
+        : FlutterFlowTheme.of(context).secondaryText;
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 26),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: FlutterFlowTheme.of(context).labelSmall.override(
+                      font: GoogleFonts.inter(
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                      color: color,
                     ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
                   ],
                 );
               },

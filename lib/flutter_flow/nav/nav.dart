@@ -108,6 +108,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const DailyReportFormWidget(),
         ),
         FFRoute(
+          name: ReportsDashboardWidget.routeName,
+          path: ReportsDashboardWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const ReportsDashboardWidget(),
+        ),
+        FFRoute(
           name: ReportHistoryWidget.routeName,
           path: ReportHistoryWidget.routePath,
           requireAuth: true,
@@ -120,6 +126,18 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const AttendanceTrackerWidget(),
         ),
         FFRoute(
+          name: AttendanceDashboardWidget.routeName,
+          path: AttendanceDashboardWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const AttendanceDashboardWidget(),
+        ),
+        FFRoute(
+          name: AttendanceHistoryWidget.routeName,
+          path: AttendanceHistoryWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const AttendanceHistoryWidget(),
+        ),
+        FFRoute(
           name: StudentListWidget.routeName,
           path: StudentListWidget.routePath,
           requireAuth: true,
@@ -130,6 +148,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: HomeworkAssignmentWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const HomeworkAssignmentWidget(),
+        ),
+        FFRoute(
+          name: HomeworkHistoryWidget.routeName,
+          path: HomeworkHistoryWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const HomeworkHistoryWidget(),
         ),
         FFRoute(
           name: AnnouncementsFeedWidget.routeName,
