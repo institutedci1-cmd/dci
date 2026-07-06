@@ -770,13 +770,3 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
     );
   }
 }
-                  ],
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-}

@@ -81,63 +81,7 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
                           : (userData?['photo_url'] ?? null),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: wrapWithModel(
-                            model: _model.buttonModel1,
-                            updateCallback: () => safeSetState(() {}),
-                            child: ButtonWidget(
-                              icon: Icon(
-                                Icons.edit_rounded,
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                size: 24.0,
-                              ),
-                              iconPresent: true,
-                              iconEndPresent: false,
-                              content: 'Edit Profile',
-                              variant: 'outline',
-                              size: 'medium',
-                              fullWidth: true,
-                              loading: false,
-                              disabled: false,
-                              onPressed: () async {
-                                context.pushNamed(EditProfileWidget.routeName);
-                              },
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: wrapWithModel(
-                            model: _model.buttonModel2,
-                            updateCallback: () => safeSetState(() {}),
-                            child: ButtonWidget(
-                              icon: Icon(
-                                Icons.share_rounded,
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                size: 24.0,
-                              ),
-                              iconPresent: true,
-                              iconEndPresent: false,
-                              content: 'Share CV',
-                              variant: 'secondary',
-                              size: 'medium',
-                              fullWidth: true,
-                              loading: false,
-                              disabled: false,
-                            ),
-                          ),
-                        ),
-                      ].divide(const SizedBox(width: 16.0)),
-                    ),
-                  ),
+                  _buildActionButtons(context),
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
                         24.0, 0.0, 24.0, 24.0),
@@ -146,373 +90,15 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              0.0, 0.0, 0.0, 16.0),
-                          child: Container(
-                            child: Text(
-                              'Personal Information',
-                              style: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontStyle,
-                                    lineHeight: 1.35,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        wrapWithModel(
-                          model: _model.profileInfoTileModel1,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ProfileInfoTileWidget(
-                            icon: Icon(
-                              Icons.email_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .onPrimaryContainer,
-                              size: 20.0,
-                            ),
-                            label: 'Email Address',
-                            value: currentUserEmail != ''
-                                ? currentUserEmail
-                                : (userData?['email'] ??
-                                    'rajesh.d@deshmukhcoaching.com'),
-                          ),
-                        ),
-                        wrapWithModel(
-                          model: _model.profileInfoTileModel2,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ProfileInfoTileWidget(
-                            icon: Icon(
-                              Icons.phone_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .onPrimaryContainer,
-                              size: 20.0,
-                            ),
-                            label: 'Mobile Number',
-                            value: currentPhoneNumber != ''
-                                ? currentPhoneNumber
-                                : (userData?['phone_number'] ??
-                                    '+91 98765 43210'),
-                          ),
-                        ),
-                        wrapWithModel(
-                          model: _model.profileInfoTileModel3,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ProfileInfoTileWidget(
-                            icon: Icon(
-                              Icons.badge_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .onPrimaryContainer,
-                              size: 20.0,
-                            ),
-                            label: 'Employee ID',
-                            value: userData?['employee_id'] ??
-                                'Deshmukh-T-2024-089',
-                          ),
-                        ),
-                        wrapWithModel(
-                          model: _model.profileInfoTileModel4,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ProfileInfoTileWidget(
-                            icon: Icon(
-                              Icons.event_available_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .onPrimaryContainer,
-                              size: 20.0,
-                            ),
-                            label: 'Joined Date',
-                            value: userData?['joined_date'] ?? '15 May 2018',
-                          ),
-                        ),
-                        Container(
-                          height: 24.0,
-                        ),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              0.0, 0.0, 0.0, 16.0),
-                          child: Container(
-                            child: Text(
-                              'Education & Expertise',
-                              style: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontStyle,
-                                    lineHeight: 1.35,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        wrapWithModel(
-                          model: _model.profileInfoTileModel5,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ProfileInfoTileWidget(
-                            icon: Icon(
-                              Icons.school_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .onPrimaryContainer,
-                              size: 20.0,
-                            ),
-                            label: 'Qualification',
-                            value: userData?['qualification'] ??
-                                'M.Sc. Physics, M.Ed. Education',
-                          ),
-                        ),
-                        wrapWithModel(
-                          model: _model.profileInfoTileModel6,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ProfileInfoTileWidget(
-                            icon: Icon(
-                              Icons.psychology_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .onPrimaryContainer,
-                              size: 20.0,
-                            ),
-                            label: 'Subject Expertise',
-                            value: userData?['subject_expertise'] ??
-                                'Advanced Physics & Mathematics',
-                          ),
-                        ),
-                        wrapWithModel(
-                          model: _model.profileInfoTileModel7,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ProfileInfoTileWidget(
-                            icon: Icon(
-                              Icons.workspace_premium_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .onPrimaryContainer,
-                              size: 20.0,
-                            ),
-                            label: 'Experience',
-                            value: userData?['experience'] ??
-                                '12 Years in Competitive Coaching',
-                          ),
-                        ),
-                        Container(
-                          height: 24.0,
-                        ),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              0.0, 0.0, 0.0, 16.0),
-                          child: Container(
-                            child: Text(
-                              'Settings & Preferences',
-                              style: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontStyle,
-                                    lineHeight: 1.35,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
-                            borderRadius: BorderRadius.circular(16.0),
-                            border: Border.all(
-                              color: FlutterFlowTheme.of(context).alternate,
-                            ),
-                          ),
-                          child: SwitchListTile.adaptive(
-                            value: userData?['notifications_enabled'] ?? true,
-                            onChanged: (newValue) async {
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(currentUserUid)
-                                  .update({
-                                'notifications_enabled': newValue,
-                              });
-                            },
-                            title: Text(
-                              'Push Notifications',
-                              style: FlutterFlowTheme.of(context).bodyLarge,
-                            ),
-                            subtitle: Text(
-                              'Receive alerts for new announcements and schedules.',
-                              style: FlutterFlowTheme.of(context).labelSmall,
-                            ),
-                            activeColor: FlutterFlowTheme.of(context).primary,
-                            activeTrackColor:
-                                FlutterFlowTheme.of(context).primary10,
-                            dense: false,
-                            controlAffinity: ListTileControlAffinity.trailing,
-                          ),
-                        ),
-                        Container(
-                          height: 24.0,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16.0),
-                            shape: BoxShape.rectangle,
-                            border: Border.all(
-                              color: FlutterFlowTheme.of(context).info,
-                              width: 1.0,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Container(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.info_rounded,
-                                    size: 24.0,
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'About Deshmukh Teacher Portal',
-                                          style: FlutterFlowTheme.of(context)
-                                              .labelLarge
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelLarge
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle: FlutterFlowTheme.of(
-                                                        context)
-                                                    .labelLarge
-                                                    .fontStyle,
-                                                lineHeight: 1.33,
-                                              ),
-                                        ),
-                                        Text(
-                                          'This profile is managed by the Deshmukh HR department. For any discrepancies, please contact the administrator.',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodySmall
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodySmall
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodySmall
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodySmall
-                                                    .fontWeight,
-                                                fontStyle: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodySmall
-                                                    .fontStyle,
-                                                lineHeight: 1.4,
-                                              ),
-                                        ),
-                                      ].divide(const SizedBox(height: 4.0)),
-                                    ),
-                                  ),
-                                ].divide(const SizedBox(width: 16.0)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height: 24.0,
-                        ),
-                        wrapWithModel(
-                          model: createModel(context, () => ButtonModel()),
-                          updateCallback: () => safeSetState(() {}),
-                          child: ButtonWidget(
-                            icon: Icon(
-                              Icons.logout_rounded,
-                              color: FlutterFlowTheme.of(context).onError,
-                              size: 24.0,
-                            ),
-                            iconPresent: true,
-                            content: 'Logout',
-                            variant: 'outline',
-                            size: 'large',
-                            fullWidth: true,
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Logout'),
-                                      content: const Text(
-                                          'Are you sure you want to log out?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                          child: const Text('Logout'),
-                                        ),
-                                      ],
-                                    ),
-                                  ) ??
-                                  false;
-                              if (confirm) {
-                                await authManager.signOut();
-                                context.goNamed(LoginWidget.routeName);
-                              }
-                            },
-                          ),
-                        ),
+                        _buildPersonalInformation(context, userData),
+                        Container(height: 24.0),
+                        _buildEducationExpertise(context, userData),
+                        Container(height: 24.0),
+                        _buildSettingsSection(context, userData),
+                        Container(height: 24.0),
+                        _buildAboutSection(context),
+                        Container(height: 24.0),
+                        _buildLogoutButton(context),
                       ],
                     ),
                   ),
@@ -524,6 +110,334 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 1,
+            child: wrapWithModel(
+              model: _model.buttonModel1,
+              updateCallback: () => safeSetState(() {}),
+              child: ButtonWidget(
+                icon: Icon(
+                  Icons.edit_rounded,
+                  color: FlutterFlowTheme.of(context).primaryText,
+                  size: 24.0,
+                ),
+                iconPresent: true,
+                iconEndPresent: false,
+                content: 'Edit Profile',
+                variant: 'outline',
+                size: 'medium',
+                fullWidth: true,
+                loading: false,
+                disabled: false,
+                onPressed: () async {
+                  context.pushNamed(EditProfileWidget.routeName);
+                },
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: wrapWithModel(
+              model: _model.buttonModel2,
+              updateCallback: () => safeSetState(() {}),
+              child: ButtonWidget(
+                icon: Icon(
+                  Icons.share_rounded,
+                  color: FlutterFlowTheme.of(context).primaryText,
+                  size: 24.0,
+                ),
+                iconPresent: true,
+                iconEndPresent: false,
+                content: 'Share CV',
+                variant: 'secondary',
+                size: 'medium',
+                fullWidth: true,
+                loading: false,
+                disabled: false,
+              ),
+            ),
+          ),
+        ].divide(const SizedBox(width: 16.0)),
+      ),
+    );
+  }
+
+  Widget _buildPersonalInformation(BuildContext context, Map<String, dynamic>? userData) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildSectionHeader(context, 'Personal Information'),
+        wrapWithModel(
+          model: _model.profileInfoTileModel1,
+          updateCallback: () => safeSetState(() {}),
+          child: ProfileInfoTileWidget(
+            icon: Icon(
+              Icons.email_rounded,
+              color: FlutterFlowTheme.of(context).onPrimaryContainer,
+              size: 20.0,
+            ),
+            label: 'Email Address',
+            value: currentUserEmail != ''
+                ? currentUserEmail
+                : (userData?['email'] ?? 'rajesh.d@deshmukhcoaching.com'),
+          ),
+        ),
+        wrapWithModel(
+          model: _model.profileInfoTileModel2,
+          updateCallback: () => safeSetState(() {}),
+          child: ProfileInfoTileWidget(
+            icon: Icon(
+              Icons.phone_rounded,
+              color: FlutterFlowTheme.of(context).onPrimaryContainer,
+              size: 20.0,
+            ),
+            label: 'Mobile Number',
+            value: currentPhoneNumber != ''
+                ? currentPhoneNumber
+                : (userData?['phone_number'] ?? '+91 98765 43210'),
+          ),
+        ),
+        wrapWithModel(
+          model: _model.profileInfoTileModel3,
+          updateCallback: () => safeSetState(() {}),
+          child: ProfileInfoTileWidget(
+            icon: Icon(
+              Icons.badge_rounded,
+              color: FlutterFlowTheme.of(context).onPrimaryContainer,
+              size: 20.0,
+            ),
+            label: 'Employee ID',
+            value: userData?['employee_id'] ?? 'Deshmukh-T-2024-089',
+          ),
+        ),
+        wrapWithModel(
+          model: _model.profileInfoTileModel4,
+          updateCallback: () => safeSetState(() {}),
+          child: ProfileInfoTileWidget(
+            icon: Icon(
+              Icons.event_available_rounded,
+              color: FlutterFlowTheme.of(context).onPrimaryContainer,
+              size: 20.0,
+            ),
+            label: 'Joined Date',
+            value: userData?['joined_date'] ?? '15 May 2018',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEducationExpertise(BuildContext context, Map<String, dynamic>? userData) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildSectionHeader(context, 'Education & Expertise'),
+        wrapWithModel(
+          model: _model.profileInfoTileModel5,
+          updateCallback: () => safeSetState(() {}),
+          child: ProfileInfoTileWidget(
+            icon: Icon(
+              Icons.school_rounded,
+              color: FlutterFlowTheme.of(context).onPrimaryContainer,
+              size: 20.0,
+            ),
+            label: 'Qualification',
+            value: userData?['qualification'] ?? 'M.Sc. Physics, M.Ed. Education',
+          ),
+        ),
+        wrapWithModel(
+          model: _model.profileInfoTileModel6,
+          updateCallback: () => safeSetState(() {}),
+          child: ProfileInfoTileWidget(
+            icon: Icon(
+              Icons.psychology_rounded,
+              color: FlutterFlowTheme.of(context).onPrimaryContainer,
+              size: 20.0,
+            ),
+            label: 'Subject Expertise',
+            value: userData?['subject_expertise'] ?? 'Advanced Physics & Mathematics',
+          ),
+        ),
+        wrapWithModel(
+          model: _model.profileInfoTileModel7,
+          updateCallback: () => safeSetState(() {}),
+          child: ProfileInfoTileWidget(
+            icon: Icon(
+              Icons.workspace_premium_rounded,
+              color: FlutterFlowTheme.of(context).onPrimaryContainer,
+              size: 20.0,
+            ),
+            label: 'Experience',
+            value: userData?['experience'] ?? '12 Years in Competitive Coaching',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsSection(BuildContext context, Map<String, dynamic>? userData) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildSectionHeader(context, 'Settings & Preferences'),
+        Container(
+          decoration: BoxDecoration(
+            color: FlutterFlowTheme.of(context).secondaryBackground,
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(
+              color: FlutterFlowTheme.of(context).alternate,
+            ),
+          ),
+          child: SwitchListTile.adaptive(
+            value: userData?['notifications_enabled'] ?? true,
+            onChanged: (newValue) async {
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(currentUserUid)
+                  .update({
+                'notifications_enabled': newValue,
+              });
+            },
+            title: Text(
+              'Push Notifications',
+              style: FlutterFlowTheme.of(context).bodyLarge,
+            ),
+            subtitle: Text(
+              'Receive alerts for new announcements and schedules.',
+              style: FlutterFlowTheme.of(context).labelSmall,
+            ),
+            activeColor: FlutterFlowTheme.of(context).primary,
+            activeTrackColor: FlutterFlowTheme.of(context).primary10,
+            dense: false,
+            controlAffinity: ListTileControlAffinity.trailing,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+        shape: BoxShape.rectangle,
+        border: Border.all(
+          color: FlutterFlowTheme.of(context).info,
+          width: 1.0,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.info_rounded, size: 24.0),
+            Expanded(
+              flex: 1,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'About Deshmukh Teacher Portal',
+                    style: FlutterFlowTheme.of(context).labelLarge.override(
+                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          fontWeight: FontWeight.bold,
+                          lineHeight: 1.33,
+                        ),
+                  ),
+                  Text(
+                    'This profile is managed by the Deshmukh HR department. For any discrepancies, please contact the administrator.',
+                    style: FlutterFlowTheme.of(context).bodySmall.override(
+                          font: GoogleFonts.inter(),
+                          lineHeight: 1.4,
+                        ),
+                  ),
+                ].divide(const SizedBox(height: 4.0)),
+              ),
+            ),
+          ].divide(const SizedBox(width: 16.0)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return wrapWithModel(
+      model: createModel(context, () => ButtonModel()),
+      updateCallback: () => safeSetState(() {}),
+      child: ButtonWidget(
+        icon: Icon(
+          Icons.logout_rounded,
+          color: FlutterFlowTheme.of(context).onError,
+          size: 24.0,
+        ),
+        iconPresent: true,
+        content: 'Logout',
+        variant: 'outline',
+        size: 'large',
+        fullWidth: true,
+        onPressed: () async {
+          final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure you want to log out?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Logout'),
+                    ),
+                  ],
+                ),
+              ) ??
+              false;
+          if (confirm) {
+            await authManager.signOut();
+            if (!mounted) return;
+            context.goNamed(LoginWidget.routeName);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
+      child: Text(
+        title,
+        style: FlutterFlowTheme.of(context).titleMedium.override(
+              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+              color: FlutterFlowTheme.of(context).primaryText,
+              fontWeight: FontWeight.bold,
+              lineHeight: 1.35,
+            ),
       ),
     );
   }
