@@ -1,43 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../models/daily_report.dart';
 
 class DailyReportRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  DailyReportRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
+      : _firestore = firestore ?? FirebaseFirestore.instance,
+        _auth = auth ?? FirebaseAuth.instance;
+
+  final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
 
   CollectionReference get _reportsCollection => _firestore.collection('daily_reports');
 
-  Future<void> submitReport({
-    required String className,
-    required String subject,
-    required String teacher,
-    required String chapter,
-    required String topics,
-    required int presentCount,
-    required int absentCount,
-    required String homeworkAssigned,
-    required String remarks,
-  }) async {
+  Future<void> submitReport(DailyReport report) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
 
-    await _reportsCollection.add({
-      'class': className,
-      'subject': subject,
-      'teacher': teacher,
-      'chapter': chapter,
-      'topics': topics,
-      'presentCount': presentCount,
-      'absentCount': absentCount,
-      'homeworkAssigned': homeworkAssigned,
-      'remarks': remarks,
-      'createdBy': user.uid,
-      'createdByEmail': user.email ?? '',
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    await _reportsCollection.add(report.toFirestore());
   }
 
-  Future<Map<String, dynamic>?> getLastReport() async {
+  Future<DailyReport?> getLastReport() async {
     final user = _auth.currentUser;
     if (user == null) return null;
 
@@ -48,17 +30,20 @@ class DailyReportRepository {
         .get();
 
     if (querySnapshot.docs.isEmpty) return null;
-    return querySnapshot.docs.first.data() as Map<String, dynamic>;
+    return DailyReport.fromFirestore(querySnapshot.docs.first);
   }
 
-  Stream<QuerySnapshot> getRecentReports({int limit = 3}) {
+  Stream<List<DailyReport>> getRecentReports({int limit = 3}) {
     final user = _auth.currentUser;
-    if (user == null) return const Stream.empty();
+    if (user == null) return Stream.value([]);
 
     return _reportsCollection
         .where('createdBy', isEqualTo: user.uid)
         .orderBy('createdAt', descending: true)
         .limit(limit)
-        .snapshots();
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => DailyReport.fromFirestore(doc))
+            .toList());
   }
 }

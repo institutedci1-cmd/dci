@@ -1,25 +1,25 @@
-import '/auth/firebase_auth/auth_util.dart';
+import '/backend/providers/repository_providers.dart';
 import '/components/button/button_widget.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/components/text_field/text_field_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'edit_profile_model.dart';
 export 'edit_profile_model.dart';
 
-class EditProfileWidget extends StatefulWidget {
+class EditProfileWidget extends ConsumerStatefulWidget {
   const EditProfileWidget({super.key});
 
   static String routeName = 'EditProfile';
   static String routePath = '/editProfile';
 
   @override
-  State<EditProfileWidget> createState() => _EditProfileWidgetState();
+  ConsumerState<EditProfileWidget> createState() => _EditProfileWidgetState();
 }
 
-class _EditProfileWidgetState extends State<EditProfileWidget> {
+class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
   late EditProfileModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -28,27 +28,53 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
     super.initState();
     _model = createModel(context, () => EditProfileModel());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUserUid)
-          .get();
-      final userData = userDoc.data();
-      if (userData != null) {
-        safeSetState(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadUserData());
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final repository = ref.read(userRepositoryProvider);
+      final userData = await repository.getUserData();
+      if (userData != null && mounted) {
+        setState(() {
           _model.textFieldModel1.inputTextController?.text =
-              userData['display_name'] ?? currentUserDisplayName;
+              userData['display_name'] ?? '';
           _model.textFieldModel2.inputTextController?.text =
               userData['designation'] ?? '';
           _model.textFieldModel3.inputTextController?.text =
-              userData['phone_number'] ?? currentPhoneNumber;
+              userData['phone_number'] ?? '';
           _model.textFieldModel4.inputTextController?.text =
               userData['qualification'] ?? '';
           _model.textFieldModel5.inputTextController?.text =
               userData['subject_expertise'] ?? '';
         });
       }
-    });
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> _saveProfile() async {
+    try {
+      final repository = ref.read(userRepositoryProvider);
+      await repository.updateProfile(
+        displayName: _model.textFieldModel1.inputTextController?.text ?? '',
+        designation: _model.textFieldModel2.inputTextController?.text ?? '',
+        phoneNumber: _model.textFieldModel3.inputTextController?.text ?? '',
+        qualification: _model.textFieldModel4.inputTextController?.text ?? '',
+        subjectExpertise: _model.textFieldModel5.inputTextController?.text ?? '',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully!')),
+      );
+      context.safePop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
   @override
@@ -60,10 +86,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -90,7 +113,6 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         updateCallback: () => safeSetState(() {}),
                         child: const TextFieldWidget(
                           label: 'Full Name',
-                          labelPresent: true,
                           hint: 'Enter your name',
                           variant: 'outlined',
                         ),
@@ -100,7 +122,6 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         updateCallback: () => safeSetState(() {}),
                         child: const TextFieldWidget(
                           label: 'Designation',
-                          labelPresent: true,
                           hint: 'e.g. Senior Physics Faculty',
                           variant: 'outlined',
                         ),
@@ -110,7 +131,6 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         updateCallback: () => safeSetState(() {}),
                         child: const TextFieldWidget(
                           label: 'Phone Number',
-                          labelPresent: true,
                           hint: 'e.g. +91 98765 43210',
                           variant: 'outlined',
                         ),
@@ -120,7 +140,6 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         updateCallback: () => safeSetState(() {}),
                         child: const TextFieldWidget(
                           label: 'Qualification',
-                          labelPresent: true,
                           hint: 'e.g. M.Sc., B.Ed.',
                           variant: 'outlined',
                         ),
@@ -130,7 +149,6 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         updateCallback: () => safeSetState(() {}),
                         child: const TextFieldWidget(
                           label: 'Subject Expertise',
-                          labelPresent: true,
                           hint: 'e.g. Mathematics, Physics',
                           variant: 'outlined',
                         ),
@@ -144,34 +162,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                           variant: 'primary',
                           size: 'large',
                           fullWidth: true,
-                          onPressed: () async {
-                            try {
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(currentUserUid)
-                                  .update({
-                                'display_name': _model.textFieldModel1
-                                    .inputTextController?.text,
-                                'designation': _model.textFieldModel2
-                                    .inputTextController?.text,
-                                'phone_number': _model.textFieldModel3
-                                    .inputTextController?.text,
-                                'qualification': _model.textFieldModel4
-                                    .inputTextController?.text,
-                                'subject_expertise': _model.textFieldModel5
-                                    .inputTextController?.text,
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Profile updated successfully!')),
-                              );
-                              context.safePop();
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error: $e')),
-                              );
-                            }
-                          },
+                          onPressed: _saveProfile,
                         ),
                       ),
                     ].divide(const SizedBox(height: 16)),

@@ -1,27 +1,27 @@
-import '/auth/firebase_auth/auth_util.dart';
+import '/backend/models/student_attendance.dart';
+import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'attendance_dashboard_model.dart';
 export 'attendance_dashboard_model.dart';
 
-class AttendanceDashboardWidget extends StatefulWidget {
+class AttendanceDashboardWidget extends ConsumerStatefulWidget {
   const AttendanceDashboardWidget({super.key});
 
   static String routeName = 'AttendanceDashboard';
   static String routePath = '/attendanceDashboard';
 
   @override
-  State<AttendanceDashboardWidget> createState() =>
+  ConsumerState<AttendanceDashboardWidget> createState() =>
       _AttendanceDashboardWidgetState();
 }
 
-class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
+class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardWidget> {
   late AttendanceDashboardModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -49,8 +49,8 @@ class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
             updateCallback: () => safeSetState(() {}),
             child: HeaderSectionWidget(
               title: 'Attendance Dashboard',
-              subtitle: 'Staff Presence Overview',
-              description: 'Track your attendance records and monthly summary.',
+              subtitle: 'Student Presence Tracking',
+              description: 'Manage and review student attendance across your classes.',
               onBackPressed: () async => context.safePop(),
               actionIcon: Icon(
                 Icons.how_to_reg_rounded,
@@ -68,69 +68,7 @@ class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('attendance_records')
-                        .where('createdBy', isEqualTo: currentUserUid)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      final records = snapshot.data!.docs;
-                      final now = DateTime.now();
-                      final firstDayOfMonth = DateTime(now.year, now.month, 1);
-                      final monthlyRecords = records.where((doc) {
-                        final date = (doc.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
-                        return date != null && date.toDate().isAfter(firstDayOfMonth);
-                      }).toList();
-
-                      final presentCount = monthlyRecords.where((doc) => 
-                        (doc.data() as Map<String, dynamic>)['status'] == 'Present').length;
-                      final workingDays = 26; // Assuming 26 working days
-                      final progressPercent = (presentCount / workingDays).clamp(0.0, 1.0);
-
-                      return Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).secondaryBackground,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Monthly Attendance', 
-                                  style: FlutterFlowTheme.of(context).titleMedium.override(
-                                    font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                                  )),
-                                Text('$presentCount/$workingDays Days', 
-                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                                    color: FlutterFlowTheme.of(context).primary,
-                                  )),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            LinearPercentIndicator(
-                              percent: progressPercent,
-                              lineHeight: 12.0,
-                              animation: true,
-                              progressColor: FlutterFlowTheme.of(context).primary,
-                              backgroundColor: FlutterFlowTheme.of(context).alternate,
-                              barRadius: const Radius.circular(6.0),
-                              padding: EdgeInsets.zero,
-                            ),
-                            const SizedBox(height: 8),
-                            Text('${(progressPercent * 100).toInt()}% Achievement', 
-                              style: FlutterFlowTheme.of(context).labelSmall),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                  _buildStatsRow(context),
                   const SizedBox(height: 24),
                   Text(
                     'Quick Actions',
@@ -165,7 +103,7 @@ class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Recent Logs',
+                        'Recent Student Logs',
                         style: FlutterFlowTheme.of(context).titleMedium.override(
                               font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
                             ),
@@ -182,27 +120,19 @@ class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
                       ),
                     ],
                   ),
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('attendance_records')
-                        .where('createdBy', isEqualTo: currentUserUid)
-                        .orderBy('createdAt', descending: true)
-                        .limit(5)
-                        .snapshots(),
+                  StreamBuilder<List<StudentAttendance>>(
+                    stream: ref.watch(attendanceRepositoryProvider).getStudentAttendanceLogs(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return const SizedBox();
-                      final records = snapshot.data!.docs;
+                      final records = snapshot.data!;
                       if (records.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text('No logs found.', textAlign: TextAlign.center),
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text('No student logs found.', textAlign: TextAlign.center),
                         );
                       }
                       return Column(
-                        children: records.map((doc) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          final date = (data['createdAt'] as Timestamp?)?.toDate();
-                          final status = data['status'] ?? 'Present';
+                        children: records.take(10).map((record) {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             decoration: BoxDecoration(
@@ -211,17 +141,14 @@ class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
                               border: Border.all(color: FlutterFlowTheme.of(context).alternate),
                             ),
                             child: ListTile(
-                              leading: Container(
-                                width: 12, height: 12,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: status == 'Present' ? Colors.green : Colors.red,
-                                ),
+                              leading: CircleAvatar(
+                                radius: 14,
+                                backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
+                                child: Icon(_getStatusIcon(record.status), color: _getStatusColor(record.status), size: 16),
                               ),
-                              title: Text(status),
-                              subtitle: Text(dateTimeFormat('yMMMd', date)),
-                              trailing: const Icon(Icons.chevron_right_rounded),
-                              onTap: () => context.pushNamed(AttendanceHistoryWidget.routeName),
+                              title: Text(record.studentName),
+                              subtitle: Text('${record.className} • ${dateTimeFormat('yMMMd', record.date)}'),
+                              trailing: Text(record.status, style: TextStyle(color: _getStatusColor(record.status), fontWeight: FontWeight.bold, fontSize: 12)),
                             ),
                           );
                         }).toList(),
@@ -232,6 +159,65 @@ class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsRow(BuildContext context) {
+    return StreamBuilder<List<StudentAttendance>>(
+      stream: ref.watch(attendanceRepositoryProvider).getStudentAttendanceLogs(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox();
+        final records = snapshot.data!;
+        final totalMarked = records.length;
+        final presentCount = records.where((doc) => doc.status == 'Present').length;
+        final attendanceRate = totalMarked == 0 ? 0 : ((presentCount / totalMarked) * 100).toInt();
+
+        return Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                context,
+                'Total Marks',
+                totalMarked.toString(),
+                Icons.people_rounded,
+                FlutterFlowTheme.of(context).primary,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildStatCard(
+                context,
+                'Avg. Present',
+                '$attendanceRate%',
+                Icons.trending_up_rounded,
+                FlutterFlowTheme.of(context).success,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlutterFlowTheme.of(context).secondaryBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 12),
+          Text(value, style: FlutterFlowTheme.of(context).headlineSmall.override(
+            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+          )),
+          Text(title, style: FlutterFlowTheme.of(context).labelSmall),
         ],
       ),
     );
@@ -258,5 +244,23 @@ class _AttendanceDashboardWidgetState extends State<AttendanceDashboardWidget> {
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Present': return Colors.green;
+      case 'Absent': return Colors.red;
+      case 'Leave': return Colors.orange;
+      default: return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status) {
+      case 'Present': return Icons.check_circle_rounded;
+      case 'Absent': return Icons.cancel_rounded;
+      case 'Leave': return Icons.pause_circle_rounded;
+      default: return Icons.help_rounded;
+    }
   }
 }

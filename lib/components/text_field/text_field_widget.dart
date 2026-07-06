@@ -20,6 +20,7 @@ class TextFieldWidget extends StatefulWidget {
     String? value,
     this.onChange,
     this.onSubmit,
+    this.validator,
     String? variant,
     bool? error,
   })  : label = label ?? 'Email Address',
@@ -45,6 +46,7 @@ class TextFieldWidget extends StatefulWidget {
   final String value;
   final void Function(String?)? onChange;
   final void Function(String?)? onSubmit;
+  final String? Function(String?)? validator;
   final String variant;
   final bool error;
 
@@ -68,6 +70,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
 
     _model.inputTextController ??= TextEditingController(text: widget.value);
     _model.inputFocusNode ??= FocusNode();
+    _model.inputTextControllerValidator = (context, val) => widget.validator?.call(val);
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }

@@ -1,25 +1,26 @@
-import '/auth/firebase_auth/auth_util.dart';
+import '/backend/models/daily_report.dart';
+import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'reports_dashboard_model.dart';
 export 'reports_dashboard_model.dart';
 
-class ReportsDashboardWidget extends StatefulWidget {
+class ReportsDashboardWidget extends ConsumerStatefulWidget {
   const ReportsDashboardWidget({super.key});
 
   static String routeName = 'ReportsDashboard';
   static String routePath = '/reportsDashboard';
 
   @override
-  State<ReportsDashboardWidget> createState() => _ReportsDashboardWidgetState();
+  ConsumerState<ReportsDashboardWidget> createState() => _ReportsDashboardWidgetState();
 }
 
-class _ReportsDashboardWidgetState extends State<ReportsDashboardWidget> {
+class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget> {
   late ReportsDashboardModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -66,24 +67,19 @@ class _ReportsDashboardWidgetState extends State<ReportsDashboardWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('daily_reports')
-                        .where('createdBy', isEqualTo: currentUserUid)
-                        .snapshots(),
+                  StreamBuilder<List<DailyReport>>(
+                    stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 100),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      final reports = snapshot.data!.docs;
+                      final reports = snapshot.data!;
                       final totalReports = reports.length;
                       
-                      // Count reports this week
                       final now = DateTime.now();
                       final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-                      final reportsThisWeek = reports.where((doc) {
-                        final date = (doc.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
-                        return date != null && date.toDate().isAfter(startOfWeek);
+                      final reportsThisWeek = reports.where((report) {
+                        return report.createdAt != null && report.createdAt!.isAfter(startOfWeek);
                       }).length;
 
                       return Row(
@@ -112,12 +108,7 @@ class _ReportsDashboardWidgetState extends State<ReportsDashboardWidget> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  Text(
-                    'Quick Actions',
-                    style: FlutterFlowTheme.of(context).titleMedium.override(
-                          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                        ),
-                  ),
+                  _buildSectionTitle(context, 'Quick Actions'),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -144,12 +135,7 @@ class _ReportsDashboardWidgetState extends State<ReportsDashboardWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Recent Reports',
-                        style: FlutterFlowTheme.of(context).titleMedium.override(
-                              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                            ),
-                      ),
+                      _buildSectionTitle(context, 'Recent Reports'),
                       TextButton(
                         onPressed: () => context.pushNamed(ReportHistoryWidget.routeName),
                         child: Text(
@@ -162,26 +148,19 @@ class _ReportsDashboardWidgetState extends State<ReportsDashboardWidget> {
                       ),
                     ],
                   ),
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('daily_reports')
-                        .where('createdBy', isEqualTo: currentUserUid)
-                        .orderBy('createdAt', descending: true)
-                        .limit(5)
-                        .snapshots(),
+                  StreamBuilder<List<DailyReport>>(
+                    stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 5),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return const SizedBox();
-                      final reports = snapshot.data!.docs;
+                      final reports = snapshot.data!;
                       if (reports.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
                           child: Text('No reports yet.', textAlign: TextAlign.center),
                         );
                       }
                       return Column(
-                        children: reports.map((doc) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          final date = (data['createdAt'] as Timestamp?)?.toDate();
+                        children: reports.map((report) {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             decoration: BoxDecoration(
@@ -190,8 +169,8 @@ class _ReportsDashboardWidgetState extends State<ReportsDashboardWidget> {
                               border: Border.all(color: FlutterFlowTheme.of(context).alternate),
                             ),
                             child: ListTile(
-                              title: Text('${data['class']} - ${data['subject']}'),
-                              subtitle: Text(dateTimeFormat('yMMMd', date)),
+                              title: Text('${report.className} - ${report.subject}'),
+                              subtitle: Text(dateTimeFormat('yMMMd', report.createdAt)),
                               trailing: const Icon(Icons.chevron_right_rounded),
                               onTap: () {
                                 // Detail view?
@@ -208,6 +187,15 @@ class _ReportsDashboardWidgetState extends State<ReportsDashboardWidget> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Text(
+      title,
+      style: FlutterFlowTheme.of(context).titleMedium.override(
+            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+          ),
     );
   }
 

@@ -1,4 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/providers/repository_providers.dart';
 import '/components/button/button_widget.dart';
 import '/components/profile_header/profile_header_widget.dart';
 import '/components/profile_info_tile/profile_info_tile_widget.dart';
@@ -7,21 +8,22 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'teacher_profile_model.dart';
 export 'teacher_profile_model.dart';
 
-class TeacherProfileWidget extends StatefulWidget {
+class TeacherProfileWidget extends ConsumerStatefulWidget {
   const TeacherProfileWidget({super.key});
 
   static String routeName = 'TeacherProfile';
   static String routePath = '/teacherProfile';
 
   @override
-  State<TeacherProfileWidget> createState() => _TeacherProfileWidgetState();
+  ConsumerState<TeacherProfileWidget> createState() => _TeacherProfileWidgetState();
 }
 
-class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
+class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
   late TeacherProfileModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -37,17 +39,13 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -60,11 +58,8 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
             final userData = snapshot.data?.data() as Map<String, dynamic>?;
 
             return SingleChildScrollView(
-              primary: false,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   wrapWithModel(
                     model: _model.profileHeaderModel,
@@ -78,33 +73,28 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
                               'Prof. Rajesh Deshmukh'),
                       photoUrl: currentUserPhoto != ''
                           ? currentUserPhoto
-                          : (userData?['photo_url'] ?? null),
+                          : userData?['photo_url'],
                     ),
                   ),
                   _buildActionButtons(context),
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(
-                        24.0, 0.0, 24.0, 24.0),
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _buildPersonalInformation(context, userData),
-                        Container(height: 24.0),
+                        const SizedBox(height: 24.0),
                         _buildEducationExpertise(context, userData),
-                        Container(height: 24.0),
+                        const SizedBox(height: 24.0),
                         _buildSettingsSection(context, userData),
-                        Container(height: 24.0),
+                        const SizedBox(height: 24.0),
                         _buildAboutSection(context),
-                        Container(height: 24.0),
+                        const SizedBox(height: 24.0),
                         _buildLogoutButton(context),
                       ],
                     ),
                   ),
-                  Container(
-                    height: 40.0,
-                  ),
+                  const SizedBox(height: 40.0),
                 ],
               ),
             );
@@ -118,108 +108,66 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 1,
             child: wrapWithModel(
               model: _model.buttonModel1,
               updateCallback: () => safeSetState(() {}),
               child: ButtonWidget(
-                icon: Icon(
-                  Icons.edit_rounded,
-                  color: FlutterFlowTheme.of(context).primaryText,
-                  size: 24.0,
-                ),
+                icon: const Icon(Icons.edit_rounded, size: 24.0),
                 iconPresent: true,
-                iconEndPresent: false,
                 content: 'Edit Profile',
                 variant: 'outline',
-                size: 'medium',
-                fullWidth: true,
-                loading: false,
-                disabled: false,
-                onPressed: () async {
-                  context.pushNamed(EditProfileWidget.routeName);
-                },
+                onPressed: () => context.pushNamed(EditProfileWidget.routeName),
               ),
             ),
           ),
+          const SizedBox(width: 16.0),
           Expanded(
-            flex: 1,
             child: wrapWithModel(
               model: _model.buttonModel2,
               updateCallback: () => safeSetState(() {}),
-              child: ButtonWidget(
-                icon: Icon(
-                  Icons.share_rounded,
-                  color: FlutterFlowTheme.of(context).primaryText,
-                  size: 24.0,
-                ),
+              child: const ButtonWidget(
+                icon: Icon(Icons.share_rounded, size: 24.0),
                 iconPresent: true,
-                iconEndPresent: false,
                 content: 'Share CV',
                 variant: 'secondary',
-                size: 'medium',
-                fullWidth: true,
-                loading: false,
-                disabled: false,
               ),
             ),
           ),
-        ].divide(const SizedBox(width: 16.0)),
+        ],
       ),
     );
   }
 
   Widget _buildPersonalInformation(BuildContext context, Map<String, dynamic>? userData) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(context, 'Personal Information'),
         wrapWithModel(
           model: _model.profileInfoTileModel1,
           updateCallback: () => safeSetState(() {}),
           child: ProfileInfoTileWidget(
-            icon: Icon(
-              Icons.email_rounded,
-              color: FlutterFlowTheme.of(context).onPrimaryContainer,
-              size: 20.0,
-            ),
+            icon: Icon(Icons.email_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Email Address',
-            value: currentUserEmail != ''
-                ? currentUserEmail
-                : (userData?['email'] ?? 'rajesh.d@deshmukhcoaching.com'),
+            value: currentUserEmail != '' ? currentUserEmail : (userData?['email'] ?? 'rajesh.d@deshmukhcoaching.com'),
           ),
         ),
         wrapWithModel(
           model: _model.profileInfoTileModel2,
           updateCallback: () => safeSetState(() {}),
           child: ProfileInfoTileWidget(
-            icon: Icon(
-              Icons.phone_rounded,
-              color: FlutterFlowTheme.of(context).onPrimaryContainer,
-              size: 20.0,
-            ),
+            icon: Icon(Icons.phone_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Mobile Number',
-            value: currentPhoneNumber != ''
-                ? currentPhoneNumber
-                : (userData?['phone_number'] ?? '+91 98765 43210'),
+            value: currentPhoneNumber != '' ? currentPhoneNumber : (userData?['phone_number'] ?? '+91 98765 43210'),
           ),
         ),
         wrapWithModel(
           model: _model.profileInfoTileModel3,
           updateCallback: () => safeSetState(() {}),
           child: ProfileInfoTileWidget(
-            icon: Icon(
-              Icons.badge_rounded,
-              color: FlutterFlowTheme.of(context).onPrimaryContainer,
-              size: 20.0,
-            ),
+            icon: Icon(Icons.badge_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Employee ID',
             value: userData?['employee_id'] ?? 'Deshmukh-T-2024-089',
           ),
@@ -228,11 +176,7 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
           model: _model.profileInfoTileModel4,
           updateCallback: () => safeSetState(() {}),
           child: ProfileInfoTileWidget(
-            icon: Icon(
-              Icons.event_available_rounded,
-              color: FlutterFlowTheme.of(context).onPrimaryContainer,
-              size: 20.0,
-            ),
+            icon: Icon(Icons.event_available_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Joined Date',
             value: userData?['joined_date'] ?? '15 May 2018',
           ),
@@ -243,20 +187,14 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
 
   Widget _buildEducationExpertise(BuildContext context, Map<String, dynamic>? userData) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(context, 'Education & Expertise'),
         wrapWithModel(
           model: _model.profileInfoTileModel5,
           updateCallback: () => safeSetState(() {}),
           child: ProfileInfoTileWidget(
-            icon: Icon(
-              Icons.school_rounded,
-              color: FlutterFlowTheme.of(context).onPrimaryContainer,
-              size: 20.0,
-            ),
+            icon: Icon(Icons.school_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Qualification',
             value: userData?['qualification'] ?? 'M.Sc. Physics, M.Ed. Education',
           ),
@@ -265,11 +203,7 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
           model: _model.profileInfoTileModel6,
           updateCallback: () => safeSetState(() {}),
           child: ProfileInfoTileWidget(
-            icon: Icon(
-              Icons.psychology_rounded,
-              color: FlutterFlowTheme.of(context).onPrimaryContainer,
-              size: 20.0,
-            ),
+            icon: Icon(Icons.psychology_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Subject Expertise',
             value: userData?['subject_expertise'] ?? 'Advanced Physics & Mathematics',
           ),
@@ -278,11 +212,7 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
           model: _model.profileInfoTileModel7,
           updateCallback: () => safeSetState(() {}),
           child: ProfileInfoTileWidget(
-            icon: Icon(
-              Icons.workspace_premium_rounded,
-              color: FlutterFlowTheme.of(context).onPrimaryContainer,
-              size: 20.0,
-            ),
+            icon: Icon(Icons.workspace_premium_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Experience',
             value: userData?['experience'] ?? '12 Years in Competitive Coaching',
           ),
@@ -293,18 +223,14 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
 
   Widget _buildSettingsSection(BuildContext context, Map<String, dynamic>? userData) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(context, 'Settings & Preferences'),
         Container(
           decoration: BoxDecoration(
             color: FlutterFlowTheme.of(context).secondaryBackground,
             borderRadius: BorderRadius.circular(16.0),
-            border: Border.all(
-              color: FlutterFlowTheme.of(context).alternate,
-            ),
+            border: Border.all(color: FlutterFlowTheme.of(context).alternate),
           ),
           child: SwitchListTile.adaptive(
             value: userData?['notifications_enabled'] ?? true,
@@ -312,21 +238,12 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
               await FirebaseFirestore.instance
                   .collection('users')
                   .doc(currentUserUid)
-                  .update({
-                'notifications_enabled': newValue,
-              });
+                  .update({'notifications_enabled': newValue});
             },
-            title: Text(
-              'Push Notifications',
-              style: FlutterFlowTheme.of(context).bodyLarge,
-            ),
-            subtitle: Text(
-              'Receive alerts for new announcements and schedules.',
-              style: FlutterFlowTheme.of(context).labelSmall,
-            ),
-            activeColor: FlutterFlowTheme.of(context).primary,
+            title: Text('Push Notifications', style: FlutterFlowTheme.of(context).bodyLarge),
+            subtitle: Text('Receive alerts for new announcements.', style: FlutterFlowTheme.of(context).labelSmall),
+            activeThumbColor: FlutterFlowTheme.of(context).primary,
             activeTrackColor: FlutterFlowTheme.of(context).primary10,
-            dense: false,
             controlAffinity: ListTileControlAffinity.trailing,
           ),
         ),
@@ -338,47 +255,34 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.0),
-        shape: BoxShape.rectangle,
-        border: Border.all(
-          color: FlutterFlowTheme.of(context).info,
-          width: 1.0,
-        ),
+        border: Border.all(color: FlutterFlowTheme.of(context).info),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.info_rounded, size: 24.0),
-            Expanded(
-              flex: 1,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'About Deshmukh Teacher Portal',
-                    style: FlutterFlowTheme.of(context).labelLarge.override(
-                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                          fontWeight: FontWeight.bold,
-                          lineHeight: 1.33,
-                        ),
+      padding: const EdgeInsets.all(24.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_rounded, size: 24.0),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'About Deshmukh Teacher Portal',
+                  style: FlutterFlowTheme.of(context).labelLarge.override(
+                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    fontWeight: FontWeight.bold,
                   ),
-                  Text(
-                    'This profile is managed by the Deshmukh HR department. For any discrepancies, please contact the administrator.',
-                    style: FlutterFlowTheme.of(context).bodySmall.override(
-                          font: GoogleFonts.inter(),
-                          lineHeight: 1.4,
-                        ),
-                  ),
-                ].divide(const SizedBox(height: 4.0)),
-              ),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  'This profile is managed by the Deshmukh HR department.',
+                  style: FlutterFlowTheme.of(context).bodySmall,
+                ),
+              ],
             ),
-          ].divide(const SizedBox(width: 16.0)),
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -388,37 +292,24 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
       model: createModel(context, () => ButtonModel()),
       updateCallback: () => safeSetState(() {}),
       child: ButtonWidget(
-        icon: Icon(
-          Icons.logout_rounded,
-          color: FlutterFlowTheme.of(context).onError,
-          size: 24.0,
-        ),
+        icon: Icon(Icons.logout_rounded, color: FlutterFlowTheme.of(context).error, size: 24.0),
         iconPresent: true,
         content: 'Logout',
         variant: 'outline',
-        size: 'large',
-        fullWidth: true,
         onPressed: () async {
           final confirm = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to log out?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                ),
-              ) ??
-              false;
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Logout'),
+              content: const Text('Are you sure you want to log out?'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Logout')),
+              ],
+            ),
+          ) ?? false;
           if (confirm) {
-            await authManager.signOut();
+            await ref.read(authRepositoryProvider).signOut();
             if (!mounted) return;
             context.goNamed(LoginWidget.routeName);
           }
@@ -429,17 +320,15 @@ class _TeacherProfileWidgetState extends State<TeacherProfileWidget> {
 
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: Text(
         title,
         style: FlutterFlowTheme.of(context).titleMedium.override(
-              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-              color: FlutterFlowTheme.of(context).primaryText,
-              fontWeight: FontWeight.bold,
-              lineHeight: 1.35,
-            ),
+          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+          color: FlutterFlowTheme.of(context).primaryText,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 }
-

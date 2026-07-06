@@ -98,6 +98,10 @@ dependencies:
   cupertino_icons: ^1.0.0
 
   crypto: any
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  firebase_crashlytics: ^4.3.7
+  firebase_analytics: ^11.5.0
 dependency_overrides:
   http: 1.4.0
   uuid: ^4.0.0
@@ -109,6 +113,12 @@ dev_dependencies:
   lints: 4.0.0
   flutter_test:
     sdk: flutter
+  riverpod_generator: ^2.4.0
+  build_runner: ^2.4.13
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
+  mocktail: ^1.0.5
+  fake_cloud_firestore: ^3.0.2
 
 
 flutter_launcher_icons:

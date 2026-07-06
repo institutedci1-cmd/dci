@@ -1,25 +1,26 @@
-import '/auth/firebase_auth/auth_util.dart';
+import '/backend/models/daily_report.dart';
+import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'report_history_model.dart';
 export 'report_history_model.dart';
 
-class ReportHistoryWidget extends StatefulWidget {
+class ReportHistoryWidget extends ConsumerStatefulWidget {
   const ReportHistoryWidget({super.key});
 
   static String routeName = 'ReportHistory';
   static String routePath = '/reportHistory';
 
   @override
-  State<ReportHistoryWidget> createState() => _ReportHistoryWidgetState();
+  ConsumerState<ReportHistoryWidget> createState() => _ReportHistoryWidgetState();
 }
 
-class _ReportHistoryWidgetState extends State<ReportHistoryWidget> {
+class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
   late ReportHistoryModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -53,17 +54,13 @@ class _ReportHistoryWidgetState extends State<ReportHistoryWidget> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('daily_reports')
-                  .where('createdBy', isEqualTo: currentUserUid)
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
+            child: StreamBuilder<List<DailyReport>>(
+              stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 50),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final reports = snapshot.data!.docs;
+                final reports = snapshot.data!;
                 if (reports.isEmpty) {
                   return Center(
                     child: Text(
@@ -77,8 +74,7 @@ class _ReportHistoryWidgetState extends State<ReportHistoryWidget> {
                   itemCount: reports.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
-                    final report = reports[index].data() as Map<String, dynamic>;
-                    final date = (report['createdAt'] as Timestamp?)?.toDate();
+                    final report = reports[index];
                     return Container(
                       decoration: BoxDecoration(
                         color: FlutterFlowTheme.of(context).secondaryBackground,
@@ -89,7 +85,7 @@ class _ReportHistoryWidgetState extends State<ReportHistoryWidget> {
                       ),
                       child: ListTile(
                         title: Text(
-                          '${report['class']} - ${report['subject']}',
+                          '${report.className} - ${report.subject}',
                           style: FlutterFlowTheme.of(context).bodyLarge.override(
                                 font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.bold,
@@ -100,12 +96,12 @@ class _ReportHistoryWidgetState extends State<ReportHistoryWidget> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Topic: ${report['chapter']}'),
-                            if (report['teacher'] != null)
-                              Text('Teacher: ${report['teacher']}',
+                            Text('Topic: ${report.chapter}'),
+                            if (report.teacher.isNotEmpty)
+                              Text('Teacher: ${report.teacher}',
                                   style: FlutterFlowTheme.of(context).bodySmall),
                             Text(
-                              dateTimeFormat('yMMMd', date),
+                              dateTimeFormat('yMMMd', report.createdAt),
                               style: FlutterFlowTheme.of(context).labelSmall,
                             ),
                           ],

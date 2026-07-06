@@ -74,9 +74,6 @@ String? serializeParam(
         data = uploadedFileToString(param as FFUploadedFile);
       case ParamType.JSON:
         data = json.encode(param);
-
-      default:
-        data = null;
     }
     return data;
   } catch (e) {

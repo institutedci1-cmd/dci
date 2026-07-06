@@ -1,24 +1,25 @@
-import '/auth/firebase_auth/auth_util.dart';
+import '/backend/models/homework_assignment.dart';
+import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'homework_history_model.dart';
 export 'homework_history_model.dart';
 
-class HomeworkHistoryWidget extends StatefulWidget {
+class HomeworkHistoryWidget extends ConsumerStatefulWidget {
   const HomeworkHistoryWidget({super.key});
 
   static String routeName = 'HomeworkHistory';
   static String routePath = '/homeworkHistory';
 
   @override
-  State<HomeworkHistoryWidget> createState() => _HomeworkHistoryWidgetState();
+  ConsumerState<HomeworkHistoryWidget> createState() => _HomeworkHistoryWidgetState();
 }
 
-class _HomeworkHistoryWidgetState extends State<HomeworkHistoryWidget> {
+class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
   late HomeworkHistoryModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -53,17 +54,13 @@ class _HomeworkHistoryWidgetState extends State<HomeworkHistoryWidget> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('homework_assignments')
-                  .where('createdBy', isEqualTo: currentUserUid)
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
+            child: StreamBuilder<List<HomeworkAssignment>>(
+              stream: ref.watch(homeworkRepositoryProvider).getUserHomework(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final assignments = snapshot.data!.docs;
+                final assignments = snapshot.data!;
                 if (assignments.isEmpty) {
                   return Center(
                     child: Text(
@@ -77,9 +74,8 @@ class _HomeworkHistoryWidgetState extends State<HomeworkHistoryWidget> {
                   itemCount: assignments.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
-                    final assignment = assignments[index].data() as Map<String, dynamic>;
-                    final date = (assignment['createdAt'] as Timestamp?)?.toDate();
-                    final status = assignment['status'] ?? 'draft';
+                    final assignment = assignments[index];
+                    final status = assignment.status;
 
                     return Container(
                       decoration: BoxDecoration(
@@ -91,7 +87,7 @@ class _HomeworkHistoryWidgetState extends State<HomeworkHistoryWidget> {
                       ),
                       child: ListTile(
                         title: Text(
-                          '${assignment['class']} - ${assignment['subject']}',
+                          '${assignment.className} - ${assignment.subject}',
                           style: FlutterFlowTheme.of(context).bodyLarge.override(
                                 font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.bold,
@@ -102,12 +98,12 @@ class _HomeworkHistoryWidgetState extends State<HomeworkHistoryWidget> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(assignment['title'] ?? 'No Title'),
-                            if (assignment['teacher'] != null)
-                              Text('Assigned by: ${assignment['teacher']}',
+                            Text(assignment.title),
+                            if (assignment.teacher.isNotEmpty)
+                              Text('Assigned by: ${assignment.teacher}',
                                   style: FlutterFlowTheme.of(context).bodySmall),
                             Text(
-                              'Due: ${assignment['dueDate']}',
+                              'Due: ${assignment.dueDate}',
                               style: FlutterFlowTheme.of(context).labelSmall.override(
                                 font: GoogleFonts.inter(),
                                 color: FlutterFlowTheme.of(context).primary,
