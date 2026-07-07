@@ -1,3 +1,4 @@
+import '/backend/services/error_handler.dart';
 import '/backend/providers/repository_providers.dart';
 import '/backend/services/validation_service.dart';
 import '/components/auth_header/auth_header_widget.dart';
@@ -9,7 +10,6 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'sign_up_model.dart';
 export 'sign_up_model.dart';
 
 class SignUpWidget extends ConsumerStatefulWidget {
@@ -33,8 +33,6 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => SignUpModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
@@ -48,6 +46,7 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
       return;
     }
 
+    final email = _model.textFieldModel1.inputTextController!.text.trim();
     final password = _model.textFieldModel2.inputTextController!.text;
     final confirmPassword = _model.textFieldModel3.inputTextController!.text;
 
@@ -61,10 +60,7 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
     setState(() => _isLoading = true);
     try {
       final authRepository = ref.read(authRepositoryProvider);
-      final credential = await authRepository.signUpWithEmail(
-        _model.textFieldModel1.inputTextController!.text.trim(),
-        password,
-      );
+      final credential = await authRepository.signUpWithEmail(email, password);
 
       if (credential.user != null) {
         await authRepository.createUserDoc(credential.user!);
@@ -73,10 +69,7 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
       if (!mounted) return;
       context.goNamed(HomeDashboardWidget.routeName);
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sign up failed: $e')),
-      );
+      if (mounted) ErrorHandler.show(context, e);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -129,11 +122,25 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
             const SizedBox(height: 24.0),
             _buildSignUpButton(context),
             const SizedBox(height: 16.0),
-            _buildDivider(context),
-            const SizedBox(height: 16.0),
-            _buildGoogleSignUp(context),
+            _buildPhoneSignUpButton(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPhoneSignUpButton(BuildContext context) {
+    return wrapWithModel(
+      model: createModel(context, () => ButtonModel()),
+      updateCallback: () => safeSetState(() {}),
+      child: ButtonWidget(
+        icon: const Icon(Icons.phone_android_rounded, size: 20),
+        iconPresent: true,
+        content: 'Sign up with Phone',
+        variant: 'outline',
+        size: 'large',
+        fullWidth: true,
+        onPressed: () => context.pushNamed(PhoneLoginWidget.routeName),
       ),
     );
   }
@@ -169,7 +176,9 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
           child: const TextFieldWidget(
             label: 'Email Address',
             hint: 'teacher@deshmukhcoaching.com',
-            leadingIcon: Icon(Icons.email_outlined),
+            leadingIcon: Icon(Icons.email_outlined, size: 20),
+            leadingIconPresent: true,
+            keyboardType: TextInputType.emailAddress,
             validator: ValidationService.validateEmail,
           ),
         ),
@@ -180,9 +189,9 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
           child: const TextFieldWidget(
             label: 'Password',
             hint: 'Enter your password',
-            leadingIcon: Icon(Icons.lock_outlined),
-            trailingIcon: Icon(Icons.visibility_off_outlined),
-            trailingIconPresent: true,
+            leadingIcon: Icon(Icons.lock_outlined, size: 20),
+            leadingIconPresent: true,
+            obscureText: true,
             validator: ValidationService.validatePassword,
           ),
         ),
@@ -193,9 +202,9 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
           child: TextFieldWidget(
             label: 'Confirm Password',
             hint: 'Confirm your password',
-            leadingIcon: const Icon(Icons.lock_reset_outlined),
-            trailingIcon: const Icon(Icons.visibility_off_outlined),
-            trailingIconPresent: true,
+            leadingIcon: const Icon(Icons.lock_reset_outlined, size: 20),
+            leadingIconPresent: true,
+            obscureText: true,
             validator: (val) => ValidationService.validateRequired(val, 'Confirm Password'),
           ),
         ),
@@ -214,36 +223,6 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
         fullWidth: true,
         loading: _isLoading,
         onPressed: _handleSignUp,
-      ),
-    );
-  }
-
-  Widget _buildDivider(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: Divider()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text('OR', style: FlutterFlowTheme.of(context).labelSmall),
-        ),
-        const Expanded(child: Divider()),
-      ],
-    );
-  }
-
-  Widget _buildGoogleSignUp(BuildContext context) {
-    return wrapWithModel(
-      model: _model.buttonModel2,
-      updateCallback: () => safeSetState(() {}),
-      child: ButtonWidget(
-        content: 'Sign up with Google',
-        variant: 'outline',
-        fullWidth: true,
-        iconEndPresent: true,
-        iconEnd: const Icon(Icons.login_rounded),
-        onPressed: () async {
-          // Implement Google Sign Up
-        },
       ),
     );
   }
@@ -276,7 +255,7 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
             Text('Already have an account?', style: FlutterFlowTheme.of(context).bodySmall),
             const SizedBox(width: 4),
             InkWell(
-              onTap: () => context.goNamed(LoginWidget.routeName),
+              onTap: () => context.pushNamed(LoginWidget.routeName),
               child: Text(
                 'Sign In',
                 style: FlutterFlowTheme.of(context).bodySmall.override(
@@ -289,7 +268,7 @@ class _SignUpWidgetState extends ConsumerState<SignUpWidget> {
           ],
         ),
         const SizedBox(height: 20),
-        Text('Version 1.0.4 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
+        Text('Version 1.0.5 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
       ],
     );
   }

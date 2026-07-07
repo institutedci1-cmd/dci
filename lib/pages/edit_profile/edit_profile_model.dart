@@ -20,6 +20,10 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
   late TextFieldModel textFieldModel4;
   // Model for TextField (Subject Expertise).
   late TextFieldModel textFieldModel5;
+  // Model for TextField (Experience).
+  late TextFieldModel textFieldModel6;
+  // Model for TextField (Employee ID).
+  late TextFieldModel textFieldModel7;
   // Model for Button.
   late ButtonModel buttonModel;
 
@@ -31,6 +35,8 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
     textFieldModel3 = createModel(context, () => TextFieldModel());
     textFieldModel4 = createModel(context, () => TextFieldModel());
     textFieldModel5 = createModel(context, () => TextFieldModel());
+    textFieldModel6 = createModel(context, () => TextFieldModel());
+    textFieldModel7 = createModel(context, () => TextFieldModel());
     buttonModel = createModel(context, () => ButtonModel());
   }
 
@@ -42,6 +48,8 @@ class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {
     textFieldModel3.dispose();
     textFieldModel4.dispose();
     textFieldModel5.dispose();
+    textFieldModel6.dispose();
+    textFieldModel7.dispose();
     buttonModel.dispose();
   }
 }

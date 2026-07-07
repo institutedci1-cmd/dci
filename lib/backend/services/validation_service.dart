@@ -10,8 +10,8 @@ class ValidationService {
     if (value == null || value.trim().isEmpty) {
       return 'Email is required.';
     }
-    final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value.trim())) {
       return 'Enter a valid email address.';
     }
     return null;
@@ -27,9 +27,30 @@ class ValidationService {
     return null;
   }
 
+  static String? validateConfirmPassword(String? value, String password) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please confirm your password.';
+    }
+    if (value != password) {
+      return 'Passwords do not match.';
+    }
+    return null;
+  }
+
+  static String? validatePhoneNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Phone number is required.';
+    }
+    final phoneRegex = RegExp(r'^\+?[0-9]{10,12}$');
+    if (!phoneRegex.hasMatch(value.trim())) {
+      return 'Enter a valid phone number.';
+    }
+    return null;
+  }
+
   static String? validateAttendanceReason(String? value, String status) {
     if (status != 'Present' && (value == null || value.trim().isEmpty)) {
-      return 'Reason is required for leave or half day.';
+      return 'Reason is required for leave or absent.';
     }
     return null;
   }

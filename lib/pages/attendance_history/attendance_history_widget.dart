@@ -7,7 +7,6 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'attendance_history_model.dart';
 export 'attendance_history_model.dart';
 
 class AttendanceHistoryWidget extends ConsumerStatefulWidget {
@@ -105,7 +104,7 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                               ),
                         ),
                         subtitle: Text(
-                          'Class: ${record.className} • ${dateTimeFormat('yMMMd', record.date)}',
+                          'Class: ${record.className} • Subject: ${record.subject}\n${dateTimeFormat('yMMMd', record.date)}',
                           style: FlutterFlowTheme.of(context).bodySmall,
                         ),
                         trailing: Container(

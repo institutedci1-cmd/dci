@@ -1,6 +1,8 @@
 import '/backend/models/student.dart';
 import '/backend/providers/repository_providers.dart';
 import '/backend/services/app_constants.dart';
+import '/backend/services/excel_service/excel_service.dart';
+import '/components/button/button_widget.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/components/text_field/text_field_widget.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
@@ -27,6 +29,8 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
   late StudentListModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
   String _searchQuery = '';
+  bool _isImporting = false;
+  int _refreshKey = 0;
 
   @override
   void initState() {
@@ -57,14 +61,102 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                 subtitle: 'Manage your class students',
                 description: 'View and search for student details and progress.',
                 onBackPressed: () async => context.safePop(),
+                showActionIcon: false,
               ),
             ),
             _buildSearchAndFilter(context),
+            _buildImportExportRow(context),
             Expanded(
               child: _buildStudentList(context),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildImportExportRow(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: wrapWithModel(
+              model: createModel(context, () => ButtonModel()),
+              updateCallback: () => safeSetState(() {}),
+              child: ButtonWidget(
+                content: 'Export Class Excel',
+                variant: 'outline',
+                icon: const Icon(Icons.file_download_outlined, size: 20),
+                onPressed: () async {
+                  final repository = ref.read(studentRepositoryProvider);
+                  final students = (_model.dropdownValue == null || _model.dropdownValue == 'All Classes')
+                      ? await repository.getAllStudents()
+                      : await repository.getStudentsByClass(_model.dropdownValue!);
+                  
+                  if (students.isEmpty) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No students found to export.')),
+                      );
+                    }
+                    return;
+                  }
+
+                  final success = await ExcelService.exportStudents(students);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success 
+                          ? 'Excel exported successfully!' 
+                          : 'Failed to export Excel.'),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: wrapWithModel(
+              model: createModel(context, () => ButtonModel()),
+              updateCallback: () => safeSetState(() {}),
+              child: ButtonWidget(
+                content: 'Bulk Import',
+                variant: 'primary',
+                loading: _isImporting,
+                icon: const Icon(Icons.file_upload_outlined, size: 20),
+                onPressed: () async {
+                  safeSetState(() => _isImporting = true);
+                  try {
+                    final data = await ExcelService.importStudents();
+                    if (data.isNotEmpty) {
+                      final repository = ref.read(studentRepositoryProvider);
+                      await repository.bulkAddStudents(data);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Imported ${data.length} students successfully!')),
+                        );
+                        safeSetState(() => _refreshKey++);
+                      }
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Import failed: $e')),
+                      );
+                    }
+                  } finally {
+                    safeSetState(() => _isImporting = false);
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -85,6 +177,10 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
               leadingIcon: const Icon(Icons.search_rounded),
               leadingIconPresent: true,
               variant: 'outlined',
+              trailingIcon: _searchQuery.isNotEmpty 
+                ? InkWell(child: const Icon(Icons.clear_rounded, size: 20), onTap: () => safeSetState(() => _searchQuery = ''))
+                : null,
+              trailingIconPresent: _searchQuery.isNotEmpty,
               onChange: (val) =>
                   safeSetState(() => _searchQuery = val ?? ''),
             ),
@@ -124,10 +220,14 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     return StreamBuilder<List<Student>>(
       stream: ref.watch(studentRepositoryProvider).getAllStudentsStream(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
-        var students = snapshot.data!;
+        var students = snapshot.data ?? [];
+        final totalCount = students.length;
 
         if (_model.dropdownValue != null &&
             _model.dropdownValue != 'All Classes') {
@@ -168,26 +268,29 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                 border: Border.all(
                     color: FlutterFlowTheme.of(context).alternate),
               ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: FlutterFlowTheme.of(context).primary10,
-                  child: Text(
-                    student.name.isNotEmpty ? student.name[0] : 'S',
-                    style: TextStyle(color: FlutterFlowTheme.of(context).primary),
+              child: Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: FlutterFlowTheme.of(context).primary10,
+                    child: Text(
+                      student.name.isNotEmpty ? student.name[0] : 'S',
+                      style: TextStyle(color: FlutterFlowTheme.of(context).primary),
+                    ),
                   ),
+                  title: Text(
+                    student.name,
+                    style: FlutterFlowTheme.of(context).bodyLarge.override(
+                          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  subtitle: Text('ID: ${student.studentId} • Class: ${student.className}'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () {
+                    // Detail view
+                  },
                 ),
-                title: Text(
-                  student.name,
-                  style: FlutterFlowTheme.of(context).bodyLarge.override(
-                        font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                subtitle: Text('ID: ${student.studentId} • Class: ${student.className}'),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {
-                  // Detail view
-                },
               ),
             );
           },

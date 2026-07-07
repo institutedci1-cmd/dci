@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 Future initFirebase() async {
@@ -13,5 +14,17 @@ Future initFirebase() async {
             appId: "1:185309718906:web:0604745cd0588aa56d8ec3"));
   } else {
     await Firebase.initializeApp();
+  }
+
+  // Configure Firestore persistence
+  if (kIsWeb) {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: false,
+    );
+  } else {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
   }
 }

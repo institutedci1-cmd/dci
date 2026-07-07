@@ -138,6 +138,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const AttendanceHistoryWidget(),
         ),
         FFRoute(
+          name: MonthlyReportWidget.routeName,
+          path: MonthlyReportWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const MonthlyReportWidget(),
+        ),
+        FFRoute(
           name: StudentListWidget.routeName,
           path: StudentListWidget.routePath,
           requireAuth: true,

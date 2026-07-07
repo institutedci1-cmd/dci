@@ -19,16 +19,27 @@ class HomeworkRepository {
     await _homeworkCollection.add(homework.toFirestore());
   }
 
-  Stream<List<HomeworkAssignment>> getUserHomework() {
+  Stream<List<HomeworkAssignment>> getUserHomework({int limit = 20}) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
     return _homeworkCollection
         .where('createdBy', isEqualTo: user.uid)
         .orderBy('createdAt', descending: true)
+        .limit(limit)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => HomeworkAssignment.fromFirestore(doc))
             .toList());
+  }
+
+  Future<void> updateHomeworkStatus(String homeworkId, String status) async {
+    if (homeworkId.isEmpty) return;
+    await _homeworkCollection.doc(homeworkId).update({'status': status});
+  }
+
+  Future<void> deleteHomework(String homeworkId) async {
+    if (homeworkId.isEmpty) return;
+    await _homeworkCollection.doc(homeworkId).delete();
   }
 }

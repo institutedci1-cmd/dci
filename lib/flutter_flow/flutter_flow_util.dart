@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:json_path/json_path.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 
 import '../main.dart';
 
@@ -442,6 +443,6 @@ extension ListUniqueExt<T> on Iterable<T> {
 }
 
 String getCurrentRoute(BuildContext context) =>
-    context.mounted ? MyApp.of(context).getRoute() : '';
+    GoRouterState.of(context).uri.toString();
 List<String> getCurrentRouteStack(BuildContext context) =>
-    context.mounted ? MyApp.of(context).getRouteStack() : [];
+    []; // GoRouter doesn't easily expose the full stack this way

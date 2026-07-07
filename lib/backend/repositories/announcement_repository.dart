@@ -14,4 +14,19 @@ class AnnouncementRepository {
             .map((doc) => Announcement.fromFirestore(doc))
             .toList());
   }
+
+  Future<void> createAnnouncement({
+    required String title,
+    required String description,
+    required String category,
+    String? link,
+  }) async {
+    await _announcementsCollection.add({
+      'title': title,
+      'description': description,
+      'category': category,
+      'link': link,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
 }

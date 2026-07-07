@@ -36,6 +36,9 @@ class HomeworkAssignmentModel
   late FormLabelModel formLabelModel4;
   // State field(s) for due date.
   DateTime? dueDate;
+  // List of uploaded attachment URLs
+  List<String> attachmentUrls = [];
+  bool isDataUploading = false;
   // Model for Button.
   late ButtonModel buttonModel1;
   // Model for Button.

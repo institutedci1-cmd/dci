@@ -8,31 +8,24 @@ export 'text_field_model.dart';
 class TextFieldWidget extends StatefulWidget {
   const TextFieldWidget({
     super.key,
-    String? label,
-    bool? labelPresent,
-    String? helper,
-    bool? helperPresent,
+    this.label = 'Label',
+    this.labelPresent = true,
+    this.helper = '',
+    this.helperPresent = false,
     this.leadingIcon,
-    bool? leadingIconPresent,
+    this.leadingIconPresent = false,
     this.trailingIcon,
-    bool? trailingIconPresent,
-    String? hint,
-    String? value,
+    this.trailingIconPresent = false,
+    this.hint = '',
+    this.value = '',
     this.onChange,
     this.onSubmit,
     this.validator,
-    String? variant,
-    bool? error,
-  })  : label = label ?? 'Email Address',
-        labelPresent = labelPresent ?? true,
-        helper = helper ?? '',
-        helperPresent = helperPresent ?? false,
-        leadingIconPresent = leadingIconPresent ?? true,
-        trailingIconPresent = trailingIconPresent ?? false,
-        hint = hint ?? 'teacher@deshmukhcoaching.com',
-        value = value ?? '',
-        variant = variant ?? 'outlined',
-        error = error ?? false;
+    this.variant = 'outlined',
+    this.error = false,
+    this.obscureText = false,
+    this.keyboardType = TextInputType.text,
+  });
 
   final String label;
   final bool labelPresent;
@@ -49,6 +42,8 @@ class TextFieldWidget extends StatefulWidget {
   final String? Function(String?)? validator;
   final String variant;
   final bool error;
+  final bool obscureText;
+  final TextInputType keyboardType;
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -56,6 +51,7 @@ class TextFieldWidget extends StatefulWidget {
 
 class _TextFieldWidgetState extends State<TextFieldWidget> {
   late TextFieldModel _model;
+  bool _obscureText = false;
 
   @override
   void setState(VoidCallback callback) {
@@ -67,10 +63,10 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TextFieldModel());
-
     _model.inputTextController ??= TextEditingController(text: widget.value);
     _model.inputFocusNode ??= FocusNode();
     _model.inputTextControllerValidator = (context, val) => widget.validator?.call(val);
+    _obscureText = widget.obscureText;
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -78,446 +74,105 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   void dispose() {
     _model.maybeDispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (valueOrDefault<bool>(
-            widget.labelPresent,
-            true,
-          ))
-            Text(
-              valueOrDefault<String>(
-                widget.label,
-                'Email Address',
-              ),
-              style: FlutterFlowTheme.of(context).labelMedium.override(
-                    font: GoogleFonts.inter(
-                      fontWeight:
-                          FlutterFlowTheme.of(context).labelMedium.fontWeight,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).labelMedium.fontStyle,
-                    ),
-                    color: valueOrDefault<Color>(
-                      valueOrDefault<bool>(
-                        widget.error,
-                        false,
-                      )
-                          ? FlutterFlowTheme.of(context).error
-                          : FlutterFlowTheme.of(context).primaryText,
-                      FlutterFlowTheme.of(context).primaryText,
-                    ),
-                    letterSpacing: 0.0,
-                    fontWeight:
-                        FlutterFlowTheme.of(context).labelMedium.fontWeight,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).labelMedium.fontStyle,
-                    lineHeight: 1.38,
-                  ),
-            ),
-          Container(
-            height: 40.0,
-            decoration: BoxDecoration(
-              color: valueOrDefault<Color>(
-                () {
-                  if (valueOrDefault<String>(
-                        widget.variant,
-                        'outlined',
-                      ) ==
-                      'filled') {
-                    return FlutterFlowTheme.of(context).secondaryBackground;
-                  } else if (valueOrDefault<String>(
-                        widget.variant,
-                        'outlined',
-                      ) ==
-                      'ghost') {
-                    return Colors.transparent;
-                  } else {
-                    return Colors.transparent;
-                  }
-                }(),
-                Colors.transparent,
-              ),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(valueOrDefault<double>(
-                  () {
-                    if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'filled') {
-                      return 8.0;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'ghost') {
-                      return 8.0;
-                    } else {
-                      return 8.0;
-                    }
-                  }(),
-                  8.0,
-                )),
-                topRight: Radius.circular(valueOrDefault<double>(
-                  () {
-                    if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'filled') {
-                      return 8.0;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'ghost') {
-                      return 8.0;
-                    } else {
-                      return 8.0;
-                    }
-                  }(),
-                  8.0,
-                )),
-                bottomLeft: Radius.circular(valueOrDefault<double>(
-                  () {
-                    if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'filled') {
-                      return 8.0;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'ghost') {
-                      return 8.0;
-                    } else {
-                      return 8.0;
-                    }
-                  }(),
-                  8.0,
-                )),
-                bottomRight: Radius.circular(valueOrDefault<double>(
-                  () {
-                    if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'filled') {
-                      return 8.0;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'ghost') {
-                      return 8.0;
-                    } else {
-                      return 8.0;
-                    }
-                  }(),
-                  8.0,
-                )),
-              ),
-              shape: BoxShape.rectangle,
-              border: Border.all(
-                color: valueOrDefault<Color>(
-                  () {
-                    if (valueOrDefault<bool>(
-                      widget.error,
-                      false,
-                    )) {
-                      return FlutterFlowTheme.of(context).error;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'filled') {
-                      return Colors.transparent;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'ghost') {
-                      return Colors.transparent;
-                    } else {
-                      return FlutterFlowTheme.of(context).alternate;
-                    }
-                  }(),
-                  FlutterFlowTheme.of(context).alternate,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.labelPresent)
+          Text(
+            widget.label,
+            style: FlutterFlowTheme.of(context).labelMedium.override(
+                  font: GoogleFonts.inter(),
+                  color: widget.error
+                      ? FlutterFlowTheme.of(context).error
+                      : FlutterFlowTheme.of(context).primaryText,
                 ),
-                width: valueOrDefault<double>(
-                  () {
-                    if (valueOrDefault<bool>(
-                      widget.error,
-                      false,
-                    )) {
-                      return 1.0;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'filled') {
-                      return 1.0;
-                    } else if (valueOrDefault<String>(
-                          widget.variant,
-                          'outlined',
-                        ) ==
-                        'ghost') {
-                      return 0.0;
-                    } else {
-                      return 1.0;
-                    }
-                  }(),
-                  1.0,
-                ),
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(
-                  valueOrDefault<double>(
-                    () {
-                      if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'filled') {
-                        return 8.0;
-                      } else if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'ghost') {
-                        return 8.0;
-                      } else {
-                        return 8.0;
-                      }
-                    }(),
-                    8.0,
-                  ),
-                  valueOrDefault<double>(
-                    () {
-                      if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'filled') {
-                        return 8.0;
-                      } else if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'ghost') {
-                        return 8.0;
-                      } else {
-                        return 8.0;
-                      }
-                    }(),
-                    8.0,
-                  ),
-                  valueOrDefault<double>(
-                    () {
-                      if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'filled') {
-                        return 8.0;
-                      } else if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'ghost') {
-                        return 8.0;
-                      } else {
-                        return 8.0;
-                      }
-                    }(),
-                    8.0,
-                  ),
-                  valueOrDefault<double>(
-                    () {
-                      if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'filled') {
-                        return 8.0;
-                      } else if (valueOrDefault<String>(
-                            widget.variant,
-                            'outlined',
-                          ) ==
-                          'ghost') {
-                        return 8.0;
-                      } else {
-                        return 8.0;
-                      }
-                    }(),
-                    8.0,
-                  )),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (valueOrDefault<bool>(
-                    widget.leadingIconPresent,
-                    true,
-                  ))
-                    widget.leadingIcon!,
-                  Expanded(
-                    flex: 1,
-                    child: TextFormField(
-                      controller: _model.inputTextController,
-                      focusNode: _model.inputFocusNode,
-                      obscureText: false,
-                      onChanged: widget.onChange,
-                      onFieldSubmitted: widget.onSubmit,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: valueOrDefault<String>(
-                          widget.hint,
-                          'teacher@deshmukhcoaching.com',
-                        ),
-                        hintStyle: FlutterFlowTheme.of(context)
-                            .bodyMedium
-                            .override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .fontStyle,
-                              ),
-                              color: valueOrDefault<Color>(
-                                () {
-                                  if (valueOrDefault<String>(
-                                        widget.variant,
-                                        'outlined',
-                                      ) ==
-                                      'filled') {
-                                    return FlutterFlowTheme.of(context).accent3;
-                                  } else if (valueOrDefault<String>(
-                                        widget.variant,
-                                        'outlined',
-                                      ) ==
-                                      'ghost') {
-                                    return FlutterFlowTheme.of(context).accent3;
-                                  } else {
-                                    return FlutterFlowTheme.of(context).accent3;
-                                  }
-                                }(),
-                                FlutterFlowTheme.of(context).accent3,
-                              ),
-                              letterSpacing: 0.0,
-                              fontWeight: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                              lineHeight: 1.47,
-                            ),
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        errorBorder: InputBorder.none,
-                        focusedErrorBorder: InputBorder.none,
-                      ),
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
-                            color: valueOrDefault<Color>(
-                              () {
-                                if (valueOrDefault<String>(
-                                      widget.variant,
-                                      'outlined',
-                                    ) ==
-                                    'filled') {
-                                  return FlutterFlowTheme.of(context)
-                                      .primaryText;
-                                } else if (valueOrDefault<String>(
-                                      widget.variant,
-                                      'outlined',
-                                    ) ==
-                                    'ghost') {
-                                  return FlutterFlowTheme.of(context)
-                                      .primaryText;
-                                } else {
-                                  return FlutterFlowTheme.of(context)
-                                      .primaryText;
-                                }
-                              }(),
-                              FlutterFlowTheme.of(context).primaryText,
-                            ),
-                            letterSpacing: 0.0,
-                            fontWeight: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontWeight,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                            lineHeight: 1.47,
-                          ),
-                      validator: _model.inputTextControllerValidator
-                          .asValidator(context),
-                    ),
-                  ),
-                  if (valueOrDefault<bool>(
-                    widget.trailingIconPresent,
-                    false,
-                  ))
-                    widget.trailingIcon!,
-                ],
-              ),
+          ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: widget.variant == 'filled'
+                ? FlutterFlowTheme.of(context).secondaryBackground
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(
+              color: widget.error
+                  ? FlutterFlowTheme.of(context).error
+                  : (widget.variant == 'ghost' ? Colors.transparent : FlutterFlowTheme.of(context).alternate),
+              width: widget.variant == 'ghost' ? 0 : 1.0,
             ),
           ),
-          if (valueOrDefault<bool>(
-            widget.helperPresent,
-            false,
-          ))
-            Text(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              children: [
+                if (widget.leadingIconPresent && widget.leadingIcon != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: widget.leadingIcon!,
+                  ),
+                Expanded(
+                  child: TextFormField(
+                    controller: _model.inputTextController,
+                    focusNode: _model.inputFocusNode,
+                    obscureText: _obscureText,
+                    keyboardType: widget.keyboardType,
+                    onChanged: widget.onChange,
+                    onFieldSubmitted: widget.onSubmit,
+                    validator: _model.inputTextControllerValidator.asValidator(context),
+                    decoration: InputDecoration(
+                      hintText: widget.hint,
+                      hintStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                            font: GoogleFonts.inter(),
+                            color: FlutterFlowTheme.of(context).accent3,
+                          ),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      focusedErrorBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                          font: GoogleFonts.inter(),
+                          color: FlutterFlowTheme.of(context).primaryText,
+                        ),
+                  ),
+                ),
+                if (widget.obscureText)
+                  InkWell(
+                    onTap: () => setState(() => _obscureText = !_obscureText),
+                    child: Icon(
+                      _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      color: FlutterFlowTheme.of(context).secondaryText,
+                      size: 22,
+                    ),
+                  )
+                else if (widget.trailingIconPresent && widget.trailingIcon != null)
+                  widget.trailingIcon!,
+              ],
+            ),
+          ),
+        ),
+        if (widget.helperPresent)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
               widget.helper,
               style: FlutterFlowTheme.of(context).bodySmall.override(
-                    font: GoogleFonts.inter(
-                      fontWeight:
-                          FlutterFlowTheme.of(context).bodySmall.fontWeight,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).bodySmall.fontStyle,
-                    ),
-                    color: valueOrDefault<Color>(
-                      valueOrDefault<bool>(
-                        widget.error,
-                        false,
-                      )
-                          ? FlutterFlowTheme.of(context).error
-                          : FlutterFlowTheme.of(context).secondaryText,
-                      FlutterFlowTheme.of(context).secondaryText,
-                    ),
-                    letterSpacing: 0.0,
-                    fontWeight:
-                        FlutterFlowTheme.of(context).bodySmall.fontWeight,
-                    fontStyle: FlutterFlowTheme.of(context).bodySmall.fontStyle,
-                    lineHeight: 1.38,
+                    font: GoogleFonts.inter(),
+                    color: widget.error
+                        ? FlutterFlowTheme.of(context).error
+                        : FlutterFlowTheme.of(context).secondaryText,
                   ),
             ),
-        ].divide(const SizedBox(height: 6.0)),
-      ),
+          ),
+      ],
     );
   }
 }

@@ -8,7 +8,6 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'announcements_feed_model.dart';
 export 'announcements_feed_model.dart';
 
 class AnnouncementsFeedWidget extends ConsumerStatefulWidget {
@@ -47,6 +46,11 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showCreateAnnouncementBottomSheet(context),
+          backgroundColor: FlutterFlowTheme.of(context).primary,
+          child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
+        ),
         body: Column(
           children: [
             _buildHeader(context),
@@ -125,13 +129,13 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
   }
 
   Widget _buildAnnouncementsList(BuildContext context) {
-    return StreamBuilder<List<Announcement>>(
-      stream: ref.watch(announcementRepositoryProvider).getAnnouncementsStream(),
+    return FutureBuilder<List<Announcement>>(
+      future: ref.read(announcementRepositoryProvider).getAnnouncementsStream().first,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        final announcements = snapshot.data!;
+        final announcements = snapshot.data ?? [];
         if (announcements.isEmpty) {
           return Center(
             child: Text(
@@ -175,6 +179,112 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
             ),
           ),
         ].divide(const SizedBox(height: 4.0)),
+      ),
+    );
+  }
+
+  void _showCreateAnnouncementBottomSheet(BuildContext context) {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+    String selectedCategory = 'GENERAL';
+    final categories = ['GENERAL', 'EXAM', 'EVENT', 'HOLIDAY', 'URGENT'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          decoration: BoxDecoration(
+            color: FlutterFlowTheme.of(context).secondaryBackground,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24.0),
+              topRight: Radius.circular(24.0),
+            ),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 24,
+            left: 24,
+            right: 24,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Post New Announcement',
+                  style: FlutterFlowTheme.of(context).titleLarge.override(
+                        font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    hintText: 'e.g. Weekly Test Schedule',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedCategory,
+                  items: categories
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
+                  onChanged: (val) => setModalState(() => selectedCategory = val!),
+                  decoration: InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: descriptionController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    labelText: 'Description',
+                    hintText: 'Provide details about the announcement...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (titleController.text.isEmpty || descriptionController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please fill all required fields')),
+                      );
+                      return;
+                    }
+
+                    await ref.read(announcementRepositoryProvider).createAnnouncement(
+                          title: titleController.text,
+                          description: descriptionController.text,
+                          category: selectedCategory,
+                        );
+
+                    if (!context.mounted) return;
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Announcement posted successfully')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: FlutterFlowTheme.of(context).primary,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Post Announcement', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -11,7 +11,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'home_dashboard_model.dart';
 export 'home_dashboard_model.dart';
 
 class HomeDashboardWidget extends ConsumerStatefulWidget {
@@ -54,19 +53,21 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(currentUserUid)
-              .snapshots(),
-          builder: (context, userSnapshot) {
+        body: currentUserUid.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(currentUserUid)
+                    .get(),
+                builder: (context, userSnapshot) {
             final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
 
-            return StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance
+            return FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance
                   .collection('config')
                   .doc('dashboard_config')
-                  .snapshots(),
+                  .get(),
               builder: (context, configSnapshot) {
                 final dashboardConfig =
                     configSnapshot.data?.data() as Map<String, dynamic>?;
@@ -182,13 +183,69 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                   buttonSize: 40.0,
                   fillColor: FlutterFlowTheme.of(context).onPrimary15,
                   icon: Icon(
+                    Icons.search_rounded,
+                    color: FlutterFlowTheme.of(context).onPrimary,
+                    size: 24.0,
+                  ),
+                  onPressed: () => context.pushNamed(StudentListWidget.routeName),
+                ),
+                Stack(
+                  alignment: const AlignmentDirectional(1.0, -1.0),
+                  children: [
+                    FlutterFlowIconButton(
+                      borderRadius: 9999.0,
+                      buttonSize: 40.0,
+                      fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                      icon: Icon(
+                        Icons.notifications_none_rounded,
+                        color: FlutterFlowTheme.of(context).onPrimary,
+                        size: 24.0,
+                      ),
+                      onPressed: () =>
+                          context.pushNamed(NotificationsWidget.routeName),
+                    ),
+                    FutureBuilder<int>(
+                      future: ref
+                          .read(notificationRepositoryProvider)
+                          .getUnreadCountStream()
+                          .first,
+                      builder: (context, snapshot) {
+                        final count = snapshot.data ?? 0;
+                        if (count == 0) return const SizedBox.shrink();
+                        return Container(
+                          width: 18,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            color: FlutterFlowTheme.of(context).error,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            count > 9 ? '9+' : count.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                FlutterFlowIconButton(
+                  borderRadius: 9999.0,
+                  buttonSize: 40.0,
+                  fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                  icon: Icon(
                     Icons.logout_rounded,
                     color: FlutterFlowTheme.of(context).onPrimary,
                     size: 24.0,
                   ),
                   onPressed: () async {
                     await ref.read(authRepositoryProvider).signOut();
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     context.goNamed(LoginWidget.routeName);
                   },
                 ),
@@ -214,7 +271,36 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                 ),
               ].divide(const SizedBox(width: 8.0)),
             ),
+            const SizedBox(height: 16),
+            _buildGlobalSearch(context),
           ].divide(const SizedBox(height: 24.0)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlobalSearch(BuildContext context) {
+    return InkWell(
+      onTap: () => context.pushNamed(StudentListWidget.routeName),
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).onPrimary15,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Icon(Icons.search_rounded, color: FlutterFlowTheme.of(context).onPrimary80),
+            const SizedBox(width: 12),
+            Text(
+              'Search students, reports...',
+              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                    font: GoogleFonts.inter(),
+                    color: FlutterFlowTheme.of(context).onPrimary80,
+                  ),
+            ),
+          ],
         ),
       ),
     );
@@ -329,10 +415,10 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
       children: [
         _buildSectionTitle(context, 'Recent Activity'),
         const SizedBox(height: 12.0),
-        StreamBuilder<List<DailyReport>>(
-          stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 3),
+        FutureBuilder<List<DailyReport>>(
+          future: ref.read(dailyReportRepositoryProvider).getRecentReports(limit: 3).first,
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
             final reports = snapshot.data!;

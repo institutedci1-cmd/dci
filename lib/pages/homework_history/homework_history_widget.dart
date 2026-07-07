@@ -109,6 +109,28 @@ class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
                                 color: FlutterFlowTheme.of(context).primary,
                               ),
                             ),
+                            if (assignment.attachments.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.attachment_rounded,
+                                        size: 14,
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryText),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${assignment.attachments.length} attachment(s)',
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodySmall
+                                          .override(
+                                            font: GoogleFonts.inter(),
+                                            fontSize: 10,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                         trailing: Column(
@@ -131,7 +153,45 @@ class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
                           ],
                         ),
                         onTap: () {
-                          // View details
+                          if (assignment.attachments.isEmpty) return;
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Container(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Attachments',
+                                    style: FlutterFlowTheme.of(context)
+                                        .titleLarge
+                                        .override(
+                                          font: GoogleFonts.plusJakartaSans(
+                                              fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ...assignment.attachments.map((url) {
+                                    final fileName =
+                                        url.split('%2F').last.split('?').first;
+                                    return ListTile(
+                                      leading: const Icon(
+                                          Icons.insert_drive_file_outlined),
+                                      title: Text(fileName,
+                                          style: FlutterFlowTheme.of(context)
+                                              .bodyMedium),
+                                      trailing: const Icon(
+                                          Icons.open_in_new_rounded,
+                                          size: 20),
+                                      onTap: () => launchURL(url),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                          );
                         },
                       ),
                     );

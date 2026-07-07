@@ -32,20 +32,20 @@ class DailyReport {
   });
 
   factory DailyReport.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>? ?? {};
     return DailyReport(
       id: doc.id,
-      className: data['class'] ?? '',
-      subject: data['subject'] ?? '',
-      teacher: data['teacher'] ?? '',
-      chapter: data['chapter'] ?? '',
-      topics: data['topics'] ?? '',
+      className: data['class']?.toString() ?? '',
+      subject: data['subject']?.toString() ?? '',
+      teacher: data['teacher']?.toString() ?? '',
+      chapter: data['chapter']?.toString() ?? '',
+      topics: data['topics']?.toString() ?? '',
       presentCount: data['presentCount'] ?? 0,
       absentCount: data['absentCount'] ?? 0,
-      homeworkAssigned: data['homeworkAssigned'] ?? '',
-      remarks: data['remarks'] ?? '',
-      createdBy: data['createdBy'] ?? '',
-      createdByEmail: data['createdByEmail'] ?? '',
+      homeworkAssigned: data['homeworkAssigned']?.toString() ?? '',
+      remarks: data['remarks']?.toString() ?? '',
+      createdBy: data['createdBy']?.toString() ?? '',
+      createdByEmail: data['createdByEmail']?.toString() ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }

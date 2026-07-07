@@ -20,17 +20,23 @@ class DailyReportRepository {
   }
 
   Future<DailyReport?> getLastReport() async {
+    final reports = await getReports(limit: 1);
+    return reports.isNotEmpty ? reports.first : null;
+  }
+
+  Future<List<DailyReport>> getReports({int limit = 20}) async {
     final user = _auth.currentUser;
-    if (user == null) return null;
+    if (user == null) return [];
 
     final querySnapshot = await _reportsCollection
         .where('createdBy', isEqualTo: user.uid)
         .orderBy('createdAt', descending: true)
-        .limit(1)
+        .limit(limit)
         .get();
 
-    if (querySnapshot.docs.isEmpty) return null;
-    return DailyReport.fromFirestore(querySnapshot.docs.first);
+    return querySnapshot.docs
+        .map((doc) => DailyReport.fromFirestore(doc))
+        .toList();
   }
 
   Stream<List<DailyReport>> getRecentReports({int limit = 3}) {

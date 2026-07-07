@@ -9,6 +9,7 @@ class HomeworkAssignment {
   final String description;
   final String dueDate;
   final String status;
+  final List<String> attachments;
   final String createdBy;
   final String createdByEmail;
   final DateTime? createdAt;
@@ -22,6 +23,7 @@ class HomeworkAssignment {
     required this.description,
     required this.dueDate,
     required this.status,
+    this.attachments = const [],
     required this.createdBy,
     required this.createdByEmail,
     this.createdAt,
@@ -38,6 +40,7 @@ class HomeworkAssignment {
       description: data['description'] ?? '',
       dueDate: data['dueDate'] ?? '',
       status: data['status'] ?? 'draft',
+      attachments: List<String>.from(data['attachments'] ?? []),
       createdBy: data['createdBy'] ?? '',
       createdByEmail: data['createdByEmail'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
@@ -53,6 +56,7 @@ class HomeworkAssignment {
       'description': description,
       'dueDate': dueDate,
       'status': status,
+      'attachments': attachments,
       'createdBy': createdBy,
       'createdByEmail': createdByEmail,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),

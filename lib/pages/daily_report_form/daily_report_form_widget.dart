@@ -10,7 +10,6 @@ import '/index.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'daily_report_form_model.dart';
 import 'sections/class_details_section.dart';
 import 'sections/student_count_section.dart';
 import 'sections/additional_info_section.dart';
@@ -34,6 +33,7 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   int _presentCount = 0;
   int _absentCount = 0;
+  DailyReport? _lastReport;
 
   @override
   void initState() {
@@ -69,24 +69,29 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
       final report = await repository.getLastReport();
       if (report == null) return;
 
+      _lastReport = report;
       if (!mounted) return;
-      safeSetState(() {
-        _presentCount = report.presentCount;
-        _absentCount = report.absentCount;
-        _model.dropdownValue1 = report.className;
-        _model.dropdownValueController1?.value = report.className;
-        _model.dropdownValue2 = report.subject;
-        _model.dropdownValueController2?.value = report.subject;
-        _model.dropdownValue3 = report.teacher;
-        _model.dropdownValueController3?.value = report.teacher;
-        _model.textFieldModel3.inputTextController?.text = report.chapter;
-        _model.textFieldModel4.inputTextController?.text = report.topics;
-        _model.textFieldModel5.inputTextController?.text = report.homeworkAssigned;
-        _model.textFieldModel6.inputTextController?.text = report.remarks;
-      });
+      _applyReport(report);
     } catch (e) {
       // Ignore load errors and allow the form to continue.
     }
+  }
+
+  void _applyReport(DailyReport report) {
+    safeSetState(() {
+      _presentCount = report.presentCount;
+      _absentCount = report.absentCount;
+      _model.dropdownValue1 = report.className;
+      _model.dropdownValueController1?.value = report.className;
+      _model.dropdownValue2 = report.subject;
+      _model.dropdownValueController2?.value = report.subject;
+      _model.dropdownValue3 = report.teacher;
+      _model.dropdownValueController3?.value = report.teacher;
+      _model.textFieldModel3.inputTextController?.text = report.chapter;
+      _model.textFieldModel4.inputTextController?.text = report.topics;
+      _model.textFieldModel5.inputTextController?.text = report.homeworkAssigned;
+      _model.textFieldModel6.inputTextController?.text = report.remarks;
+    });
   }
 
   @override
@@ -217,13 +222,13 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
                     );
 
                     await ref.read(dailyReportRepositoryProvider).submitReport(report);
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Daily report saved.')));
                     if (context.mounted) {
                       context.goNamed(HomeDashboardWidget.routeName);
                     }
                   } catch (e) {
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                   }
                 },
@@ -231,8 +236,33 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
             ),
           ),
           const SizedBox(width: 16),
+          if (_lastReport != null) ...[
+            _buildRestoreButton(),
+            const SizedBox(width: 16),
+          ],
           _buildClearButton(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRestoreButton() {
+    return InkWell(
+      onTap: () {
+        if (_lastReport != null) _applyReport(_lastReport!);
+      },
+      child: Container(
+        width: 56.0,
+        height: 56.0,
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).primary10,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: Icon(
+          Icons.restore_page_rounded,
+          color: FlutterFlowTheme.of(context).primary,
+          size: 24.0,
+        ),
       ),
     );
   }

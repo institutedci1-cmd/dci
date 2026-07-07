@@ -6,12 +6,11 @@ import '/components/profile_info_tile/profile_info_tile_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '/backend/services/pdf_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'teacher_profile_model.dart';
-export 'teacher_profile_model.dart';
 
 class TeacherProfileWidget extends ConsumerStatefulWidget {
   const TeacherProfileWidget({super.key});
@@ -49,13 +48,10 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(currentUserUid)
-              .snapshots(),
+        body: StreamBuilder<Map<String, dynamic>?>(
+          stream: ref.watch(userRepositoryProvider).getUserStream(),
           builder: (context, snapshot) {
-            final userData = snapshot.data?.data() as Map<String, dynamic>?;
+            final userData = snapshot.data;
 
             return SingleChildScrollView(
               child: Column(
@@ -82,9 +78,13 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        _buildUserRoleBadge(context, userData),
+                        const SizedBox(height: 16.0),
                         _buildPersonalInformation(context, userData),
                         const SizedBox(height: 24.0),
                         _buildEducationExpertise(context, userData),
+                        const SizedBox(height: 24.0),
+                        _buildAppLinksSection(context),
                         const SizedBox(height: 24.0),
                         _buildSettingsSection(context, userData),
                         const SizedBox(height: 24.0),
@@ -127,11 +127,17 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
             child: wrapWithModel(
               model: _model.buttonModel2,
               updateCallback: () => safeSetState(() {}),
-              child: const ButtonWidget(
-                icon: Icon(Icons.share_rounded, size: 24.0),
+              child: ButtonWidget(
+                icon: const Icon(Icons.share_rounded, size: 24.0),
                 iconPresent: true,
                 content: 'Share CV',
                 variant: 'secondary',
+                onPressed: () async {
+                  final userData = await ref.read(userRepositoryProvider).getUserData();
+                  if (userData != null) {
+                    await PdfService.generateTeacherCV(userData);
+                  }
+                },
               ),
             ),
           ),
@@ -235,10 +241,9 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           child: SwitchListTile.adaptive(
             value: userData?['notifications_enabled'] ?? true,
             onChanged: (newValue) async {
-              await FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(currentUserUid)
-                  .update({'notifications_enabled': newValue});
+              await ref
+                  .read(userRepositoryProvider)
+                  .updateNotificationSettings(newValue);
             },
             title: Text('Push Notifications', style: FlutterFlowTheme.of(context).bodyLarge),
             subtitle: Text('Receive alerts for new announcements.', style: FlutterFlowTheme.of(context).labelSmall),
@@ -287,6 +292,66 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
     );
   }
 
+  Widget _buildUserRoleBadge(BuildContext context, Map<String, dynamic>? userData) {
+    final role = userData?['role'] ?? 'Teacher';
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).primary10,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: FlutterFlowTheme.of(context).primary),
+        ),
+        child: Text(
+          role.toUpperCase(),
+          style: FlutterFlowTheme.of(context).labelSmall.override(
+            font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+            color: FlutterFlowTheme.of(context).primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppLinksSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(context, 'App & Preferences'),
+        _buildListTile(
+          context,
+          icon: Icons.notifications_none_rounded,
+          title: 'Notification Center',
+          onTap: () => context.pushNamed(NotificationsWidget.routeName),
+        ),
+        _buildListTile(
+          context,
+          icon: Icons.settings_outlined,
+          title: 'Settings',
+          onTap: () => context.pushNamed(SettingsWidget.routeName),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: FlutterFlowTheme.of(context).secondaryBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+      ),
+      child: ListTile(
+        onTap: onTap,
+        leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
+        title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
+        trailing: const Icon(Icons.chevron_right_rounded),
+      ),
+    );
+  }
+
   Widget _buildLogoutButton(BuildContext context) {
     return wrapWithModel(
       model: createModel(context, () => ButtonModel()),
@@ -310,7 +375,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           ) ?? false;
           if (confirm) {
             await ref.read(authRepositoryProvider).signOut();
-            if (!mounted) return;
+            if (!context.mounted) return;
             context.goNamed(LoginWidget.routeName);
           }
         },

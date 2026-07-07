@@ -56,6 +56,18 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "barcode",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/barcode-2.2.9",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "bidi",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/bidi-2.0.13",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "boolean_selector",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/boolean_selector-2.1.2",
       "packageUri": "lib/",
@@ -200,6 +212,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cross_file",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/cross_file-0.3.5+4",
+      "packageUri": "lib/",
+      "languageVersion": "3.10"
+    },
+    {
       "name": "crypto",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/crypto-3.0.7",
       "packageUri": "lib/",
@@ -236,6 +254,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "dbus",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/dbus-0.7.12",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "dropdown_button2",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/git/dropdown_button2-514178337dfbea442f617daed39c704b57593fc9/packages/dropdown_button2",
       "packageUri": "lib/",
@@ -244,6 +268,12 @@
     {
       "name": "equatable",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/equatable-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "excel",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/excel-4.0.6",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -276,6 +306,12 @@
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/file-7.0.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "file_picker",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-11.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "firebase_analytics",
@@ -344,6 +380,24 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "firebase_messaging",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_messaging-15.2.7",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "firebase_messaging_platform_interface",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_messaging_platform_interface-4.6.7",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "firebase_messaging_web",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_messaging_web-3.10.7",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "firebase_performance",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_performance-0.10.1+7",
       "packageUri": "lib/",
@@ -358,6 +412,24 @@
     {
       "name": "firebase_performance_web",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_performance_web-0.1.7+13",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "firebase_storage",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_storage-12.4.7",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "firebase_storage_platform_interface",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_storage_platform_interface-5.2.7",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "firebase_storage_web",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_storage_web-3.10.14",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -400,6 +472,12 @@
     {
       "name": "flutter_localizations",
       "rootUri": "file:///C:/Users/siddi/flutter/packages/flutter_localizations",
+      "packageUri": "lib/",
+      "languageVersion": "3.10"
+    },
+    {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.35",
       "packageUri": "lib/",
       "languageVersion": "3.10"
     },
@@ -468,42 +546,6 @@
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/google_fonts-6.3.3",
       "packageUri": "lib/",
       "languageVersion": "3.9"
-    },
-    {
-      "name": "google_identity_services_web",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/google_identity_services_web-0.3.3+1",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "google_sign_in",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/google_sign_in-6.3.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "google_sign_in_android",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/google_sign_in_android-6.2.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "google_sign_in_ios",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/google_sign_in_ios-5.9.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "google_sign_in_platform_interface",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/google_sign_in_platform_interface-2.5.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "google_sign_in_web",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/google_sign_in_web-0.12.4+4",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
     },
     {
       "name": "graphs",
@@ -692,10 +734,16 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "path_provider",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.4",
+      "name": "path_parsing",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/path_parsing-1.1.0",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "path_provider",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.6",
+      "packageUri": "lib/",
+      "languageVersion": "3.10"
     },
     {
       "name": "path_provider_android",
@@ -728,6 +776,18 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "pdf",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/pdf-3.12.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "pdf_widget_wrapper",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/pdf_widget_wrapper-1.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "percent_indicator",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/percent_indicator-4.2.2",
       "packageUri": "lib/",
@@ -758,6 +818,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "printing",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/printing-5.14.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "provider",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/provider-6.1.5",
       "packageUri": "lib/",
@@ -774,6 +840,12 @@
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/pubspec_parse-1.5.0",
       "packageUri": "lib/",
       "languageVersion": "3.6"
+    },
+    {
+      "name": "qr",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/qr-3.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "quiver",
@@ -828,6 +900,18 @@
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/rxdart-0.27.7",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "share_plus",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/share_plus-12.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "share_plus_platform_interface",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/share_plus_platform_interface-6.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "shared_preferences",
@@ -1086,6 +1170,12 @@
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/web_socket_channel-3.0.3",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "win32",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.15.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
     },
     {
       "name": "xdg_directories",

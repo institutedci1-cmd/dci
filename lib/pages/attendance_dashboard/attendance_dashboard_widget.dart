@@ -7,7 +7,6 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'attendance_dashboard_model.dart';
 export 'attendance_dashboard_model.dart';
 
 class AttendanceDashboardWidget extends ConsumerStatefulWidget {
@@ -97,6 +96,13 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildActionButton(
+                    context,
+                    'Monthly Reports',
+                    Icons.assessment_outlined,
+                    () => context.pushNamed('MonthlyReport'),
                   ),
                   const SizedBox(height: 24),
                   Row(

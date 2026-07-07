@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/components/form_section_header/form_section_header_widget.dart';
@@ -30,17 +31,47 @@ class StudentCountSection extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        wrapWithModel(
-          model: model.formSectionHeaderModel3,
-          updateCallback: onChanged,
-          child: FormSectionHeaderWidget(
-            icon: Icon(
-              Icons.people_rounded,
-              color: FlutterFlowTheme.of(context).primary,
-              size: 20.0,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: wrapWithModel(
+                model: model.formSectionHeaderModel3,
+                updateCallback: onChanged,
+                child: FormSectionHeaderWidget(
+                  icon: Icon(
+                    Icons.people_rounded,
+                    color: FlutterFlowTheme.of(context).primary,
+                    size: 20.0,
+                  ),
+                  title: 'Student Count',
+                ),
+              ),
             ),
-            title: 'Student Count',
-          ),
+            if (presentCount == 0 && absentCount == 0)
+              InkWell(
+                onTap: () {
+                  // In a real app, we might fetch the actual student count for the class.
+                  // For now, we'll set a reasonable default or let them increment.
+                  onPresentChanged(25); 
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: FlutterFlowTheme.of(context).primary10,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Default (25)',
+                    style: FlutterFlowTheme.of(context).bodySmall.override(
+                      font: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                      color: FlutterFlowTheme.of(context).primary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
         Row(
           mainAxisSize: MainAxisSize.max,

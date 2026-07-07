@@ -6,9 +6,24 @@ import '../repositories/student_repository.dart';
 import '../repositories/auth_repository.dart';
 import '../repositories/user_repository.dart';
 import '../repositories/announcement_repository.dart';
+import '../repositories/notification_repository.dart';
+import '../services/whatsapp_service.dart';
+import '../services/storage_service.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository();
+});
+
+final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
+  return NotificationRepository();
+});
+
+final storageServiceProvider = Provider<StorageService>((ref) {
+  return StorageService();
+});
+
+final whatsappServiceProvider = Provider<WhatsappService>((ref) {
+  return WhatsappService();
 });
 
 final announcementRepositoryProvider = Provider<AnnouncementRepository>((ref) {
