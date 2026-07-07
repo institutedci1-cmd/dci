@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'monthly_report_model.dart';
 export 'monthly_report_model.dart';
 
 class MonthlyReportWidget extends ConsumerStatefulWidget {

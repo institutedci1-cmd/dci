@@ -24,6 +24,8 @@ class TextFieldWidget extends StatefulWidget {
     this.variant = 'outlined',
     this.error = false,
     this.obscureText = false,
+    this.readOnly = false,
+    this.maxLines = 1,
     this.keyboardType = TextInputType.text,
   });
 
@@ -43,6 +45,8 @@ class TextFieldWidget extends StatefulWidget {
   final String variant;
   final bool error;
   final bool obscureText;
+  final bool readOnly;
+  final int maxLines;
   final TextInputType keyboardType;
 
   @override
@@ -122,6 +126,8 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
                     focusNode: _model.inputFocusNode,
                     obscureText: _obscureText,
                     keyboardType: widget.keyboardType,
+                    readOnly: widget.readOnly,
+                    maxLines: widget.maxLines,
                     onChanged: widget.onChange,
                     onFieldSubmitted: widget.onSubmit,
                     validator: _model.inputTextControllerValidator.asValidator(context),

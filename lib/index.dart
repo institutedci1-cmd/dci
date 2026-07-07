@@ -11,6 +11,7 @@ export 'pages/attendance_dashboard/attendance_dashboard_widget.dart';
 export 'pages/attendance_history/attendance_history_widget.dart';
 export 'pages/monthly_report/monthly_report_widget.dart';
 export 'pages/student_list/student_list_widget.dart';
+export 'pages/edit_student/edit_student_widget.dart';
 export 'pages/homework_assignment/homework_assignment_widget.dart';
 export 'pages/homework_history/homework_history_widget.dart';
 export 'pages/announcements_feed/announcements_feed_widget.dart';

@@ -19,6 +19,9 @@ class Student {
   final String? batch;
   final String? feesStatus;
   final String? notes;
+  final String? villageCity;
+  final String? pinCode;
+  final List<String>? subjects;
 
   Student({
     required this.id,
@@ -39,6 +42,9 @@ class Student {
     this.batch,
     this.feesStatus,
     this.notes,
+    this.villageCity,
+    this.pinCode,
+    this.subjects,
   });
 
   factory Student.fromFirestore(DocumentSnapshot doc) {
@@ -62,6 +68,11 @@ class Student {
       batch: data['batch']?.toString(),
       feesStatus: data['fees_status']?.toString(),
       notes: data['notes']?.toString(),
+      villageCity: data['village_city']?.toString(),
+      pinCode: data['pin_code']?.toString(),
+      subjects: data['subjects'] is List 
+        ? List<String>.from(data['subjects']) 
+        : (data['subjects']?.toString().split(',').map((e) => e.trim()).toList()),
     );
   }
 
@@ -84,6 +95,9 @@ class Student {
       'batch': batch,
       'fees_status': feesStatus,
       'notes': notes,
+      'village_city': villageCity,
+      'pin_code': pinCode,
+      'subjects': subjects,
     };
   }
 }

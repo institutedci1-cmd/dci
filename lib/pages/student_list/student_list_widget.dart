@@ -12,6 +12,7 @@ import '/flutter_flow/form_field_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../edit_student/edit_student_widget.dart';
 import 'student_list_model.dart';
 export 'student_list_model.dart';
 
@@ -61,7 +62,16 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                 subtitle: 'Manage your class students',
                 description: 'View and search for student details and progress.',
                 onBackPressed: () async => context.safePop(),
-                showActionIcon: false,
+                actionIcon: const Icon(Icons.person_add_rounded),
+                onActionPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EditStudentWidget(),
+                    ),
+                  );
+                  safeSetState(() {});
+                },
               ),
             ),
             _buildSearchAndFilter(context),
@@ -227,7 +237,6 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
           return const Center(child: CircularProgressIndicator());
         }
         var students = snapshot.data ?? [];
-        final totalCount = students.length;
 
         if (_model.dropdownValue != null &&
             _model.dropdownValue != 'All Classes') {
@@ -287,8 +296,14 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                   ),
                   subtitle: Text('ID: ${student.studentId} • Class: ${student.className}'),
                   trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {
-                    // Detail view
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => EditStudentWidget(student: student),
+                      ),
+                    );
+                    safeSetState(() {});
                   },
                 ),
               ),

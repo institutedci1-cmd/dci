@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
+import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 import '/index.dart';
@@ -148,6 +149,17 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: StudentListWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const StudentListWidget(),
+        ),
+        FFRoute(
+          name: EditStudentWidget.routeName,
+          path: EditStudentWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => EditStudentWidget(
+            student: params.getParam<Student>(
+              'student',
+              ParamType.JSON,
+            ),
+          ),
         ),
         FFRoute(
           name: HomeworkAssignmentWidget.routeName,

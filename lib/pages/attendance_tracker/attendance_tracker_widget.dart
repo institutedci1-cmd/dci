@@ -32,6 +32,7 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
   bool _isLoading = false;
   bool _isAlreadySubmitted = false;
   bool _sendWhatsAppAlerts = false;
+  String? _errorMessage;
   List<Student> _allStudents = [];
   List<Student> _filteredStudents = [];
 
@@ -52,7 +53,10 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
   Future<void> _fetchStudents() async {
     if (_model.selectedClass == null) return;
     
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       final repository = ref.read(studentRepositoryProvider);
       final students = await repository.getStudentsByClass(_model.selectedClass!);
@@ -82,10 +86,10 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-      setState(() => _isLoading = false);
+      setState(() {
+        _errorMessage = 'Failed to load students. Please try again.';
+        _isLoading = false;
+      });
     }
   }
 
@@ -177,6 +181,25 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
             _buildQuickActions(context),
             if (_isLoading)
               const Expanded(child: Center(child: CircularProgressIndicator()))
+            else if (_errorMessage != null)
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _errorMessage!,
+                      style: FlutterFlowTheme.of(context).bodyMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    ButtonWidget(
+                      onPressed: _fetchStudents,
+                      content: 'Retry',
+                      variant: 'primary',
+                      size: 'small',
+                    ),
+                  ],
+                ),
+              )
             else if (_allStudents.isEmpty && _model.selectedClass != null)
               Expanded(child: Center(child: Text('No students found.', style: FlutterFlowTheme.of(context).bodyMedium)))
             else if (_model.selectedClass == null)
