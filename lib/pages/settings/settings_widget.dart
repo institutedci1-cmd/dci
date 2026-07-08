@@ -107,11 +107,11 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
   Widget _buildThemeToggle() {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
+    return Material(
+      color: FlutterFlowTheme.of(context).secondaryBackground,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+        side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
       ),
       child: ListTile(
         leading: Icon(
@@ -139,17 +139,19 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
       {Widget? trailing, VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
+      child: Material(
         color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
-        title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
-        subtitle: Text(subtitle, style: FlutterFlowTheme.of(context).labelSmall),
-        trailing: trailing ?? const Icon(Icons.chevron_right_rounded),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
+        ),
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
+          title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
+          subtitle: Text(subtitle, style: FlutterFlowTheme.of(context).labelSmall),
+          trailing: trailing ?? const Icon(Icons.chevron_right_rounded),
+        ),
       ),
     );
   }

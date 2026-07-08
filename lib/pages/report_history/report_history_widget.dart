@@ -99,63 +99,66 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
                   itemBuilder: (context, index) {
                     final report = reports[index];
                     return Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(),
+                      child: Material(
                         color: FlutterFlowTheme.of(context).secondaryBackground,
-                        borderRadius: BorderRadius.circular(16.0),
-                        border: Border.all(
-                          color: FlutterFlowTheme.of(context).alternate,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                          side: BorderSide(
+                            color: FlutterFlowTheme.of(context).alternate,
+                          ),
                         ),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          '${report.className} - ${report.subject}',
-                          style: FlutterFlowTheme.of(context).bodyLarge.override(
-                                font: GoogleFonts.plusJakartaSans(
+                        child: ListTile(
+                          title: Text(
+                            '${report.className} - ${report.subject}',
+                            style: FlutterFlowTheme.of(context).bodyLarge.override(
+                                  font: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   fontWeight: FontWeight.bold,
                                 ),
-                                fontWeight: FontWeight.bold,
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Topic: ${report.chapter}'),
+                              if (report.teacher.isNotEmpty)
+                                Text('Teacher: ${report.teacher}',
+                                    style: FlutterFlowTheme.of(context).bodySmall),
+                              Text(
+                                dateTimeFormat('yMMMd', report.createdAt),
+                                style: FlutterFlowTheme.of(context).labelSmall,
                               ),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.share_rounded, color: Colors.green),
+                                onPressed: () async {
+                                  final whatsappService = ref.read(whatsappServiceProvider);
+                                  // For simplicity, sharing to a fixed admin number or a chosen contact
+                                  // In production, this could prompt for a number or use a class group ID
+                                  await whatsappService.sendTextMessage(
+                                    to: 'YOUR_ADMIN_PHONE_NUMBER',
+                                    message: 'Daily Report Summary: ${report.className} - ${report.subject}. Chapter: ${report.chapter}. Present: ${report.presentCount}, Absent: ${report.absentCount}.',
+                                  );
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Summary shared via WhatsApp.')));
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.picture_as_pdf_rounded, color: FlutterFlowTheme.of(context).primary),
+                                onPressed: () => PdfService.exportDailyReport(report),
+                              ),
+                              const Icon(Icons.chevron_right_rounded),
+                            ],
+                          ),
+                          onTap: () {
+                            // Could add detailed view here if needed
+                          },
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Topic: ${report.chapter}'),
-                            if (report.teacher.isNotEmpty)
-                              Text('Teacher: ${report.teacher}',
-                                  style: FlutterFlowTheme.of(context).bodySmall),
-                            Text(
-                              dateTimeFormat('yMMMd', report.createdAt),
-                              style: FlutterFlowTheme.of(context).labelSmall,
-                            ),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.share_rounded, color: Colors.green),
-                              onPressed: () async {
-                                final whatsappService = ref.read(whatsappServiceProvider);
-                                // For simplicity, sharing to a fixed admin number or a chosen contact
-                                // In production, this could prompt for a number or use a class group ID
-                                await whatsappService.sendTextMessage(
-                                  to: 'YOUR_ADMIN_PHONE_NUMBER',
-                                  message: 'Daily Report Summary: ${report.className} - ${report.subject}. Chapter: ${report.chapter}. Present: ${report.presentCount}, Absent: ${report.absentCount}.',
-                                );
-                                if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Summary shared via WhatsApp.')));
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.picture_as_pdf_rounded, color: FlutterFlowTheme.of(context).primary),
-                              onPressed: () => PdfService.exportDailyReport(report),
-                            ),
-                            const Icon(Icons.chevron_right_rounded),
-                          ],
-                        ),
-                        onTap: () {
-                          // Could add detailed view here if needed
-                        },
                       ),
                     );
                   },

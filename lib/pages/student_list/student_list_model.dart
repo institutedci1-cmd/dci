@@ -9,6 +9,7 @@ class StudentListModel extends FlutterFlowModel<StudentListWidget> {
   // Model for HeaderSection.
   late HeaderSectionModel headerSectionModel;
   // State field(s) for Search widget.
+  TextEditingController? searchController;
   late TextFieldModel searchFieldModel;
   // State field(s) for Dropdown (Class Filter).
   String? dropdownValue;

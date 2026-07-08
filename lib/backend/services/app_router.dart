@@ -82,9 +82,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AttendanceHistoryWidget(),
       ),
       GoRoute(
+        name: MonthlyReportWidget.routeName,
+        path: MonthlyReportWidget.routePath,
+        builder: (context, state) => const MonthlyReportWidget(),
+      ),
+      GoRoute(
         name: StudentListWidget.routeName,
         path: StudentListWidget.routePath,
         builder: (context, state) => const StudentListWidget(),
+      ),
+      GoRoute(
+        name: EditStudentWidget.routeName,
+        path: EditStudentWidget.routePath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final Student? student = extra?['student'];
+          return EditStudentWidget(student: student);
+        },
       ),
       GoRoute(
         name: HomeworkAssignmentWidget.routeName,

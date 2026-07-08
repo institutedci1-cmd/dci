@@ -12,8 +12,6 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 
-import '../main.dart';
-
 export 'lat_lng.dart';
 export 'place.dart';
 export 'uploaded_file.dart';
@@ -24,6 +22,19 @@ export 'dart:convert' show jsonEncode, jsonDecode;
 export 'package:intl/intl.dart';
 export 'package:page_transition/page_transition.dart';
 export 'nav/nav.dart';
+
+String normalizeClassName(String? name) {
+  if (name == null || name.isEmpty) return '';
+  final trimmed = name.trim();
+  // Check if it already matches "Class X"
+  if (RegExp(r'^Class\s+\d+$').hasMatch(trimmed)) return trimmed;
+  
+  final match = RegExp(r'(\d+)').firstMatch(trimmed);
+  if (match != null) {
+    return 'Class ${match.group(1)}';
+  }
+  return trimmed;
+}
 
 T valueOrDefault<T>(T? value, T defaultValue) =>
     (value is String && value.isEmpty) || value == null ? defaultValue : value;
@@ -263,9 +274,6 @@ extension IterableExt<T> on Iterable<T> {
       .values
       .toList();
 }
-
-void setDarkModeSetting(BuildContext context, ThemeMode themeMode) =>
-    MyApp.of(context).setThemeMode(themeMode);
 
 void showSnackbar(
   BuildContext context,

@@ -1,3 +1,4 @@
+import '/components/homework_card/homework_card_widget.dart';
 import '/backend/models/homework_assignment.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
@@ -75,124 +76,13 @@ class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
                   separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final assignment = assignments[index];
-                    final status = assignment.status;
-
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                        borderRadius: BorderRadius.circular(16.0),
-                        border: Border.all(
-                          color: FlutterFlowTheme.of(context).alternate,
-                        ),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          '${assignment.className} - ${assignment.subject}',
-                          style: FlutterFlowTheme.of(context).bodyLarge.override(
-                                font: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(assignment.title),
-                            if (assignment.teacher.isNotEmpty)
-                              Text('Assigned by: ${assignment.teacher}',
-                                  style: FlutterFlowTheme.of(context).bodySmall),
-                            Text(
-                              'Due: ${assignment.dueDate}',
-                              style: FlutterFlowTheme.of(context).labelSmall.override(
-                                font: GoogleFonts.inter(),
-                                color: FlutterFlowTheme.of(context).primary,
-                              ),
-                            ),
-                            if (assignment.attachments.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.attachment_rounded,
-                                        size: 14,
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryText),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${assignment.attachments.length} attachment(s)',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .override(
-                                            font: GoogleFonts.inter(),
-                                            fontSize: 10,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: status == 'published'
-                                  ? FlutterFlowTheme.of(context).success
-                                  : FlutterFlowTheme.of(context).warning,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                status.toUpperCase(),
-                                style: const TextStyle(color: Colors.white, fontSize: 10),
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right_rounded),
-                          ],
-                        ),
-                        onTap: () {
-                          if (assignment.attachments.isEmpty) return;
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) => Container(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Attachments',
-                                    style: FlutterFlowTheme.of(context)
-                                        .titleLarge
-                                        .override(
-                                          font: GoogleFonts.plusJakartaSans(
-                                              fontWeight: FontWeight.bold),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  ...assignment.attachments.map((url) {
-                                    final fileName =
-                                        url.split('%2F').last.split('?').first;
-                                    return ListTile(
-                                      leading: const Icon(
-                                          Icons.insert_drive_file_outlined),
-                                      title: Text(fileName,
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium),
-                                      trailing: const Icon(
-                                          Icons.open_in_new_rounded,
-                                          size: 20),
-                                      onTap: () => launchURL(url),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                    
+                    return wrapWithModel(
+                      model: createModel(context, () => HomeworkCardModel()),
+                      updateCallback: () => safeSetState(() {}),
+                      child: HomeworkCardWidget(
+                        assignment: assignment,
+                        onTap: () async => _showAttachments(context, assignment),
                       ),
                     );
                   },
@@ -201,6 +91,51 @@ class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showAttachments(BuildContext context, HomeworkAssignment assignment) {
+    if (assignment.attachments.isEmpty) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24.0),
+            topRight: Radius.circular(24.0),
+          ),
+        ),
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Attachments',
+              style: FlutterFlowTheme.of(context).titleLarge.override(
+                    font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            ...assignment.attachments.map((url) {
+              final fileName = url.split('%2F').last.split('?').first;
+              return Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: const Icon(Icons.insert_drive_file_outlined),
+                  title: Text(fileName, style: FlutterFlowTheme.of(context).bodyMedium),
+                  trailing: const Icon(Icons.open_in_new_rounded, size: 20),
+                  onTap: () => launchURL(url),
+                ),
+              );
+            }),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }

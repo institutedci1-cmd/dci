@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
 class Student {
   final String id;
@@ -28,7 +29,7 @@ class Student {
     required this.name,
     required this.studentId,
     required this.rollNo,
-    required this.className,
+    required String className,
     this.gender,
     this.dob,
     this.parentName,
@@ -45,7 +46,7 @@ class Student {
     this.villageCity,
     this.pinCode,
     this.subjects,
-  });
+  }) : className = normalizeClassName(className);
 
   factory Student.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
@@ -70,9 +71,12 @@ class Student {
       notes: data['notes']?.toString(),
       villageCity: data['village_city']?.toString(),
       pinCode: data['pin_code']?.toString(),
-      subjects: data['subjects'] is List 
-        ? List<String>.from(data['subjects']) 
-        : (data['subjects']?.toString().split(',').map((e) => e.trim()).toList()),
+      subjects: data['subjects'] is List
+          ? List<String>.from(data['subjects'])
+          : (data['subjects']?.toString().split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList()),
     );
   }
 
@@ -99,5 +103,53 @@ class Student {
       'pin_code': pinCode,
       'subjects': subjects,
     };
+  }
+
+  Student copyWith({
+    String? id,
+    String? name,
+    String? studentId,
+    String? rollNo,
+    String? className,
+    String? gender,
+    String? dob,
+    String? parentName,
+    String? parentPhone,
+    String? address,
+    String? photoUrl,
+    String? section,
+    String? altPhone,
+    String? email,
+    String? admissionDate,
+    String? batch,
+    String? feesStatus,
+    String? notes,
+    String? villageCity,
+    String? pinCode,
+    List<String>? subjects,
+  }) {
+    return Student(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      studentId: studentId ?? this.studentId,
+      rollNo: rollNo ?? this.rollNo,
+      className: className ?? this.className,
+      gender: gender ?? this.gender,
+      dob: dob ?? this.dob,
+      parentName: parentName ?? this.parentName,
+      parentPhone: parentPhone ?? this.parentPhone,
+      address: address ?? this.address,
+      photoUrl: photoUrl ?? this.photoUrl,
+      section: section ?? this.section,
+      altPhone: altPhone ?? this.altPhone,
+      email: email ?? this.email,
+      admissionDate: admissionDate ?? this.admissionDate,
+      batch: batch ?? this.batch,
+      feesStatus: feesStatus ?? this.feesStatus,
+      notes: notes ?? this.notes,
+      villageCity: villageCity ?? this.villageCity,
+      pinCode: pinCode ?? this.pinCode,
+      subjects: subjects ?? this.subjects,
+    );
   }
 }

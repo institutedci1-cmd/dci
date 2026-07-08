@@ -68,142 +68,105 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
 
         return Container(
           decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).primary,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(24.0),
-              bottomRight: Radius.circular(24.0),
+            gradient: LinearGradient(
+              colors: [
+                FlutterFlowTheme.of(context).primary,
+                FlutterFlowTheme.of(context).tertiary
+              ],
+              begin: const AlignmentDirectional(0, -1),
+              end: const AlignmentDirectional(0, 1),
             ),
-            shape: BoxShape.rectangle,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
           ),
           child: Padding(
-            padding:
-                const EdgeInsetsDirectional.fromSTEB(24.0, 48.0, 24.0, 24.0),
-            child: Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      FlutterFlowIconButton(
-                        borderRadius: 8.0,
-                        buttonSize: 40.0,
-                        fillColor: Colors.transparent,
-                        icon: Icon(
-                          Icons.arrow_back_rounded,
-                          color: FlutterFlowTheme.of(context).onPrimary,
-                          size: 24.0,
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 44.0, 16.0, 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FlutterFlowIconButton(
+                          borderRadius: 12.0,
+                          buttonSize: 36.0,
+                          fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                          icon: Icon(
+                            Icons.arrow_back_rounded,
+                            color: FlutterFlowTheme.of(context).onPrimary,
+                            size: 20.0,
+                          ),
+                          onPressed: () async {
+                            if (widget.onBackPressed != null) {
+                              await widget.onBackPressed!();
+                            } else {
+                              context.safePop();
+                            }
+                          },
                         ),
+                        const SizedBox(width: 12),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.title ?? 'Assign Homework',
+                              style: FlutterFlowTheme.of(context).titleMedium.override(
+                                    font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                                    color: FlutterFlowTheme.of(context).onPrimary,
+                                  ),
+                            ),
+                            Text(
+                              widget.subtitle ?? instituteName,
+                              style: FlutterFlowTheme.of(context).labelSmall.override(
+                                    font: GoogleFonts.inter(),
+                                    color: FlutterFlowTheme.of(context).onPrimary80,
+                                    fontSize: 11,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    if (widget.showActionIcon)
+                      FlutterFlowIconButton(
+                        borderRadius: 12.0,
+                        buttonSize: 36.0,
+                        fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                        icon: widget.actionIcon ??
+                            Icon(
+                              Icons.help_outline_rounded,
+                              color: FlutterFlowTheme.of(context).onPrimary,
+                              size: 20.0,
+                            ),
                         onPressed: () async {
-                          if (widget.onBackPressed != null) {
-                            await widget.onBackPressed!();
-                          } else {
-                            context.safePop();
+                          if (widget.onActionPressed != null) {
+                            await widget.onActionPressed!();
                           }
                         },
                       ),
-                      Flexible(
-                        flex: 1,
-                        child: Text(
-                          widget.title ?? 'Assign Homework',
-                          maxLines: 1,
-                          style:
-                              FlutterFlowTheme.of(context).titleLarge.override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleLarge
-                                          .fontStyle,
-                                    ),
-                                    color:
-                                        FlutterFlowTheme.of(context).onPrimary,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleLarge
-                                        .fontStyle,
-                                    lineHeight: 1.27,
-                                  ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (widget.showActionIcon)
-                        FlutterFlowIconButton(
-                          borderRadius: 8.0,
-                          buttonSize: 40.0,
-                          fillColor: Colors.transparent,
-                          icon: widget.actionIcon ??
-                              Icon(
-                                Icons.help_outline_rounded,
-                                color: FlutterFlowTheme.of(context).onPrimary,
-                                size: 24.0,
-                              ),
-                          onPressed: () async {
-                            if (widget.onActionPressed != null) {
-                              await widget.onActionPressed!();
-                            }
-                          },
-                        )
-                      else
-                        const SizedBox(width: 40.0),
-                    ],
+                  ],
+                ),
+                if (widget.description != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0, left: 4.0),
+                    child: Text(
+                      widget.description!,
+                      style: FlutterFlowTheme.of(context).bodySmall.override(
+                            font: GoogleFonts.inter(),
+                            color: FlutterFlowTheme.of(context).onPrimary70,
+                            fontSize: 12,
+                          ),
+                    ),
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.subtitle ?? instituteName,
-                        style: FlutterFlowTheme.of(context).labelMedium.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).onPrimary80,
-                              letterSpacing: 0.0,
-                              fontWeight: FlutterFlowTheme.of(context)
-                                  .labelMedium
-                                  .fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .labelMedium
-                                  .fontStyle,
-                              lineHeight: 1.38,
-                            ),
-                      ),
-                      Text(
-                        widget.description ??
-                            'Create and manage student assignments',
-                        style: FlutterFlowTheme.of(context).bodySmall.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .bodySmall
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .bodySmall
-                                    .fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).onPrimary70,
-                              letterSpacing: 0.0,
-                              fontWeight:
-                                  FlutterFlowTheme.of(context).bodySmall.fontWeight,
-                              fontStyle:
-                                  FlutterFlowTheme.of(context).bodySmall.fontStyle,
-                              lineHeight: 1.38,
-                            ),
-                      ),
-                    ].divide(const SizedBox(height: 4.0)),
-                  ),
-                ].divide(const SizedBox(height: 16.0)),
-              ),
+              ],
             ),
           ),
         );

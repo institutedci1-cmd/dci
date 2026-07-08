@@ -5,7 +5,8 @@ import 'package:provider/provider.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
-import 'package:d_c_i_teacher_app/backend/models/student.dart';
+import '../../backend/models/student.dart';
+import '/pages/edit_student/edit_student_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 import '/index.dart';
@@ -90,6 +91,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: LoginWidget.routeName,
           path: LoginWidget.routePath,
           builder: (context, params) => const LoginWidget(),
+        ),
+        FFRoute(
+          name: PhoneLoginWidget.routeName,
+          path: PhoneLoginWidget.routePath,
+          builder: (context, params) => const PhoneLoginWidget(),
         ),
         FFRoute(
           name: SignUpWidget.routeName,
@@ -196,6 +202,18 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: AboutDeshmukhWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const AboutDeshmukhWidget(),
+        ),
+        FFRoute(
+          name: SettingsWidget.routeName,
+          path: SettingsWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const SettingsWidget(),
+        ),
+        FFRoute(
+          name: NotificationsWidget.routeName,
+          path: NotificationsWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const NotificationsWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

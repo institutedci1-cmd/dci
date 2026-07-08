@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:printing/printing.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 import '../../models/student.dart';
 import '../../models/daily_report.dart';
 
@@ -15,8 +16,6 @@ class ExcelService {
     final excel = Excel.createExcel();
     final sheet = excel['Students'];
     
-    // In some versions, Sheet1 is created by default. 
-    // We try to remove it after creating our own.
     if (excel.tables.containsKey('Sheet1')) {
       excel.delete('Sheet1');
     }
@@ -24,16 +23,46 @@ class ExcelService {
     sheet.appendRow([
       TextCellValue('Name'),
       TextCellValue('Student ID'),
+      TextCellValue('Roll No'),
       TextCellValue('Class'),
+      TextCellValue('Section'),
+      TextCellValue('Gender'),
+      TextCellValue('Date of Birth'),
+      TextCellValue('Parent Name'),
       TextCellValue('Parent Phone'),
+      TextCellValue('Alternate Phone'),
+      TextCellValue('Email'),
+      TextCellValue('Village/City'),
+      TextCellValue('Address'),
+      TextCellValue('PIN Code'),
+      TextCellValue('Admission Date'),
+      TextCellValue('Batch'),
+      TextCellValue('Fees Status'),
+      TextCellValue('Notes'),
+      TextCellValue('Subjects'),
     ]);
 
     for (final student in students) {
       sheet.appendRow([
         TextCellValue(student.name),
         TextCellValue(student.studentId),
+        TextCellValue(student.rollNo),
         TextCellValue(student.className),
+        TextCellValue(student.section ?? ''),
+        TextCellValue(student.gender ?? ''),
+        TextCellValue(student.dob ?? ''),
+        TextCellValue(student.parentName ?? ''),
         TextCellValue(student.parentPhone ?? ''),
+        TextCellValue(student.altPhone ?? ''),
+        TextCellValue(student.email ?? ''),
+        TextCellValue(student.villageCity ?? ''),
+        TextCellValue(student.address ?? ''),
+        TextCellValue(student.pinCode ?? ''),
+        TextCellValue(student.admissionDate ?? ''),
+        TextCellValue(student.batch ?? ''),
+        TextCellValue(student.feesStatus ?? ''),
+        TextCellValue(student.notes ?? ''),
+        TextCellValue(student.subjects?.join(', ') ?? ''),
       ]);
     }
 
@@ -106,23 +135,18 @@ class ExcelService {
       final excel = Excel.decodeBytes(bytes);
       final List<Map<String, String>> studentsData = [];
 
-      print('Excel Import: Tables found: ${excel.tables.keys.join(', ')}');
-
       for (final table in excel.tables.keys) {
         final sheet = excel.tables[table];
         if (sheet == null) continue;
-
-        print('Excel Import: Processing sheet $table, rows: ${sheet.maxRows}');
 
         for (int i = 0; i < sheet.rows.length; i++) {
           final row = sheet.rows[i];
           if (row.isEmpty) continue;
 
-          // Skip header row if it contains "Name" or "Student ID"
+          // Skip header row
           if (i == 0) {
             final firstCell = (row[0]?.value?.toString() ?? '').toLowerCase();
             if (firstCell.contains('name') || firstCell.contains('student')) {
-              print('Excel Import: Skipping header row');
               continue;
             }
           }
@@ -147,13 +171,29 @@ class ExcelService {
 
           final name = getVal(0);
           final studentId = getVal(1);
-          final className = getVal(2);
-          final parentPhone = getVal(3);
+          final rollNo = getVal(2);
+          final className = normalizeClassName(getVal(3));
+          final section = getVal(4);
+          final gender = getVal(5);
+          final dob = getVal(6);
+          final parentName = getVal(7);
+          final parentPhone = getVal(8);
+          final altPhone = getVal(9);
+          final email = getVal(10);
+          final villageCity = getVal(11);
+          final address = getVal(12);
+          final pinCode = getVal(13);
+          final admissionDate = getVal(14);
+          final batch = getVal(15);
+          final feesStatus = getVal(16);
+          final notes = getVal(17);
+          final subjects = getVal(18);
 
           if (name.isEmpty && studentId.isEmpty) continue;
 
           if (name.isEmpty || studentId.isEmpty || className.isEmpty) {
-            print('Excel Import: Skipping row $i due to missing required fields (Name: $name, ID: $studentId, Class: $className)');
+            print(
+                'Excel Import: Skipping row $i due to missing required fields (Name: $name, ID: $studentId, Class: $className)');
             continue;
           }
 
@@ -164,12 +204,26 @@ class ExcelService {
           studentsData.add({
             'name': name,
             'student_id': studentId,
+            'roll_no': rollNo,
             'class': className,
+            'section': section,
+            'gender': gender,
+            'dob': dob,
+            'parent_name': parentName,
             'parent_phone': parentPhone,
+            'alt_phone': altPhone,
+            'email': email,
+            'village_city': villageCity,
+            'address': address,
+            'pin_code': pinCode,
+            'admission_date': admissionDate,
+            'batch': batch,
+            'fees_status': feesStatus,
+            'notes': notes,
+            'subjects': subjects,
           });
         }
       }
-      print('Excel Import: Total students parsed: ${studentsData.length}');
       return studentsData;
     } catch (e) {
       print('Excel import error: $e');
@@ -183,7 +237,6 @@ class ExcelService {
       if (bytes == null) return false;
 
       if (kIsWeb) {
-        // Printing.sharePdf is often used for generic file downloads on web in Flutter
         await Printing.sharePdf(bytes: Uint8List.fromList(bytes), filename: fileName);
       } else {
         final directory = await getTemporaryDirectory();

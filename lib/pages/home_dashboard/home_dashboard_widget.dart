@@ -61,64 +61,67 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                     .doc(currentUserUid)
                     .get(),
                 builder: (context, userSnapshot) {
-            final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
+                  if (userSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (userSnapshot.hasError) {
+                    return Center(child: Text('Error loading user data: ${userSnapshot.error}'));
+                  }
+                  final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
 
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('config')
-                  .doc('dashboard_config')
-                  .get(),
-              builder: (context, configSnapshot) {
-                final dashboardConfig =
-                    configSnapshot.data?.data() as Map<String, dynamic>?;
+                  return FutureBuilder<DocumentSnapshot>(
+                    future: FirebaseFirestore.instance
+                        .collection('config')
+                        .doc('dashboard_config')
+                        .get(),
+                    builder: (context, configSnapshot) {
+                      if (configSnapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final dashboardConfig = configSnapshot.data?.data() as Map<String, dynamic>?;
 
-                return Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildTopHeader(context, userData),
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        child: SingleChildScrollView(
-                          primary: false,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Container(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      _buildSectionTitle(context, 'Management Modules'),
-                                      _buildModulesGrid(context),
-                                      const SizedBox(height: 24.0),
-                                      _buildRecentActivitySection(context),
-                                      const SizedBox(height: 24.0),
-                                      _buildAIHelpSection(context, dashboardConfig),
-                                    ].divide(const SizedBox(height: 24.0)),
+                      return Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildTopHeader(context, userData),
+                          Expanded(
+                            flex: 1,
+                            child: SingleChildScrollView(
+                              primary: false,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        _buildSectionTitle(context, 'Management Modules'),
+                                        _buildModulesGrid(context),
+                                        const SizedBox(height: 24.0),
+                                        _buildRecentActivitySection(context),
+                                        const SizedBox(height: 24.0),
+                                        _buildAIHelpSection(context, dashboardConfig),
+                                      ].divide(const SizedBox(height: 24.0)),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                    _buildBottomNavBar(context),
-                  ],
-                );
-              },
-            );
-          },
-        ),
+                          _buildBottomNavBar(context),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
       ),
     );
   }
@@ -142,7 +145,7 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
         shape: BoxShape.rectangle,
       ),
       child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(20.0, 48.0, 20.0, 32.0),
+        padding: const EdgeInsetsDirectional.fromSTEB(16.0, 44.0, 16.0, 20.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -153,101 +156,100 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome back,',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.inter(),
-                            color: FlutterFlowTheme.of(context).onBackground80,
-                            lineHeight: 1.47,
-                          ),
-                    ),
-                    Text(
-                      userData?['display_name'] ??
-                          (currentUserDisplayName != ''
-                              ? currentUserDisplayName
-                              : 'Prof. Rajesh Deshmukh'),
-                      style: FlutterFlowTheme.of(context).headlineSmall.override(
-                            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                            color: FlutterFlowTheme.of(context).onBackground,
-                            lineHeight: 1.3,
-                          ),
-                    ),
-                  ].divide(const SizedBox(height: 4.0)),
-                ),
-                FlutterFlowIconButton(
-                  borderRadius: 9999.0,
-                  buttonSize: 40.0,
-                  fillColor: FlutterFlowTheme.of(context).onPrimary15,
-                  icon: Icon(
-                    Icons.search_rounded,
-                    color: FlutterFlowTheme.of(context).onPrimary,
-                    size: 24.0,
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome back,',
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(),
+                              color: FlutterFlowTheme.of(context).onBackground80,
+                              fontSize: 13,
+                              lineHeight: 1.4,
+                            ),
+                      ),
+                      Text(
+                        userData?['display_name'] ??
+                            (currentUserDisplayName != ''
+                                ? currentUserDisplayName
+                                : 'Prof. Rajesh Deshmukh'),
+                        maxLines: 1,
+                        style: FlutterFlowTheme.of(context).titleMedium.override(
+                              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                              color: FlutterFlowTheme.of(context).onBackground,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                      ),
+                    ].divide(const SizedBox(height: 2.0)),
                   ),
-                  onPressed: () => context.pushNamed(StudentListWidget.routeName),
                 ),
-                Stack(
-                  alignment: const AlignmentDirectional(1.0, -1.0),
+                const SizedBox(width: 12.0),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    Stack(
+                      alignment: const AlignmentDirectional(1.0, -1.0),
+                      children: [
+                        FlutterFlowIconButton(
+                          borderRadius: 12.0,
+                          buttonSize: 36.0,
+                          fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                          icon: Icon(
+                            Icons.notifications_none_rounded,
+                            color: FlutterFlowTheme.of(context).onPrimary,
+                            size: 20.0,
+                          ),
+                          onPressed: () =>
+                              context.pushNamed(NotificationsWidget.routeName),
+                        ),
+                        FutureBuilder<int>(
+                          future: ref
+                              .read(notificationRepositoryProvider)
+                              .getUnreadCountStream()
+                              .first,
+                          builder: (context, snapshot) {
+                            final count = snapshot.data ?? 0;
+                            if (count == 0) return const SizedBox.shrink();
+                            return Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context).error,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                count > 9 ? '9+' : count.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 7,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                     FlutterFlowIconButton(
-                      borderRadius: 9999.0,
-                      buttonSize: 40.0,
+                      borderRadius: 12.0,
+                      buttonSize: 36.0,
                       fillColor: FlutterFlowTheme.of(context).onPrimary15,
                       icon: Icon(
-                        Icons.notifications_none_rounded,
+                        Icons.logout_rounded,
                         color: FlutterFlowTheme.of(context).onPrimary,
-                        size: 24.0,
+                        size: 20.0,
                       ),
-                      onPressed: () =>
-                          context.pushNamed(NotificationsWidget.routeName),
-                    ),
-                    FutureBuilder<int>(
-                      future: ref
-                          .read(notificationRepositoryProvider)
-                          .getUnreadCountStream()
-                          .first,
-                      builder: (context, snapshot) {
-                        final count = snapshot.data ?? 0;
-                        if (count == 0) return const SizedBox.shrink();
-                        return Container(
-                          width: 18,
-                          height: 18,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).error,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            count > 9 ? '9+' : count.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
+                      onPressed: () async {
+                        await ref.read(authRepositoryProvider).signOut();
+                        if (!context.mounted) return;
+                        context.goNamed(LoginWidget.routeName);
                       },
                     ),
-                  ],
-                ),
-                FlutterFlowIconButton(
-                  borderRadius: 9999.0,
-                  buttonSize: 40.0,
-                  fillColor: FlutterFlowTheme.of(context).onPrimary15,
-                  icon: Icon(
-                    Icons.logout_rounded,
-                    color: FlutterFlowTheme.of(context).onPrimary,
-                    size: 24.0,
-                  ),
-                  onPressed: () async {
-                    await ref.read(authRepositoryProvider).signOut();
-                    if (!context.mounted) return;
-                    context.goNamed(LoginWidget.routeName);
-                  },
+                  ].divide(const SizedBox(width: 8.0)),
                 ),
               ],
             ),
@@ -259,48 +261,23 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                 Icon(
                   Icons.calendar_today_rounded,
                   color: FlutterFlowTheme.of(context).onBackground,
-                  size: 18.0,
+                  size: 16.0,
                 ),
-                Text(
-                  dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
-                  style: FlutterFlowTheme.of(context).labelLarge.override(
-                        font: GoogleFonts.inter(),
-                        color: FlutterFlowTheme.of(context).onBackground,
-                        lineHeight: 1.33,
-                      ),
+                Expanded(
+                  child: Text(
+                    dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
+                    maxLines: 1,
+                    style: FlutterFlowTheme.of(context).labelSmall.override(
+                          font: GoogleFonts.inter(),
+                          color: FlutterFlowTheme.of(context).onBackground,
+                          fontSize: 12,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                  ),
                 ),
               ].divide(const SizedBox(width: 8.0)),
             ),
-            const SizedBox(height: 16),
-            _buildGlobalSearch(context),
-          ].divide(const SizedBox(height: 24.0)),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlobalSearch(BuildContext context) {
-    return InkWell(
-      onTap: () => context.pushNamed(StudentListWidget.routeName),
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).onPrimary15,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, color: FlutterFlowTheme.of(context).onPrimary80),
-            const SizedBox(width: 12),
-            Text(
-              'Search students, reports...',
-              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                    font: GoogleFonts.inter(),
-                    color: FlutterFlowTheme.of(context).onPrimary80,
-                  ),
-            ),
-          ],
+          ].divide(const SizedBox(height: 12.0)),
         ),
       ),
     );
@@ -334,7 +311,7 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: wrapWithModel(
                 model: _model.dashboardCardModel2,
@@ -348,7 +325,7 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -362,7 +339,7 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: wrapWithModel(
                 model: _model.dashboardCardModel4,
@@ -376,7 +353,7 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -390,7 +367,7 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: wrapWithModel(
                 model: _model.dashboardCardModel6,
@@ -421,7 +398,13 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            final reports = snapshot.data!;
+            if (snapshot.hasError) {
+              return Text(
+                'Could not load activity.',
+                style: FlutterFlowTheme.of(context).bodySmall,
+              );
+            }
+            final reports = snapshot.data ?? [];
             if (reports.isEmpty) {
               return Text(
                 'No recent activity found.',
@@ -460,24 +443,24 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(16.0),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 48.0,
-                height: 48.0,
+                width: 40.0,
+                height: 40.0,
                 decoration: BoxDecoration(
                   color: FlutterFlowTheme.of(context).primary10,
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
                 alignment: const AlignmentDirectional(0.0, 0.0),
                 child: Icon(
                   Icons.auto_awesome_rounded,
-                  color: FlutterFlowTheme.of(context).onPrimary,
-                  size: 24.0,
+                  color: FlutterFlowTheme.of(context).primary,
+                  size: 20.0,
                 ),
               ),
               Expanded(
@@ -489,33 +472,32 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                   children: [
                     Text(
                       dashboardConfig?['ai_title'] ?? 'Deshmukh AI Assistant',
-                      style: FlutterFlowTheme.of(context).labelLarge.override(
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
                             font: GoogleFonts.inter(fontWeight: FontWeight.bold),
                             color: FlutterFlowTheme.of(context).primary,
                             fontWeight: FontWeight.bold,
-                            lineHeight: 1.33,
                           ),
                     ),
                     Text(
                       dashboardConfig?['ai_description'] ??
-                          'Need help with lesson planning or student data?',
-                      maxLines: 2,
-                      style: FlutterFlowTheme.of(context).bodySmall.override(
+                          'Help with lesson planning or data.',
+                      maxLines: 1,
+                      style: FlutterFlowTheme.of(context).labelSmall.override(
                             font: GoogleFonts.inter(),
                             color: FlutterFlowTheme.of(context).secondaryText,
-                            lineHeight: 1.38,
+                            fontSize: 11,
                           ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ].divide(const SizedBox(height: 4.0)),
+                  ],
                 ),
               ),
               Icon(
                 Icons.chevron_right_rounded,
                 color: FlutterFlowTheme.of(context).secondaryText,
-                size: 24.0,
+                size: 20.0,
               ),
-            ].divide(const SizedBox(width: 16.0)),
+            ].divide(const SizedBox(width: 12.0)),
           ),
         ),
       ),

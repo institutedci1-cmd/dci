@@ -10,12 +10,11 @@ class AttendanceTrackerModel extends FlutterFlowModel<AttendanceTrackerWidget> {
   String? selectedClass;
   FormFieldController<String>? classDropdownController;
 
-  // State field for Subject Dropdown
-  String? selectedSubject;
-  FormFieldController<String>? subjectDropdownController;
-
   // State field for Date
   DateTime? selectedDate;
+
+  // State field for Subject Text field
+  late TextFieldModel subjectFieldModel;
 
   // Search field
   late TextFieldModel searchFieldModel;
@@ -31,6 +30,7 @@ class AttendanceTrackerModel extends FlutterFlowModel<AttendanceTrackerWidget> {
   void initState(BuildContext context) {
     buttonModel = createModel(context, () => ButtonModel());
     searchFieldModel = createModel(context, () => TextFieldModel());
+    subjectFieldModel = createModel(context, () => TextFieldModel());
     selectedDate = DateTime.now();
   }
 
@@ -38,5 +38,6 @@ class AttendanceTrackerModel extends FlutterFlowModel<AttendanceTrackerWidget> {
   void dispose() {
     buttonModel.dispose();
     searchFieldModel.dispose();
+    subjectFieldModel.dispose();
   }
 }

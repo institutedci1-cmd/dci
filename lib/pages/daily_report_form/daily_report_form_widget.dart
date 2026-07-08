@@ -1,6 +1,9 @@
 import '/backend/models/daily_report.dart';
 import '/backend/providers/repository_providers.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
 import '/components/button/button_widget.dart';
+import '/components/shared/app_primary_button.dart';
 import '/components/form_section_header/form_section_header_widget.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/components/text_field/text_field_widget.dart';
@@ -190,55 +193,49 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
         color: FlutterFlowTheme.of(context).secondaryBackground,
         border: Border(top: BorderSide(color: FlutterFlowTheme.of(context).alternate)),
       ),
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Row(
         children: [
           Expanded(
-            child: wrapWithModel(
-              model: _model.buttonModel,
-              updateCallback: () => safeSetState(() {}),
-              child: ButtonWidget(
-                content: 'Submit Report',
-                variant: 'primary',
-                size: 'large',
-                onPressed: () async {
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user == null || !_formKey.currentState!.validate()) return;
+            child: AppPrimaryButton(
+              text: 'Submit Report',
+              onPressed: () async {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user == null || !_formKey.currentState!.validate()) return;
 
-                  try {
-                    final report = DailyReport(
-                      id: '',
-                      className: _model.dropdownValue1 ?? '',
-                      subject: _model.dropdownValue2 ?? '',
-                      teacher: _model.dropdownValue3 ?? '',
-                      chapter: _model.textFieldModel3.inputTextController?.text.trim() ?? '',
-                      topics: _model.textFieldModel4.inputTextController?.text.trim() ?? '',
-                      presentCount: _presentCount,
-                      absentCount: _absentCount,
-                      homeworkAssigned: _model.textFieldModel5.inputTextController?.text.trim() ?? '',
-                      remarks: _model.textFieldModel6.inputTextController?.text.trim() ?? '',
-                      createdBy: user.uid,
-                      createdByEmail: user.email ?? '',
-                    );
+                try {
+                  final report = DailyReport(
+                    id: '',
+                    className: _model.dropdownValue1 ?? '',
+                    subject: _model.dropdownValue2 ?? '',
+                    teacher: _model.dropdownValue3 ?? '',
+                    chapter: _model.textFieldModel3.inputTextController?.text.trim() ?? '',
+                    topics: _model.textFieldModel4.inputTextController?.text.trim() ?? '',
+                    presentCount: _presentCount,
+                    absentCount: _absentCount,
+                    homeworkAssigned: _model.textFieldModel5.inputTextController?.text.trim() ?? '',
+                    remarks: _model.textFieldModel6.inputTextController?.text.trim() ?? '',
+                    createdBy: user.uid,
+                    createdByEmail: user.email ?? '',
+                  );
 
-                    await ref.read(dailyReportRepositoryProvider).submitReport(report);
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Daily report saved.')));
-                    if (context.mounted) {
-                      context.goNamed(HomeDashboardWidget.routeName);
-                    }
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  await ref.read(dailyReportRepositoryProvider).submitReport(report);
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Daily report saved.')));
+                  if (context.mounted) {
+                    context.goNamed(HomeDashboardWidget.routeName);
                   }
-                },
-              ),
+                } catch (e) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              },
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.md),
           if (_lastReport != null) ...[
             _buildRestoreButton(),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.md),
           ],
           _buildClearButton(),
         ],

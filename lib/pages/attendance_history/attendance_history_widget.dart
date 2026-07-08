@@ -77,49 +77,52 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                   itemBuilder: (context, index) {
                     final record = records[index];
                     return Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(),
+                      child: Material(
                         color: FlutterFlowTheme.of(context).secondaryBackground,
-                        borderRadius: BorderRadius.circular(12.0),
-                        border: Border.all(
-                          color: FlutterFlowTheme.of(context).alternate,
-                        ),
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
-                          child: Icon(
-                            _getStatusIcon(record.status),
-                            color: _getStatusColor(record.status),
-                            size: 20,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          side: BorderSide(
+                            color: FlutterFlowTheme.of(context).alternate,
                           ),
                         ),
-                        title: Text(
-                          record.studentName,
-                          style: FlutterFlowTheme.of(context).bodyLarge.override(
-                                font: GoogleFonts.plusJakartaSans(
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            radius: 18,
+                            backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
+                            child: Icon(
+                              _getStatusIcon(record.status),
+                              color: _getStatusColor(record.status),
+                              size: 20,
+                            ),
+                          ),
+                          title: Text(
+                            record.studentName,
+                            style: FlutterFlowTheme.of(context).bodyLarge.override(
+                                  font: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   fontWeight: FontWeight.bold,
                                 ),
+                          ),
+                          subtitle: Text(
+                            'Class: ${record.className} • Subject: ${record.subject}\n${dateTimeFormat('yMMMd', record.date)}',
+                            style: FlutterFlowTheme.of(context).bodySmall,
+                          ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: _getStatusColor(record.status)),
+                            ),
+                            child: Text(
+                              record.status,
+                              style: TextStyle(
+                                color: _getStatusColor(record.status),
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
-                        ),
-                        subtitle: Text(
-                          'Class: ${record.className} • Subject: ${record.subject}\n${dateTimeFormat('yMMMd', record.date)}',
-                          style: FlutterFlowTheme.of(context).bodySmall,
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: _getStatusColor(record.status)),
-                          ),
-                          child: Text(
-                            record.status,
-                            style: TextStyle(
-                              color: _getStatusColor(record.status),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),

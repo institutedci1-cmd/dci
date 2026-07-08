@@ -1,17 +1,18 @@
+import '/components/shared/app_search_bar.dart';
+import '/components/shared/student_card.dart';
+import '/components/shared/app_primary_button.dart';
+import '/components/shared/app_empty_state.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
 import '/backend/models/student.dart';
 import '/backend/providers/repository_providers.dart';
-import '/backend/services/app_constants.dart';
 import '/backend/services/excel_service/excel_service.dart';
 import '/components/button/button_widget.dart';
 import '/components/header_section/header_section_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../edit_student/edit_student_widget.dart';
 import 'student_list_model.dart';
 export 'student_list_model.dart';
@@ -37,12 +38,32 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => StudentListModel());
+    _model.searchController ??= TextEditingController();
   }
 
   @override
   void dispose() {
     _model.dispose();
     super.dispose();
+  }
+
+  List<Student> _applyFilters(List<Student> students) {
+    var filtered = students;
+    if (_model.dropdownValue != null && _model.dropdownValue != 'All Classes') {
+      filtered = filtered.where((s) => s.className == _model.dropdownValue).toList();
+    }
+    if (_searchQuery.trim().isNotEmpty) {
+      final query = _searchQuery.trim().toLowerCase();
+      filtered = filtered.where((s) {
+        return s.name.toLowerCase().contains(query) || 
+               s.studentId.toLowerCase().contains(query) ||
+               s.rollNo.contains(query) ||
+               (s.parentPhone?.contains(query) ?? false) ||
+               (s.parentName?.toLowerCase().contains(query) ?? false) ||
+               s.className.toLowerCase().contains(query);
+      }).toList();
+    }
+    return filtered;
   }
 
   @override
@@ -52,118 +73,116 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: Column(
-          children: [
-            wrapWithModel(
-              model: _model.headerSectionModel,
-              updateCallback: () => safeSetState(() {}),
-              child: HeaderSectionWidget(
-                title: 'Students',
-                subtitle: 'Manage your class students',
-                description: 'View and search for student details and progress.',
-                onBackPressed: () async => context.safePop(),
-                actionIcon: const Icon(Icons.person_add_rounded),
-                onActionPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const EditStudentWidget(),
-                    ),
-                  );
-                  safeSetState(() {});
-                },
-              ),
-            ),
-            _buildSearchAndFilter(context),
-            _buildImportExportRow(context),
-            Expanded(
-              child: _buildStudentList(context),
-            ),
-          ],
+        body: StreamBuilder<List<Student>>(
+          stream: ref.watch(studentRepositoryProvider).getAllStudentsStream(),
+          builder: (context, snapshot) {
+            final allStudents = snapshot.data ?? [];
+            final filteredStudents = _applyFilters(allStudents);
+            
+            // Get unique classes for dropdown
+            final dynamicClassOptions = allStudents
+                .map((s) => s.className)
+                .where((c) => c.isNotEmpty)
+                .toSet()
+                .toList()
+              ..sort();
+            
+            // Safety check: if selected class no longer exists, reset to All Classes
+            if (_model.dropdownValue != 'All Classes' && !dynamicClassOptions.contains(_model.dropdownValue)) {
+              _model.dropdownValue = 'All Classes';
+            }
+
+            return Column(
+              children: [
+                wrapWithModel(
+                  model: _model.headerSectionModel,
+                  updateCallback: () => safeSetState(() {}),
+                  child: HeaderSectionWidget(
+                    title: 'Students',
+                    subtitle: allStudents.isEmpty 
+                        ? 'No students found' 
+                        : 'Total: ${allStudents.length} students',
+                    description: 'View and search for student details and progress.',
+                    onBackPressed: () async => context.safePop(),
+                    actionIcon: const Icon(Icons.person_add_rounded),
+                    onActionPressed: () async {
+                      context.pushNamed(EditStudentWidget.routeName);
+                    },
+                  ),
+                ),
+                _buildSearchAndFilter(context, dynamicClassOptions),
+                _buildImportExportRow(context, filteredStudents),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      // Stream will refresh automatically, but this gives visual feedback
+                      safeSetState(() {});
+                      await Future.delayed(const Duration(milliseconds: 500));
+                    },
+                    child: _buildStudentList(context, snapshot, filteredStudents, allStudents.isEmpty),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildImportExportRow(BuildContext context) {
+  Widget _buildImportExportRow(BuildContext context, List<Student> filteredStudents) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
       child: Row(
         children: [
           Expanded(
-            child: wrapWithModel(
-              model: createModel(context, () => ButtonModel()),
-              updateCallback: () => safeSetState(() {}),
-              child: ButtonWidget(
-                content: 'Export Class Excel',
-                variant: 'outline',
-                icon: const Icon(Icons.file_download_outlined, size: 20),
-                onPressed: () async {
-                  final repository = ref.read(studentRepositoryProvider);
-                  final students = (_model.dropdownValue == null || _model.dropdownValue == 'All Classes')
-                      ? await repository.getAllStudents()
-                      : await repository.getStudentsByClass(_model.dropdownValue!);
-                  
-                  if (students.isEmpty) {
+            child: AppPrimaryButton(
+              text: 'Export Excel',
+              color: AppColors.secondary,
+              icon: Icons.file_download_outlined,
+              onPressed: () async {
+                if (filteredStudents.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No students to export.')),
+                  );
+                  return;
+                }
+
+                await ExcelService.exportStudents(filteredStudents);
+              },
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: AppPrimaryButton(
+              text: 'Bulk Import',
+              isLoading: _isImporting,
+              icon: Icons.file_upload_outlined,
+              onPressed: () async {
+                safeSetState(() => _isImporting = true);
+                try {
+                  final data = await ExcelService.importStudents();
+                  if (data.isNotEmpty) {
+                    final repository = ref.read(studentRepositoryProvider);
+                    await repository.bulkAddStudents(data);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('No students found to export.')),
+                        SnackBar(
+                            content: Text(
+                                'Imported ${data.length} students successfully!')),
                       );
                     }
-                    return;
                   }
-
-                  final success = await ExcelService.exportStudents(students);
+                } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(success 
-                          ? 'Excel exported successfully!' 
-                          : 'Failed to export Excel.'),
-                      ),
+                      SnackBar(content: Text('Import failed: $e')),
                     );
                   }
-                },
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: wrapWithModel(
-              model: createModel(context, () => ButtonModel()),
-              updateCallback: () => safeSetState(() {}),
-              child: ButtonWidget(
-                content: 'Bulk Import',
-                variant: 'primary',
-                loading: _isImporting,
-                icon: const Icon(Icons.file_upload_outlined, size: 20),
-                onPressed: () async {
-                  safeSetState(() => _isImporting = true);
-                  try {
-                    final data = await ExcelService.importStudents();
-                    if (data.isNotEmpty) {
-                      final repository = ref.read(studentRepositoryProvider);
-                      await repository.bulkAddStudents(data);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(
-                                  'Imported ${data.length} students successfully!')),
-                        );
-                        safeSetState(() => _refreshKey++);
-                      }
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Import failed: $e')),
-                      );
-                    }
-                  } finally {
-                    safeSetState(() => _isImporting = false);
-                  }
-                },
-              ),
+                } finally {
+                  safeSetState(() => _isImporting = false);
+                }
+              },
             ),
           ),
         ],
@@ -171,142 +190,135 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     );
   }
 
-  Widget _buildSearchAndFilter(BuildContext context) {
+  Widget _buildSearchAndFilter(BuildContext context, List<String> classOptions) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          wrapWithModel(
-            model: _model.searchFieldModel,
-            updateCallback: () => safeSetState(() {}),
-            child: TextFieldWidget(
-              label: '',
-              labelPresent: false,
-              hint: 'Search by name or ID...',
-              leadingIcon: const Icon(Icons.search_rounded),
-              leadingIconPresent: true,
-              variant: 'outlined',
-              trailingIcon: _searchQuery.isNotEmpty 
-                ? InkWell(child: const Icon(Icons.clear_rounded, size: 20), onTap: () => safeSetState(() => _searchQuery = ''))
-                : null,
-              trailingIconPresent: _searchQuery.isNotEmpty,
-              onChange: (val) =>
-                  safeSetState(() => _searchQuery = val ?? ''),
-            ),
+          AppSearchBar(
+            controller: _model.searchController,
+            hintText: 'Search student name, ID or Roll...',
+            onChanged: (val) => safeSetState(() => _searchQuery = val),
+            onClear: () => safeSetState(() {
+              _model.searchController?.clear();
+              _searchQuery = '';
+            }),
           ),
-          const SizedBox(height: 12),
-          FlutterFlowDropDown<String>(
-            controller: _model.dropdownValueController ??=
-                FormFieldController<String>(
-              _model.dropdownValue ??= 'All Classes',
+          const SizedBox(height: AppSpacing.md),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: ['All Classes', ...classOptions].map((className) {
+                final isSelected = (_model.dropdownValue ?? 'All Classes') == className;
+                return Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.sm),
+                  child: FilterChip(
+                    label: Text(className),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      safeSetState(() {
+                        _model.dropdownValue = className;
+                        _model.dropdownValueController?.value = className;
+                      });
+                    },
+                    backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    selectedColor: AppColors.primary,
+                    labelStyle: AppTypography.caption.copyWith(
+                      color: isSelected
+                          ? Colors.white
+                          : AppColors.textPrimary,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    checkmarkColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.xl),
+                      side: BorderSide(
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.outline,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
-            options: const ['All Classes', ...AppConstants.classOptions],
-            onChanged: (val) =>
-                safeSetState(() => _model.dropdownValue = val),
-            width: double.infinity,
-            height: 44.0,
-            textStyle: FlutterFlowTheme.of(context).bodyMedium,
-            hintText: 'Filter by Class',
-            icon: Icon(
-              Icons.filter_list_rounded,
-              color: FlutterFlowTheme.of(context).secondaryText,
-              size: 20.0,
-            ),
-            fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-            elevation: 2.0,
-            borderColor: FlutterFlowTheme.of(context).alternate,
-            borderWidth: 1.0,
-            borderRadius: 12.0,
-            margin: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-            hidesUnderline: true,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStudentList(BuildContext context) {
-    return StreamBuilder<List<Student>>(
-      stream: ref.watch(studentRepositoryProvider).getAllStudentsStream(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        var students = snapshot.data ?? [];
-
-        if (_model.dropdownValue != null &&
-            _model.dropdownValue != 'All Classes') {
-          students = students
-              .where((s) => s.className == _model.dropdownValue)
-              .toList();
-        }
-
-        if (_searchQuery.isNotEmpty) {
-          students = students.where((s) {
-            final name = s.name.toLowerCase();
-            final id = s.studentId.toLowerCase();
-            return name.contains(_searchQuery.toLowerCase()) ||
-                id.contains(_searchQuery.toLowerCase());
-          }).toList();
-        }
-
-        if (students.isEmpty) {
-          return Center(
-            child: Text(
-              'No students found.',
-              style: FlutterFlowTheme.of(context).bodyMedium,
+  Widget _buildStudentList(BuildContext context, AsyncSnapshot<List<Student>> snapshot, List<Student> students, bool isDatabaseEmpty) {
+    if (snapshot.hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline_rounded, color: Colors.red, size: 64),
+            const SizedBox(height: 16),
+            Text('Data Error', style: FlutterFlowTheme.of(context).titleMedium),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                'Something went wrong: ${snapshot.error}',
+                style: FlutterFlowTheme.of(context).bodySmall,
+                textAlign: TextAlign.center,
+              ),
             ),
-          );
-        }
+            const SizedBox(height: 24),
+            ButtonWidget(
+              content: 'Try Refreshing',
+              variant: 'outline',
+              onPressed: () => safeSetState(() {}),
+            ),
+          ],
+        ),
+      );
+    }
+    
+    if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        return ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          itemCount: students.length,
-          separatorBuilder: (context, index) =>
-              const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final student = students[index];
-            return Container(
-              decoration: BoxDecoration(
-                color: FlutterFlowTheme.of(context).secondaryBackground,
-                borderRadius: BorderRadius.circular(12.0),
-                border: Border.all(
-                    color: FlutterFlowTheme.of(context).alternate),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: FlutterFlowTheme.of(context).primary10,
-                    child: Text(
-                      student.name.isNotEmpty ? student.name[0] : 'S',
-                      style: TextStyle(color: FlutterFlowTheme.of(context).primary),
-                    ),
-                  ),
-                  title: Text(
-                    student.name,
-                    style: FlutterFlowTheme.of(context).bodyLarge.override(
-                          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  subtitle: Text('ID: ${student.studentId} • Class: ${student.className}'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EditStudentWidget(student: student),
-                      ),
-                    );
-                    safeSetState(() {});
-                  },
-                ),
-              ),
+    if (isDatabaseEmpty) {
+      return AppEmptyState(
+        icon: Icons.people_outline_rounded,
+        title: 'No students in database',
+        description: 'Add students or use Bulk Import to get started.',
+        actionLabel: 'Add First Student',
+        onActionPressed: () => context.pushNamed(EditStudentWidget.routeName),
+      );
+    }
+
+    if (students.isEmpty) {
+      return AppEmptyState(
+        icon: Icons.search_off_rounded,
+        title: 'No results found',
+        description: 'Try changing filters or search terms.',
+        actionLabel: 'Clear All Filters',
+        onActionPressed: () => safeSetState(() {
+          _searchQuery = '';
+          _model.dropdownValue = 'All Classes';
+          _model.dropdownValueController?.value = 'All Classes';
+        }),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.xl),
+      itemCount: students.length,
+      separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (context, index) {
+        final student = students[index];
+        return StudentCard(
+          student: student,
+          onTap: () async {
+            context.pushNamed(
+              EditStudentWidget.routeName,
+              extra: {'student': student},
             );
           },
         );

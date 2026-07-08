@@ -1,3 +1,6 @@
+// Export models
+export 'backend/models/student.dart';
+
 // Export pages
 export 'pages/login/login_widget.dart';
 export 'pages/phone_login/phone_login_widget.dart';

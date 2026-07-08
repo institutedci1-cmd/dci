@@ -12,7 +12,7 @@ class InfoSectionWidget extends StatefulWidget {
     this.icon,
     String? title,
   })  : description = description ??
-            'To provide a nurturing and disciplined environment that empowers students to achieve academic excellence and personal growth through innovative teaching methods.',
+            'To provide a nurturing and disciplined environment that empowers students to achieve academic excellence.',
         title = title ?? 'Our Mission';
 
   final String description;
@@ -36,99 +36,60 @@ class _InfoSectionWidgetState extends State<InfoSectionWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => InfoSectionModel());
-
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
   void dispose() {
     _model.maybeDispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
-      child: Container(
-        child: Container(
-          decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).secondaryBackground,
-            borderRadius: BorderRadius.circular(16.0),
-            shape: BoxShape.rectangle,
-            border: Border.all(
-              color: FlutterFlowTheme.of(context).alternate,
-              width: 1.0,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      widget.icon!,
-                      Text(
-                        valueOrDefault<String>(
-                          widget.title,
-                          'Our Mission',
-                        ),
-                        style: FlutterFlowTheme.of(context)
-                            .titleMedium
-                            .override(
-                              font: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .titleMedium
-                                    .fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .fontStyle,
-                              lineHeight: 1.35,
-                            ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12.0),
+      decoration: BoxDecoration(
+        color: FlutterFlowTheme.of(context).secondaryBackground,
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: FlutterFlowTheme.of(context).alternate,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (widget.icon != null)
+                  IconTheme(
+                    data: IconThemeData(color: FlutterFlowTheme.of(context).primary, size: 20),
+                    child: widget.icon!,
+                  ),
+                const SizedBox(width: 10),
+                Text(
+                  widget.title,
+                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                        font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                        fontSize: 15,
                       ),
-                    ].divide(const SizedBox(width: 8.0)),
-                  ),
-                  Text(
-                    valueOrDefault<String>(
-                      widget.description,
-                      'To provide a nurturing and disciplined environment that empowers students to achieve academic excellence and personal growth through innovative teaching methods.',
-                    ),
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontWeight,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          letterSpacing: 0.0,
-                          fontWeight: FlutterFlowTheme.of(context)
-                              .bodyMedium
-                              .fontWeight,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                          lineHeight: 1.5,
-                        ),
-                  ),
-                ].divide(const SizedBox(height: 8.0)),
-              ),
+                ),
+              ],
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(
+              widget.description,
+              style: FlutterFlowTheme.of(context).bodySmall.override(
+                    font: GoogleFonts.inter(),
+                    color: FlutterFlowTheme.of(context).secondaryText,
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                  ),
+            ),
+          ],
         ),
       ),
     );

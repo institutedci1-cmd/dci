@@ -10,6 +10,11 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+    }
+
     // User profiles
     match /users/{userId} {
       allow read: if isAuthenticated();
@@ -44,22 +49,22 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid);
     }
 
-    // Students list (ReadOnly for teachers)
+    // Students list
     match /students/{studentId} {
       allow read: if isAuthenticated();
-      allow write: if false; // Only admin via separate panel
+      allow write: if isAdmin();
     }
 
-    // Announcements (ReadOnly for teachers)
+    // Announcements
     match /announcements/{announcementId} {
       allow read: if isAuthenticated();
-      allow write: if false; // Only admin
+      allow write: if isAdmin();
     }
 
     // Institute Config
     match /config/{configId} {
       allow read: if isAuthenticated();
-      allow write: if false;
+      allow write: if isAdmin();
     }
   }
 }

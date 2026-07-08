@@ -1,8 +1,9 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dashboard_card_model.dart';
 export 'dashboard_card_model.dart';
 
@@ -55,7 +56,7 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
 
   String _routeNameForTarget(String target) {
     final routeName = switch (target) {
-      'DailyReport' => ReportsDashboardWidget.routeName,
+      'DailyReport' => DailyReportFormWidget.routeName,
       'Attendance' => AttendanceDashboardWidget.routeName,
       'Homework' => HomeworkAssignmentWidget.routeName,
       'TeacherProfile' => TeacherProfileWidget.routeName,
@@ -70,10 +71,6 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      splashColor: Colors.transparent,
-      focusColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
       onTap: () async {
         try {
           final routeName = _routeNameForTarget(widget.target);
@@ -86,60 +83,60 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
           );
         }
       },
+      borderRadius: AppRadius.card,
       child: Container(
+        width: double.infinity,
         decoration: BoxDecoration(
           color: FlutterFlowTheme.of(context).secondaryBackground,
-          borderRadius: BorderRadius.circular(16.0),
-          shape: BoxShape.rectangle,
+          borderRadius: AppRadius.card,
           border: Border.all(
             color: FlutterFlowTheme.of(context).alternate,
             width: 1.0,
           ),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 10,
+              color: Colors.black.withAlpha((0.04 * 255).toInt()),
+              offset: const Offset(0, 4),
+            )
+          ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 56.0,
-                  height: 56.0,
-                  decoration: BoxDecoration(
-                    color: valueOrDefault<Color>(
-                      widget.bgColor,
-                      const Color(0x00000000),
-                    ),
-                    borderRadius: BorderRadius.circular(9999.0),
-                    shape: BoxShape.rectangle,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 52.0,
+                height: 52.0,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha((0.1 * 255).toInt()),
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                alignment: const AlignmentDirectional(0, 0),
+                child: IconTheme(
+                  data: const IconThemeData(
+                    color: AppColors.primary,
+                    size: 26,
                   ),
-                  alignment: const AlignmentDirectional(0.0, 0.0),
                   child: widget.icon!,
                 ),
-                Text(
-                  valueOrDefault<String>(
-                    widget.title,
-                    'Daily Report',
-                  ),
-                  textAlign: TextAlign.center,
-                  style: FlutterFlowTheme.of(context).titleSmall.override(
-                        font: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w600,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                        ),
-                        color: FlutterFlowTheme.of(context).primaryText,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w600,
-                        fontStyle:
-                            FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                        lineHeight: 1.4,
-                      ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                widget.title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.label.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: FlutterFlowTheme.of(context).primaryText,
+                  fontSize: 13,
                 ),
-              ].divide(const SizedBox(height: 16.0)),
-            ),
+              ),
+            ],
           ),
         ),
       ),

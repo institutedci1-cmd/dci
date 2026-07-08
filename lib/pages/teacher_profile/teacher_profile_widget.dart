@@ -74,27 +74,27 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                   ),
                   _buildActionButtons(context),
                   Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _buildUserRoleBadge(context, userData),
-                        const SizedBox(height: 16.0),
+                        const SizedBox(height: 12.0),
                         _buildPersonalInformation(context, userData),
-                        const SizedBox(height: 24.0),
+                        const SizedBox(height: 20.0),
                         _buildEducationExpertise(context, userData),
-                        const SizedBox(height: 24.0),
+                        const SizedBox(height: 20.0),
                         _buildAppLinksSection(context),
-                        const SizedBox(height: 24.0),
+                        const SizedBox(height: 20.0),
                         _buildSettingsSection(context, userData),
-                        const SizedBox(height: 24.0),
+                        const SizedBox(height: 20.0),
                         _buildAboutSection(context),
-                        const SizedBox(height: 24.0),
+                        const SizedBox(height: 20.0),
                         _buildLogoutButton(context),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40.0),
+                  const SizedBox(height: 32.0),
                 ],
               ),
             );
@@ -106,7 +106,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
 
   Widget _buildActionButtons(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
         children: [
           Expanded(
@@ -114,24 +114,26 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
               model: _model.buttonModel1,
               updateCallback: () => safeSetState(() {}),
               child: ButtonWidget(
-                icon: const Icon(Icons.edit_rounded, size: 24.0),
+                icon: const Icon(Icons.edit_rounded, size: 18.0),
                 iconPresent: true,
                 content: 'Edit Profile',
                 variant: 'outline',
+                size: 'medium',
                 onPressed: () => context.pushNamed(EditProfileWidget.routeName),
               ),
             ),
           ),
-          const SizedBox(width: 16.0),
+          const SizedBox(width: 12.0),
           Expanded(
             child: wrapWithModel(
               model: _model.buttonModel2,
               updateCallback: () => safeSetState(() {}),
               child: ButtonWidget(
-                icon: const Icon(Icons.share_rounded, size: 24.0),
+                icon: const Icon(Icons.share_rounded, size: 18.0),
                 iconPresent: true,
                 content: 'Share CV',
                 variant: 'secondary',
+                size: 'medium',
                 onPressed: () async {
                   final userData = await ref.read(userRepositoryProvider).getUserData();
                   if (userData != null) {
@@ -232,11 +234,11 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(context, 'Settings & Preferences'),
-        Container(
-          decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).secondaryBackground,
+        Material(
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
-            border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+            side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
           ),
           child: SwitchListTile.adaptive(
             value: userData?['notifications_enabled'] ?? true,
@@ -338,16 +340,18 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
   Widget _buildListTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
+      child: Material(
         color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
-        title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
-        trailing: const Icon(Icons.chevron_right_rounded),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
+        ),
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
+          title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
+          trailing: const Icon(Icons.chevron_right_rounded),
+        ),
       ),
     );
   }

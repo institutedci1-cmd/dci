@@ -2,7 +2,6 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'button_model.dart';
 export 'button_model.dart';
 
@@ -22,9 +21,9 @@ class ButtonWidget extends StatefulWidget {
     this.onPressed,
   })  : iconPresent = iconPresent ?? false,
         iconEndPresent = iconEndPresent ?? false,
-        content = content ?? 'Forgot Password?',
-        variant = variant ?? 'ghost',
-        size = size ?? 'small',
+        content = content ?? 'Button',
+        variant = variant ?? 'primary',
+        size = size ?? 'medium',
         fullWidth = fullWidth ?? false,
         loading = loading ?? false,
         disabled = disabled ?? false;
@@ -58,398 +57,122 @@ class _ButtonWidgetState extends State<ButtonWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => ButtonModel());
-
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
   void dispose() {
     _model.maybeDispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isDisabled = widget.disabled || widget.loading;
+    
+    Color bgColor;
+    Color textColor;
+    BorderSide borderSide = BorderSide.none;
+
+    switch (widget.variant) {
+      case 'secondary':
+        bgColor = FlutterFlowTheme.of(context).secondary;
+        textColor = Colors.white;
+        break;
+      case 'outline':
+        bgColor = Colors.transparent;
+        textColor = FlutterFlowTheme.of(context).primary;
+        borderSide = BorderSide(color: FlutterFlowTheme.of(context).primary, width: 1.5);
+        break;
+      case 'ghost':
+        bgColor = Colors.transparent;
+        textColor = FlutterFlowTheme.of(context).primaryText;
+        break;
+      case 'destructive':
+        bgColor = FlutterFlowTheme.of(context).error;
+        textColor = Colors.white;
+        break;
+      case 'primary':
+      default:
+        bgColor = FlutterFlowTheme.of(context).primary;
+        textColor = Colors.white;
+        break;
+    }
+
+    double height;
+    double fontSize;
+    double iconSize;
+    EdgeInsets padding;
+
+    switch (widget.size) {
+      case 'small':
+        height = 32;
+        fontSize = 12;
+        iconSize = 16;
+        padding = const EdgeInsets.symmetric(horizontal: 12);
+        break;
+      case 'large':
+        height = 48;
+        fontSize = 15;
+        iconSize = 22;
+        padding = const EdgeInsets.symmetric(horizontal: 24);
+        break;
+      case 'medium':
+      default:
+        height = 40;
+        fontSize = 14;
+        iconSize = 18;
+        padding = const EdgeInsets.symmetric(horizontal: 16);
+        break;
+    }
+
     return Opacity(
-      opacity: valueOrDefault<double>(
-        valueOrDefault<bool>(
-          widget.disabled,
-          false,
-        )
-            ? 0.55
-            : 1.0,
-        1.0,
-      ),
-      child: GestureDetector(
-        onTap: widget.disabled ? null : widget.onPressed,
+      opacity: isDisabled ? 0.6 : 1.0,
+      child: InkWell(
+        onTap: isDisabled ? null : widget.onPressed,
+        borderRadius: BorderRadius.circular(10),
         child: Container(
+          width: widget.fullWidth ? double.infinity : null,
+          height: height,
           decoration: BoxDecoration(
-            color: valueOrDefault<Color>(
-              () {
-                if (valueOrDefault<String>(
-                      widget.variant,
-                      'ghost',
-                    ) ==
-                    'secondary') {
-                  return FlutterFlowTheme.of(context).secondary;
-                } else if (valueOrDefault<String>(
-                      widget.variant,
-                      'ghost',
-                    ) ==
-                    'outline') {
-                  return Colors.transparent;
-                } else if (valueOrDefault<String>(
-                      widget.variant,
-                      'ghost',
-                    ) ==
-                    'ghost') {
-                  return Colors.transparent;
-                } else if (valueOrDefault<String>(
-                      widget.variant,
-                      'ghost',
-                    ) ==
-                    'destructive') {
-                  return FlutterFlowTheme.of(context).error;
-                } else {
-                  return FlutterFlowTheme.of(context).primary;
-                }
-              }(),
-              Colors.transparent,
-            ),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(valueOrDefault<double>(
-                () {
-                  if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'small') {
-                    return 8.0;
-                  } else if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'large') {
-                    return 16.0;
-                  } else {
-                    return 12.0;
-                  }
-                }(),
-                8.0,
-              )),
-              topRight: Radius.circular(valueOrDefault<double>(
-                () {
-                  if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'small') {
-                    return 8.0;
-                  } else if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'large') {
-                    return 16.0;
-                  } else {
-                    return 12.0;
-                  }
-                }(),
-                8.0,
-              )),
-              bottomLeft: Radius.circular(valueOrDefault<double>(
-                () {
-                  if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'small') {
-                    return 8.0;
-                  } else if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'large') {
-                    return 16.0;
-                  } else {
-                    return 12.0;
-                  }
-                }(),
-                8.0,
-              )),
-              bottomRight: Radius.circular(valueOrDefault<double>(
-                () {
-                  if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'small') {
-                    return 8.0;
-                  } else if (valueOrDefault<String>(
-                        widget.size,
-                        'small',
-                      ) ==
-                      'large') {
-                    return 16.0;
-                  } else {
-                    return 12.0;
-                  }
-                }(),
-                8.0,
-              )),
-            ),
-            shape: BoxShape.rectangle,
-            border: Border.all(
-              color: valueOrDefault<Color>(
-                valueOrDefault<String>(
-                          widget.variant,
-                          'ghost',
-                        ) ==
-                        'outline'
-                    ? FlutterFlowTheme.of(context).alternate
-                    : Colors.transparent,
-                Colors.transparent,
-              ),
-              width: valueOrDefault<double>(
-                valueOrDefault<String>(
-                          widget.variant,
-                          'ghost',
-                        ) ==
-                        'outline'
-                    ? 1.0
-                    : 0.0,
-                0.0,
-              ),
-            ),
+            color: bgColor,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.fromBorderSide(borderSide),
           ),
-          child: Stack(
-            alignment: const AlignmentDirectional(0.0, 0.0),
-            children: [
-              Opacity(
-                opacity: valueOrDefault<double>(
-                  valueOrDefault<bool>(
-                    widget.loading,
-                    false,
+          padding: padding,
+          child: Center(
+            child: widget.loading
+                ? SizedBox(
+                    width: iconSize,
+                    height: iconSize,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                    ),
                   )
-                      ? 0.0
-                      : 1.0,
-                  1.0,
-                ),
-                child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(
-                      valueOrDefault<double>(
-                        () {
-                          if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'small') {
-                            return 16.0;
-                          } else if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'large') {
-                            return 32.0;
-                          } else {
-                            return 24.0;
-                          }
-                        }(),
-                        16.0,
-                      ),
-                      valueOrDefault<double>(
-                        () {
-                          if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'small') {
-                            return 4.0;
-                          } else if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'large') {
-                            return 16.0;
-                          } else {
-                            return 8.0;
-                          }
-                        }(),
-                        4.0,
-                      ),
-                      valueOrDefault<double>(
-                        () {
-                          if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'small') {
-                            return 16.0;
-                          } else if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'large') {
-                            return 32.0;
-                          } else {
-                            return 24.0;
-                          }
-                        }(),
-                        16.0,
-                      ),
-                      valueOrDefault<double>(
-                        () {
-                          if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'small') {
-                            return 4.0;
-                          } else if (valueOrDefault<String>(
-                                widget.size,
-                                'small',
-                              ) ==
-                              'large') {
-                            return 16.0;
-                          } else {
-                            return 8.0;
-                          }
-                        }(),
-                        4.0,
-                      )),
-                  child: Row(
+                : Row(
                     mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      if (valueOrDefault<bool>(
-                        widget.iconPresent,
-                        false,
-                      ))
-                        widget.icon!,
-                      Text(
-                        valueOrDefault<String>(
-                          widget.content,
-                          'Forgot Password?',
+                      if (widget.iconPresent && widget.icon != null)
+                        IconTheme(
+                          data: IconThemeData(color: textColor, size: iconSize),
+                          child: widget.icon!,
                         ),
-                        maxLines: 1,
-                        style: FlutterFlowTheme.of(context)
-                            .labelMedium
-                            .override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontStyle,
-                              ),
-                              color: valueOrDefault<Color>(
-                                () {
-                                  if (valueOrDefault<String>(
-                                        widget.variant,
-                                        'ghost',
-                                      ) ==
-                                      'secondary') {
-                                    return FlutterFlowTheme.of(context)
-                                        .onSecondary;
-                                  } else if (valueOrDefault<String>(
-                                        widget.variant,
-                                        'ghost',
-                                      ) ==
-                                      'outline') {
-                                    return FlutterFlowTheme.of(context)
-                                        .primaryText;
-                                  } else if (valueOrDefault<String>(
-                                        widget.variant,
-                                        'ghost',
-                                      ) ==
-                                      'ghost') {
-                                    return FlutterFlowTheme.of(context).primary;
-                                  } else if (valueOrDefault<String>(
-                                        widget.variant,
-                                        'ghost',
-                                      ) ==
-                                      'destructive') {
-                                    return FlutterFlowTheme.of(context).onError;
-                                  } else {
-                                    return FlutterFlowTheme.of(context)
-                                        .onPrimary;
-                                  }
-                                }(),
-                                FlutterFlowTheme.of(context).primary,
-                              ),
-                              letterSpacing: 0.0,
-                              fontWeight: FlutterFlowTheme.of(context)
-                                  .labelMedium
-                                  .fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .labelMedium
-                                  .fontStyle,
-                              lineHeight: 1.38,
+                      Text(
+                        widget.content,
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                              color: textColor,
+                              fontSize: fontSize,
                             ),
-                        overflow: TextOverflow.clip,
                       ),
-                      if (valueOrDefault<bool>(
-                        widget.iconEndPresent,
-                        false,
-                      ))
-                        widget.iconEnd!,
+                      if (widget.iconEndPresent && widget.iconEnd != null)
+                        IconTheme(
+                          data: IconThemeData(color: textColor, size: iconSize),
+                          child: widget.iconEnd!,
+                        ),
                     ].divide(const SizedBox(width: 8.0)),
                   ),
-                ),
-              ),
-              if (valueOrDefault<bool>(
-                valueOrDefault<bool>(
-                  widget.loading,
-                  false,
-                )
-                    ? true
-                    : false,
-                false,
-              ))
-                CircularPercentIndicator(
-                  percent: 0.0,
-                  radius: 7.0,
-                  lineWidth: 2.0,
-                  animation: true,
-                  animateFromLastPercent: true,
-                  progressColor: valueOrDefault<Color>(
-                    () {
-                      if (valueOrDefault<String>(
-                            widget.variant,
-                            'ghost',
-                          ) ==
-                          'secondary') {
-                        return FlutterFlowTheme.of(context).onSecondary;
-                      } else if (valueOrDefault<String>(
-                            widget.variant,
-                            'ghost',
-                          ) ==
-                          'outline') {
-                        return FlutterFlowTheme.of(context).primaryText;
-                      } else if (valueOrDefault<String>(
-                            widget.variant,
-                            'ghost',
-                          ) ==
-                          'ghost') {
-                        return FlutterFlowTheme.of(context).primary;
-                      } else if (valueOrDefault<String>(
-                            widget.variant,
-                            'ghost',
-                          ) ==
-                          'destructive') {
-                        return FlutterFlowTheme.of(context).onError;
-                      } else {
-                        return FlutterFlowTheme.of(context).onPrimary;
-                      }
-                    }(),
-                    FlutterFlowTheme.of(context).primary,
-                  ),
-                  backgroundColor: FlutterFlowTheme.of(context).alternate,
-                ),
-            ],
           ),
         ),
       ),

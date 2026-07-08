@@ -534,6 +534,7 @@ extension TextStyleHelper on TextStyle {
     bool useGoogleFonts = false,
     TextDecoration? decoration,
     double? lineHeight,
+    TextOverflow? overflow,
     List<Shadow>? shadows,
     String? package,
   }) {
@@ -552,6 +553,7 @@ extension TextStyleHelper on TextStyle {
             fontStyle: fontStyle ?? this.fontStyle,
             decoration: decoration,
             height: lineHeight,
+            overflow: overflow,
             shadows: shadows,
           )
         : copyWith(
@@ -564,6 +566,7 @@ extension TextStyleHelper on TextStyle {
             fontStyle: fontStyle,
             decoration: decoration,
             height: lineHeight,
+            overflow: overflow,
             shadows: shadows,
           );
   }

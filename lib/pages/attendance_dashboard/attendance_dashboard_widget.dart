@@ -141,20 +141,22 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                         children: records.take(10).map((record) {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
+                            child: Material(
                               color: FlutterFlowTheme.of(context).secondaryBackground,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-                            ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                radius: 14,
-                                backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
-                                child: Icon(_getStatusIcon(record.status), color: _getStatusColor(record.status), size: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
                               ),
-                              title: Text(record.studentName),
-                              subtitle: Text('${record.className} • ${dateTimeFormat('yMMMd', record.date)}'),
-                              trailing: Text(record.status, style: TextStyle(color: _getStatusColor(record.status), fontWeight: FontWeight.bold, fontSize: 12)),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
+                                  child: Icon(_getStatusIcon(record.status), color: _getStatusColor(record.status), size: 16),
+                                ),
+                                title: Text(record.studentName),
+                                subtitle: Text('${record.className} • ${dateTimeFormat('yMMMd', record.date)}'),
+                                trailing: Text(record.status, style: TextStyle(color: _getStatusColor(record.status), fontWeight: FontWeight.bold, fontSize: 12)),
+                              ),
                             ),
                           );
                         }).toList(),

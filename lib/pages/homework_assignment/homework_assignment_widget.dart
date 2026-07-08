@@ -115,35 +115,47 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         body: Column(
           children: [
-            wrapWithModel(
-              model: _model.headerSectionModel,
-              updateCallback: () => safeSetState(() {}),
-              child: HeaderSectionWidget(
-                title: 'Assign Homework',
-                onBackPressed: () async => context.safePop(),
-                actionIcon: const Icon(Icons.history_rounded, color: Colors.white, size: 24.0),
-                onActionPressed: () async => context.pushNamed(HomeworkHistoryWidget.routeName),
-              ),
-            ),
+            _buildHeader(context),
             Expanded(
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      HomeworkClassDetailsSection(model: _model, onChanged: () => safeSetState(() {})),
-                      AssignmentDetailsSection(model: _model, onChanged: () => safeSetState(() {})),
-                      _buildAttachmentsSection(context),
-                      DueDateSection(model: _model, onChanged: () => safeSetState(() {})),
-                      _buildInfoNote(context),
-                    ].divide(const SizedBox(height: 24.0)),
-                  ),
-                ),
-              ),
+              child: _buildForm(context),
             ),
             _buildHomeworkFooter(context),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return wrapWithModel(
+      model: _model.headerSectionModel,
+      updateCallback: () => safeSetState(() {}),
+      child: HeaderSectionWidget(
+        title: 'Assign Homework',
+        onBackPressed: () async => context.safePop(),
+        actionIcon:
+            const Icon(Icons.history_rounded, color: Colors.white, size: 24.0),
+        onActionPressed: () async =>
+            context.pushNamed(HomeworkHistoryWidget.routeName),
+      ),
+    );
+  }
+
+  Widget _buildForm(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            HomeworkClassDetailsSection(
+                model: _model, onChanged: () => safeSetState(() {})),
+            AssignmentDetailsSection(
+                model: _model, onChanged: () => safeSetState(() {})),
+            _buildAttachmentsSection(context),
+            DueDateSection(model: _model, onChanged: () => safeSetState(() {})),
+            _buildInfoNote(context),
+          ].divide(const SizedBox(height: 24.0)),
         ),
       ),
     );

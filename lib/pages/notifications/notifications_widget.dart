@@ -101,13 +101,13 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
                 ),
                 child: const Icon(Icons.delete_outline, color: Colors.white),
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: item.isRead 
-                      ? FlutterFlowTheme.of(context).secondaryBackground 
-                      : FlutterFlowTheme.of(context).primary10.applyAlpha(0.05),
+              child: Material(
+                color: item.isRead 
+                    ? FlutterFlowTheme.of(context).secondaryBackground 
+                    : FlutterFlowTheme.of(context).primary10.applyAlpha(0.05),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
-                  border: Border.all(
+                  side: BorderSide(
                     color: item.isRead 
                         ? FlutterFlowTheme.of(context).alternate 
                         : FlutterFlowTheme.of(context).primary,

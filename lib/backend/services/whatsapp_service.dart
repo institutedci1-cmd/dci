@@ -43,14 +43,11 @@ class WhatsappService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('WhatsApp message sent successfully');
         return true;
       } else {
-        print('Failed to send WhatsApp message: ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Error sending WhatsApp message: $e');
       return false;
     }
   }
@@ -82,11 +79,9 @@ class WhatsappService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       } else {
-        print('Failed to send WhatsApp text: ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Error sending WhatsApp text: $e');
       return false;
     }
   }

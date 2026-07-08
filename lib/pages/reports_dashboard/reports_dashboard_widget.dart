@@ -162,18 +162,20 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
                         children: reports.map((report) {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
+                            child: Material(
                               color: FlutterFlowTheme.of(context).secondaryBackground,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-                            ),
-                            child: ListTile(
-                              title: Text('${report.className} - ${report.subject}'),
-                              subtitle: Text(dateTimeFormat('yMMMd', report.createdAt)),
-                              trailing: const Icon(Icons.chevron_right_rounded),
-                              onTap: () {
-                                // Detail view?
-                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
+                              ),
+                              child: ListTile(
+                                title: Text('${report.className} - ${report.subject}'),
+                                subtitle: Text(dateTimeFormat('yMMMd', report.createdAt)),
+                                trailing: const Icon(Icons.chevron_right_rounded),
+                                onTap: () {
+                                  // Detail view?
+                                },
+                              ),
                             ),
                           );
                         }).toList(),
