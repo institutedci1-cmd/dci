@@ -23,6 +23,9 @@ class HomeworkAssignmentModel
   // State field(s) for Dropdown widget.
   String? dropdownValue2;
   FormFieldController<String>? dropdownValueController2;
+  // State field(s) for Dropdown widget (Teacher).
+  String? dropdownValue3;
+  FormFieldController<String>? dropdownValueController3;
   // Model for FormLabel.
   late FormLabelModel formLabelModel3;
   // Model for TextField.
@@ -31,6 +34,11 @@ class HomeworkAssignmentModel
   late TextFieldModel textFieldModel2;
   // Model for FormLabel.
   late FormLabelModel formLabelModel4;
+  // State field(s) for due date.
+  DateTime? dueDate;
+  // List of uploaded attachment URLs
+  List<String> attachmentUrls = [];
+  bool isDataUploading = false;
   // Model for Button.
   late ButtonModel buttonModel1;
   // Model for Button.

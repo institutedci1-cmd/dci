@@ -9,20 +9,18 @@ export 'announcement_card_model.dart';
 class AnnouncementCardWidget extends StatefulWidget {
   const AnnouncementCardWidget({
     super.key,
-    String? category,
-    String? date,
-    String? description,
-    String? title,
-  })  : category = category ?? 'EXAM NOTICE',
-        date = date ?? '24 Oct 2023',
-        description = description ??
-            'The final term examination schedule for the Fall 2023 semester has been published. Please check the student portal for specific timings and room assignments.',
-        title = title ?? 'Final Term Examination Schedule Released';
+    this.category,
+    this.date,
+    this.description,
+    this.title,
+    this.onTap,
+  });
 
-  final String category;
-  final String date;
-  final String description;
-  final String title;
+  final String? category;
+  final String? date;
+  final String? description;
+  final String? title;
+  final Future Function()? onTap;
 
   @override
   State<AnnouncementCardWidget> createState() => _AnnouncementCardWidgetState();
@@ -56,7 +54,12 @@ class _AnnouncementCardWidgetState extends State<AnnouncementCardWidget> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
-      child: Container(
+      child: InkWell(
+        onTap: () async {
+          if (widget.onTap != null) {
+            await widget.onTap!();
+          }
+        },
         child: Container(
           decoration: BoxDecoration(
             color: FlutterFlowTheme.of(context).secondaryBackground,
@@ -232,6 +235,11 @@ class _AnnouncementCardWidgetState extends State<AnnouncementCardWidget> {
                           fullWidth: false,
                           loading: false,
                           disabled: false,
+                          onPressed: () async {
+                            if (widget.onTap != null) {
+                              await widget.onTap!();
+                            }
+                          },
                         ),
                       ),
                     ],

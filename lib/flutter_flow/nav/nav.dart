@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
+import '../../backend/models/student.dart';
+import '/pages/edit_student/edit_student_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 import '/index.dart';
@@ -91,6 +93,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const LoginWidget(),
         ),
         FFRoute(
+          name: PhoneLoginWidget.routeName,
+          path: PhoneLoginWidget.routePath,
+          builder: (context, params) => const PhoneLoginWidget(),
+        ),
+        FFRoute(
+          name: SignUpWidget.routeName,
+          path: SignUpWidget.routePath,
+          builder: (context, params) => const SignUpWidget(),
+        ),
+        FFRoute(
           name: HomeDashboardWidget.routeName,
           path: HomeDashboardWidget.routePath,
           requireAuth: true,
@@ -103,16 +115,69 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const DailyReportFormWidget(),
         ),
         FFRoute(
+          name: ReportsDashboardWidget.routeName,
+          path: ReportsDashboardWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const ReportsDashboardWidget(),
+        ),
+        FFRoute(
+          name: ReportHistoryWidget.routeName,
+          path: ReportHistoryWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const ReportHistoryWidget(),
+        ),
+        FFRoute(
           name: AttendanceTrackerWidget.routeName,
           path: AttendanceTrackerWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const AttendanceTrackerWidget(),
         ),
         FFRoute(
+          name: AttendanceDashboardWidget.routeName,
+          path: AttendanceDashboardWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const AttendanceDashboardWidget(),
+        ),
+        FFRoute(
+          name: AttendanceHistoryWidget.routeName,
+          path: AttendanceHistoryWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const AttendanceHistoryWidget(),
+        ),
+        FFRoute(
+          name: MonthlyReportWidget.routeName,
+          path: MonthlyReportWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const MonthlyReportWidget(),
+        ),
+        FFRoute(
+          name: StudentListWidget.routeName,
+          path: StudentListWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const StudentListWidget(),
+        ),
+        FFRoute(
+          name: EditStudentWidget.routeName,
+          path: EditStudentWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => EditStudentWidget(
+            student: params.getParam<Student>(
+              'student',
+              ParamType.JSON,
+            ),
+          ),
+        ),
+        FFRoute(
           name: HomeworkAssignmentWidget.routeName,
           path: HomeworkAssignmentWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const HomeworkAssignmentWidget(),
+        ),
+        FFRoute(
+          name: HomeworkHistoryWidget.routeName,
+          path: HomeworkHistoryWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const HomeworkHistoryWidget(),
         ),
         FFRoute(
           name: AnnouncementsFeedWidget.routeName,
@@ -127,10 +192,28 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const TeacherProfileWidget(),
         ),
         FFRoute(
+          name: EditProfileWidget.routeName,
+          path: EditProfileWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const EditProfileWidget(),
+        ),
+        FFRoute(
           name: AboutDeshmukhWidget.routeName,
           path: AboutDeshmukhWidget.routePath,
           requireAuth: true,
           builder: (context, params) => const AboutDeshmukhWidget(),
+        ),
+        FFRoute(
+          name: SettingsWidget.routeName,
+          path: SettingsWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const SettingsWidget(),
+        ),
+        FFRoute(
+          name: NotificationsWidget.routeName,
+          path: NotificationsWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => const NotificationsWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

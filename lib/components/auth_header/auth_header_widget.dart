@@ -1,5 +1,6 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'auth_header_model.dart';
@@ -38,68 +39,92 @@ class _AuthHeaderWidgetState extends State<AuthHeaderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 100.0,
-          height: 100.0,
-          decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).secondaryBackground,
-            borderRadius: BorderRadius.circular(24.0),
-            shape: BoxShape.rectangle,
-          ),
-          alignment: const AlignmentDirectional(0.0, 0.0),
-          child: Icon(
-            Icons.school_rounded,
-            color: FlutterFlowTheme.of(context).primary,
-            size: 48.0,
-          ),
-        ),
-        Column(
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('config')
+          .doc('institute_info')
+          .get(),
+      builder: (context, snapshot) {
+        final info = snapshot.data?.data() as Map<String, dynamic>?;
+
+        return Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Deshmukh Teacher App',
-              style: FlutterFlowTheme.of(context).headlineMedium.override(
-                    font: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.bold,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).headlineMedium.fontStyle,
+            Container(
+              width: 100.0,
+              height: 100.0,
+              decoration: BoxDecoration(
+                color: FlutterFlowTheme.of(context).secondaryBackground,
+                borderRadius: BorderRadius.circular(24.0),
+                shape: BoxShape.rectangle,
+              ),
+              alignment: const AlignmentDirectional(0.0, 0.0),
+              child: info?['logo_url'] != null
+                  ? Image.network(
+                      info!['logo_url'],
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.school_rounded,
+                        color: FlutterFlowTheme.of(context).primary,
+                        size: 48.0,
+                      ),
+                    )
+                  : Icon(
+                      Icons.school_rounded,
+                      color: FlutterFlowTheme.of(context).primary,
+                      size: 48.0,
                     ),
-                    color: FlutterFlowTheme.of(context).primaryText,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.bold,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).headlineMedium.fontStyle,
-                    lineHeight: 1.25,
-                  ),
             ),
-            Text(
-              'Deshmukh Coaching Institute',
-              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                    font: GoogleFonts.inter(
-                      fontWeight:
-                          FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                    ),
-                    color: FlutterFlowTheme.of(context).secondaryText,
-                    letterSpacing: 0.0,
-                    fontWeight:
-                        FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                    lineHeight: 1.47,
-                  ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  info?['app_name'] ?? 'Deshmukh Teacher App',
+                  style: FlutterFlowTheme.of(context).headlineMedium.override(
+                        font: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FlutterFlowTheme.of(context)
+                              .headlineMedium
+                              .fontStyle,
+                        ),
+                        color: FlutterFlowTheme.of(context).primaryText,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FlutterFlowTheme.of(context)
+                            .headlineMedium
+                            .fontStyle,
+                        lineHeight: 1.25,
+                      ),
+                ),
+                Text(
+                  info?['name'] ?? 'Deshmukh Coaching Institute',
+                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                        font: GoogleFonts.inter(
+                          fontWeight:
+                              FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                          fontStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                        ),
+                        color: FlutterFlowTheme.of(context).secondaryText,
+                        letterSpacing: 0.0,
+                        fontWeight:
+                            FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                        fontStyle:
+                            FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                        lineHeight: 1.47,
+                      ),
+                ),
+              ].divide(const SizedBox(height: 4.0)),
             ),
-          ].divide(const SizedBox(height: 4.0)),
-        ),
-      ].divide(const SizedBox(height: 24.0)),
+          ].divide(const SizedBox(height: 24.0)),
+        );
+      },
     );
   }
 }

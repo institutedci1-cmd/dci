@@ -9,13 +9,14 @@ export 'profile_header_model.dart';
 class ProfileHeaderWidget extends StatefulWidget {
   const ProfileHeaderWidget({
     super.key,
-    String? designation,
-    String? name,
-  })  : designation = designation ?? 'Senior Faculty • M.Sc., M.Ed.',
-        name = name ?? 'Prof. Rajesh Deshmukh';
+    this.designation,
+    this.name,
+    this.photoUrl,
+  });
 
-  final String designation;
-  final String name;
+  final String? designation;
+  final String? name;
+  final String? photoUrl;
 
   @override
   State<ProfileHeaderWidget> createState() => _ProfileHeaderWidgetState();
@@ -94,8 +95,10 @@ class _ProfileHeaderWidgetState extends State<ProfileHeaderWidget> {
                     child: CachedNetworkImage(
                       fadeInDuration: const Duration(milliseconds: 0),
                       fadeOutDuration: const Duration(milliseconds: 0),
-                      imageUrl:
-                          'https://dimg.dreamflow.cloud/v1/image/professional%20teacher%20portrait',
+                      imageUrl: valueOrDefault<String>(
+                        widget.photoUrl,
+                        'https://dimg.dreamflow.cloud/v1/image/professional%20teacher%20portrait',
+                      ),
                       fit: BoxFit.cover,
                       alignment: const Alignment(0.0, 0.0),
                     ),
@@ -163,3 +166,4 @@ class _ProfileHeaderWidgetState extends State<ProfileHeaderWidget> {
     );
   }
 }
+

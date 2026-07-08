@@ -74,9 +74,8 @@ String? serializeParam(
         data = uploadedFileToString(param as FFUploadedFile);
       case ParamType.JSON:
         data = json.encode(param);
-
-      default:
-        data = null;
+      case ParamType.Enum:
+        data = (param as Enum).name;
     }
     return data;
   } catch (e) {
@@ -182,6 +181,7 @@ enum ParamType {
   FFPlace,
   FFUploadedFile,
   JSON,
+  Enum,
 }
 
 dynamic deserializeParam<T>(
@@ -229,9 +229,8 @@ dynamic deserializeParam<T>(
         return uploadedFileFromString(param);
       case ParamType.JSON:
         return json.decode(param);
-
-      default:
-        return null;
+      case ParamType.Enum:
+        return param;
     }
   } catch (e) {
     print('Error deserializing parameter: $e');

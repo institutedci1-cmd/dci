@@ -2,6 +2,7 @@ import '/components/contact_item/contact_item_widget.dart';
 import '/components/info_section/info_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'about_deshmukh_model.dart';
@@ -40,563 +41,230 @@ class _AboutDeshmukhWidgetState extends State<AboutDeshmukhWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: SingleChildScrollView(
-          primary: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: 280.0,
-                child: Stack(
-                  alignment: const AlignmentDirectional(-1.0, -1.0),
-                  children: [
-                    Container(
-                      height: 220.0,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            FlutterFlowTheme.of(context).primary,
-                            FlutterFlowTheme.of(context).tertiary
-                          ],
-                          stops: const [0.0, 1.0],
-                          begin: const AlignmentDirectional(0.0, -1.0),
-                          end: const AlignmentDirectional(0, 1.0),
-                        ),
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(40.0),
-                          bottomRight: Radius.circular(40.0),
-                        ),
-                        shape: BoxShape.rectangle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'About Deshmukh Institute',
-                              style: FlutterFlowTheme.of(context)
-                                  .headlineMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .headlineMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .onBackground,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .headlineMedium
-                                        .fontStyle,
-                                    lineHeight: 1.25,
-                                  ),
-                            ),
-                            Text(
-                              'Deshmukh Coaching Institute',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .onBackground90,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                    lineHeight: 1.47,
-                                  ),
-                            ),
-                          ].divide(const SizedBox(height: 16.0)),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: const AlignmentDirectional(0.0, 1.0),
-                      child: Container(
-                        width: 120.0,
-                        height: 120.0,
-                        decoration: BoxDecoration(
-                          color:
-                              FlutterFlowTheme.of(context).secondaryBackground,
-                          borderRadius: BorderRadius.circular(24.0),
-                          shape: BoxShape.rectangle,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Container(
-                            child: Image.asset(
-                              'assets/images/logo.png',
-                              width: 80.0,
-                              height: 80.0,
-                              fit: BoxFit.contain,
-                              alignment: const Alignment(0.0, 0.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    wrapWithModel(
-                      model: _model.infoSectionModel1,
-                      updateCallback: () => safeSetState(() {}),
-                      child: InfoSectionWidget(
-                        description:
-                            'To provide a nurturing and disciplined environment that empowers students to achieve academic excellence and personal growth through innovative teaching methods.',
-                        icon: Icon(
-                          Icons.rocket_launch_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                        title: 'Our Mission',
-                      ),
-                    ),
-                    wrapWithModel(
-                      model: _model.infoSectionModel2,
-                      updateCallback: () => safeSetState(() {}),
-                      child: InfoSectionWidget(
-                        description:
-                            'To be the leading educational institution in the region, known for producing well-rounded individuals who are prepared for the challenges of the modern world.',
-                        icon: Icon(
-                          Icons.visibility_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                        title: 'Our Vision',
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+        body: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('config')
+              .doc('institute_info')
+              .snapshots(),
+          builder: (context, snapshot) {
+            final info = snapshot.data?.data() as Map<String, dynamic>?;
+
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTopHeader(context, info),
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            height: 100.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(16.0),
-                              shape: BoxShape.rectangle,
-                              border: Border.all(
-                                color: FlutterFlowTheme.of(context).alternate,
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Container(
-                                child: SizedBox(
-                                  height: 68.0,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        '10+',
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleLarge
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontStyle,
-                                              lineHeight: 1.27,
-                                            ),
-                                      ),
-                                      Text(
-                                        'Years',
-                                        style: FlutterFlowTheme.of(context)
-                                            .labelSmall
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              letterSpacing: 0.0,
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontStyle,
-                                              lineHeight: 1.27,
-                                            ),
-                                      ),
-                                    ].divide(const SizedBox(height: 4.0)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            height: 100.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(16.0),
-                              shape: BoxShape.rectangle,
-                              border: Border.all(
-                                color: FlutterFlowTheme.of(context).alternate,
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Container(
-                                child: SizedBox(
-                                  height: 68.0,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        '5k+',
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleLarge
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontStyle,
-                                              lineHeight: 1.27,
-                                            ),
-                                      ),
-                                      Text(
-                                        'Students',
-                                        style: FlutterFlowTheme.of(context)
-                                            .labelSmall
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              letterSpacing: 0.0,
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontStyle,
-                                              lineHeight: 1.27,
-                                            ),
-                                      ),
-                                    ].divide(const SizedBox(height: 4.0)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            height: 100.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(16.0),
-                              shape: BoxShape.rectangle,
-                              border: Border.all(
-                                color: FlutterFlowTheme.of(context).alternate,
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Container(
-                                child: SizedBox(
-                                  height: 68.0,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        '100%',
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleLarge
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontStyle,
-                                              lineHeight: 1.27,
-                                            ),
-                                      ),
-                                      Text(
-                                        'Results',
-                                        style: FlutterFlowTheme.of(context)
-                                            .labelSmall
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryText,
-                                              letterSpacing: 0.0,
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontStyle,
-                                              lineHeight: 1.27,
-                                            ),
-                                      ),
-                                    ].divide(const SizedBox(height: 4.0)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ].divide(const SizedBox(width: 16.0)),
+                        _buildMissionVision(context, info),
+                        const SizedBox(height: 24.0),
+                        _buildStatsRow(context, info),
+                        const SizedBox(height: 24.0),
+                        _buildContactInfo(context, info),
+                        const SizedBox(height: 32.0),
+                        _buildFooter(info),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                          0.0, 0.0, 0.0, 8.0),
-                      child: Container(
-                        child: Text(
-                          'Contact Us',
-                          style: FlutterFlowTheme.of(context)
-                              .titleMedium
-                              .override(
-                                font: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .titleMedium
-                                      .fontStyle,
-                                ),
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .titleMedium
-                                    .fontStyle,
-                                lineHeight: 1.35,
-                              ),
-                        ),
-                      ),
-                    ),
-                    wrapWithModel(
-                      model: _model.contactItemModel1,
-                      updateCallback: () => safeSetState(() {}),
-                      child: ContactItemWidget(
-                        icon: Icon(
-                          Icons.phone_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                        label: 'Phone Number',
-                        value: '+91 98765 43210',
-                      ),
-                    ),
-                    wrapWithModel(
-                      model: _model.contactItemModel2,
-                      updateCallback: () => safeSetState(() {}),
-                      child: ContactItemWidget(
-                        icon: Icon(
-                          Icons.email_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                        label: 'Email Address',
-                        value: 'info@deshmukhcoaching.com',
-                      ),
-                    ),
-                    wrapWithModel(
-                      model: _model.contactItemModel3,
-                      updateCallback: () => safeSetState(() {}),
-                      child: ContactItemWidget(
-                        icon: Icon(
-                          Icons.location_on_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 20.0,
-                        ),
-                        label: 'Office Address',
-                        value: 'Main Branch, City Center, Maharashtra',
-                      ),
-                    ),
-                    Container(
-                      height: 24.0,
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Deshmukh Teacher App v2.4.0',
-                          style: FlutterFlowTheme.of(context)
-                              .labelSmall
-                              .override(
-                                font: GoogleFonts.inter(
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .labelSmall
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .labelSmall
-                                      .fontStyle,
-                                ),
-                                color:
-                                    FlutterFlowTheme.of(context).onBackground,
-                                letterSpacing: 0.0,
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .labelSmall
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .labelSmall
-                                    .fontStyle,
-                                lineHeight: 1.27,
-                              ),
-                        ),
-                        Text(
-                          'Made with ❤️ for Deshmukh Faculty',
-                          style: FlutterFlowTheme.of(context)
-                              .labelSmall
-                              .override(
-                                font: GoogleFonts.inter(
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .labelSmall
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .labelSmall
-                                      .fontStyle,
-                                ),
-                                color:
-                                    FlutterFlowTheme.of(context).onBackground,
-                                letterSpacing: 0.0,
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .labelSmall
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .labelSmall
-                                    .fontStyle,
-                                lineHeight: 1.27,
-                              ),
-                        ),
-                      ].divide(const SizedBox(height: 4.0)),
-                    ),
-                    Container(
-                      height: 32.0,
-                    ),
-                  ].divide(const SizedBox(height: 16.0)),
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
+    );
+  }
+
+  Widget _buildTopHeader(BuildContext context, Map<String, dynamic>? info) {
+    return SizedBox(
+      height: 280.0,
+      child: Stack(
+        alignment: const AlignmentDirectional(-1.0, -1.0),
+        children: [
+          Container(
+            height: 220.0,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  FlutterFlowTheme.of(context).primary,
+                  FlutterFlowTheme.of(context).tertiary
+                ],
+                begin: const AlignmentDirectional(0.0, -1.0),
+                end: const AlignmentDirectional(0, 1.0),
+              ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(40.0),
+                bottomRight: Radius.circular(40.0),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'About Deshmukh Institute',
+                    textAlign: TextAlign.center,
+                    style: FlutterFlowTheme.of(context).headlineMedium.override(
+                      font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                      color: FlutterFlowTheme.of(context).onBackground,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    info?['name'] ?? 'Deshmukh Coaching Institute',
+                    textAlign: TextAlign.center,
+                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                      font: GoogleFonts.inter(),
+                      color: FlutterFlowTheme.of(context).onBackground90,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: const AlignmentDirectional(0.0, 1.0),
+            child: Container(
+              width: 120.0,
+              height: 120.0,
+              decoration: BoxDecoration(
+                color: FlutterFlowTheme.of(context).secondaryBackground,
+                borderRadius: BorderRadius.circular(24.0),
+                boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12, offset: Offset(0, 4))],
+              ),
+              padding: const EdgeInsets.all(16.0),
+              child: Image.network(
+                info?['logo_url'] ?? 'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/d-c-i-teacher-app-lffjyu/assets/logo.png',
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMissionVision(BuildContext context, Map<String, dynamic>? info) {
+    return Column(
+      children: [
+        wrapWithModel(
+          model: _model.infoSectionModel1,
+          updateCallback: () => safeSetState(() {}),
+          child: InfoSectionWidget(
+            description: info?['mission'] ?? 'To provide academic excellence.',
+            icon: Icon(Icons.rocket_launch_rounded, color: FlutterFlowTheme.of(context).primary),
+            title: 'Our Mission',
+          ),
+        ),
+        const SizedBox(height: 16),
+        wrapWithModel(
+          model: _model.infoSectionModel2,
+          updateCallback: () => safeSetState(() {}),
+          child: InfoSectionWidget(
+            description: info?['vision'] ?? 'To be leading individuals.',
+            icon: Icon(Icons.visibility_rounded, color: FlutterFlowTheme.of(context).primary),
+            title: 'Our Vision',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(BuildContext context, Map<String, dynamic>? info) {
+    return Row(
+      children: [
+        _buildStatItem(context, info?['stats_years'] ?? '10+', 'Years'),
+        const SizedBox(width: 16),
+        _buildStatItem(context, info?['stats_students'] ?? '5k+', 'Students'),
+        const SizedBox(width: 16),
+        _buildStatItem(context, info?['stats_results'] ?? '100%', 'Results'),
+      ],
+    );
+  }
+
+  Widget _buildStatItem(BuildContext context, String value, String label) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+          borderRadius: BorderRadius.circular(16.0),
+          border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+        ),
+        child: Column(
+          children: [
+            Text(value, style: FlutterFlowTheme.of(context).titleLarge.override(
+              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+              color: FlutterFlowTheme.of(context).primary,
+              fontWeight: FontWeight.bold,
+            )),
+            Text(label, style: FlutterFlowTheme.of(context).labelSmall),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactInfo(BuildContext context, Map<String, dynamic>? info) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Contact Us', style: FlutterFlowTheme.of(context).titleMedium.override(
+          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+          fontWeight: FontWeight.bold,
+        )),
+        const SizedBox(height: 16),
+        wrapWithModel(
+          model: _model.contactItemModel1,
+          updateCallback: () => safeSetState(() {}),
+          child: ContactItemWidget(
+            icon: Icon(Icons.phone_rounded, color: FlutterFlowTheme.of(context).primary),
+            label: 'Phone Number',
+            value: info?['phone'] ?? '+91 98765 43210',
+          ),
+        ),
+        const SizedBox(height: 12),
+        wrapWithModel(
+          model: _model.contactItemModel2,
+          updateCallback: () => safeSetState(() {}),
+          child: ContactItemWidget(
+            icon: Icon(Icons.email_rounded, color: FlutterFlowTheme.of(context).primary),
+            label: 'Email Address',
+            value: info?['email'] ?? 'info@deshmukhcoaching.com',
+          ),
+        ),
+        const SizedBox(height: 12),
+        wrapWithModel(
+          model: _model.contactItemModel3,
+          updateCallback: () => safeSetState(() {}),
+          child: ContactItemWidget(
+            icon: Icon(Icons.location_on_rounded, color: FlutterFlowTheme.of(context).primary),
+            label: 'Office Address',
+            value: info?['address'] ?? 'Main Branch, City Center',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFooter(Map<String, dynamic>? info) {
+    return Column(
+      children: [
+        Text('Deshmukh Teacher App ${info?['version'] ?? 'v2.4.0'}', style: FlutterFlowTheme.of(context).labelSmall),
+        const SizedBox(height: 4),
+        Text('Made with ❤️ for Deshmukh Faculty', style: FlutterFlowTheme.of(context).labelSmall),
+      ],
     );
   }
 }
