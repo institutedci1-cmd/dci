@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
 import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';
 
@@ -19,30 +18,25 @@ class AppSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: 52,
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
-          color: FlutterFlowTheme.of(context).alternate,
-          width: 1.5,
+          color: AppColors.outline,
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha((0.05 * 255).toInt()),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.search_rounded,
-            color: AppColors.primary,
-            size: 22,
+            color: AppColors.textTertiary,
+            size: 20,
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
@@ -51,31 +45,25 @@ class AppSearchBar extends StatelessWidget {
               onChanged: onChanged,
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: AppTypography.label,
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                hintStyle: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textTertiary),
               ),
-              style: AppTypography.body,
+              style: theme.textTheme.bodyMedium,
             ),
           ),
           if (controller != null && controller!.text.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.close_rounded, size: 20),
+              icon: const Icon(Icons.close_rounded, size: 18),
               onPressed: () {
                 controller?.clear();
                 if (onClear != null) onClear!();
                 if (onChanged != null) onChanged!('');
               },
-              color: FlutterFlowTheme.of(context).secondaryText,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            )
-          else if (onClear != null)
-            IconButton(
-              icon: const Icon(Icons.close_rounded, size: 20),
-              onPressed: onClear,
-              color: FlutterFlowTheme.of(context).secondaryText,
+              color: AppColors.textTertiary,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),

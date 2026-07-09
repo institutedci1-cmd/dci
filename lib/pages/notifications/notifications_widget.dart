@@ -1,12 +1,13 @@
 import '/backend/models/notification_model.dart';
 import '/backend/providers/repository_providers.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import '../../shared/app_style.dart';
+import '../../shared/app_colors.dart';
+import '../../components/shared/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'notifications_model.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
+
 export 'notifications_model.dart';
 
 class NotificationsWidget extends ConsumerStatefulWidget {
@@ -20,151 +21,152 @@ class NotificationsWidget extends ConsumerStatefulWidget {
 }
 
 class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
-  late NotificationsModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => NotificationsModel());
-  }
-
-  @override
-  void dispose() {
-    _model.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-      body: Column(
-        children: [
-          wrapWithModel(
-            model: createModel(context, () => HeaderSectionModel()),
-            updateCallback: () => safeSetState(() {}),
-            child: HeaderSectionWidget(
-              title: 'Notifications',
-              subtitle: 'Stay updated with school events',
-              onBackPressed: () async => context.safePop(),
-            ),
-          ),
-          Expanded(
-            child: _buildNotificationsList(),
-          ),
-        ],
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Notifications'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.safePop(),
+        ),
       ),
+      body: _buildNotificationsList(),
     );
   }
 
   Widget _buildNotificationsList() {
-    return FutureBuilder<List<AppNotification>>(
-      future: ref.read(notificationRepositoryProvider).getNotificationsStream().first,
+    return StreamBuilder<List<AppNotification>>(
+      stream: ref.watch(notificationRepositoryProvider).getNotificationsStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         final notifications = snapshot.data ?? [];
         if (notifications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.notifications_none_rounded, size: 64, color: FlutterFlowTheme.of(context).alternate),
-                const SizedBox(height: 16),
-                Text('No notifications yet', style: FlutterFlowTheme.of(context).labelLarge),
-              ],
-            ),
-          );
+          return _buildEmptyState();
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           itemCount: notifications.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
           itemBuilder: (context, index) {
             final item = notifications[index];
-            return Dismissible(
-              key: Key(item.id),
-              direction: DismissDirection.endToStart,
-              onDismissed: (_) {
-                ref.read(notificationRepositoryProvider).deleteNotification(item.id);
-              },
-              background: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 20),
-                decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).error,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(Icons.delete_outline, color: Colors.white),
-              ),
-              child: Material(
-                color: item.isRead 
-                    ? FlutterFlowTheme.of(context).secondaryBackground 
-                    : FlutterFlowTheme.of(context).primary10.applyAlpha(0.05),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                  side: BorderSide(
-                    color: item.isRead 
-                        ? FlutterFlowTheme.of(context).alternate 
-                        : FlutterFlowTheme.of(context).primary,
-                    width: item.isRead ? 1.0 : 1.5,
-                  ),
-                ),
-                child: ListTile(
-                  onTap: () {
-                    if (!item.isRead) {
-                      ref.read(notificationRepositoryProvider).markAsRead(item.id);
-                    }
-                  },
-                  leading: CircleAvatar(
-                    backgroundColor: item.isRead 
-                        ? FlutterFlowTheme.of(context).primary10 
-                        : FlutterFlowTheme.of(context).primary,
-                    child: Icon(
-                      _getIcon(item.type), 
-                      color: item.isRead 
-                          ? FlutterFlowTheme.of(context).primary 
-                          : Colors.white, 
-                      size: 20
-                    ),
-                  ),
-                  title: Text(item.title, style: FlutterFlowTheme.of(context).bodyLarge.override(
-                    font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                    fontWeight: FontWeight.bold,
-                  )),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.body, style: FlutterFlowTheme.of(context).bodyMedium),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.createdAt != null 
-                            ? dateTimeFormat('relative', item.createdAt)
-                            : 'Just now', 
-                        style: FlutterFlowTheme.of(context).labelSmall
-                      ),
-                    ],
-                  ),
-                  isThreeLine: true,
-                ),
-              ),
-            );
+            return _buildNotificationItem(item);
           },
         );
       },
     );
   }
 
+  Widget _buildNotificationItem(AppNotification item) {
+    final theme = Theme.of(context);
+    
+    return Dismissible(
+      key: Key(item.id),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => ref.read(notificationRepositoryProvider).deleteNotification(item.id),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: AppColors.error,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        child: const Icon(Icons.delete_outline, color: Colors.white),
+      ),
+      child: AppCard(
+        onTap: () {
+          if (!item.isRead) {
+            ref.read(notificationRepositoryProvider).markAsRead(item.id);
+          }
+        },
+        padding: const EdgeInsets.all(AppSpacing.md),
+        color: item.isRead ? AppColors.surface : AppColors.accent.withOpacity(0.03),
+        border: BorderSide(
+          color: item.isRead ? AppColors.outline : AppColors.accent.withOpacity(0.2),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: (item.isRead ? AppColors.textTertiary : AppColors.accent).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _getIcon(item.type),
+                size: 18,
+                color: item.isRead ? AppColors.textTertiary : AppColors.accent,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: item.isRead ? FontWeight.w500 : FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.body,
+                    style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    item.createdAt != null ? dateTimeFormat('relative', item.createdAt) : 'Just now',
+                    style: theme.textTheme.labelSmall,
+                  ),
+                ],
+              ),
+            ),
+            if (!item.isRead)
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.accent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.notifications_none_rounded, size: 64, color: AppColors.textTertiary),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'No notifications yet',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
   IconData _getIcon(String type) {
-    switch (type) {
-      case 'alert': return Icons.warning_amber_rounded;
-      case 'reminder': return Icons.alarm_rounded;
-      case 'system': return Icons.settings_suggest_rounded;
-      default: return Icons.notifications_none_rounded;
-    }
+    return switch (type) {
+      'alert' => Icons.warning_amber_rounded,
+      'reminder' => Icons.alarm_rounded,
+      'system' => Icons.settings_suggest_rounded,
+      _ => Icons.notifications_none_rounded,
+    };
   }
 }

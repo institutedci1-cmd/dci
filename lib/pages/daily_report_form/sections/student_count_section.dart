@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/components/form_section_header/form_section_header_widget.dart';
-import '/components/student_counter/student_counter_widget.dart';
+import '../../../../shared/app_style.dart';
+import '../../../../shared/app_colors.dart';
+import '../../../../components/shared/app_card.dart';
 import '../daily_report_form_model.dart';
 
 class StudentCountSection extends StatelessWidget {
@@ -27,92 +25,103 @@ class StudentCountSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: wrapWithModel(
-                model: model.formSectionHeaderModel3,
-                updateCallback: onChanged,
-                child: FormSectionHeaderWidget(
-                  icon: Icon(
-                    Icons.people_rounded,
-                    color: FlutterFlowTheme.of(context).primary,
-                    size: 20.0,
-                  ),
-                  title: 'Student Count',
-                ),
-              ),
-            ),
-            if (presentCount == 0 && absentCount == 0)
-              InkWell(
-                onTap: () {
-                  // In a real app, we might fetch the actual student count for the class.
-                  // For now, we'll set a reasonable default or let them increment.
-                  onPresentChanged(25); 
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).primary10,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'Default (25)',
-                    style: FlutterFlowTheme.of(context).bodySmall.override(
-                      font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                      color: FlutterFlowTheme.of(context).primary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ),
-          ],
+        _buildCounterCard(
+          context,
+          label: 'Students Present',
+          subtitle: 'Number of students attending',
+          value: presentCount,
+          icon: Icons.person_search_rounded,
+          color: AppColors.success,
+          onChanged: onPresentChanged,
         ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 1,
-              child: wrapWithModel(
-                model: model.studentCounterModel1,
-                updateCallback: onChanged,
-                child: StudentCounterWidget(
-                  label: 'Present',
-                  subtitle: 'Students in class',
-                  value: presentCount.toString().padLeft(2, '0'),
-                  onDecrement: () {
-                    if (presentCount > 0) onPresentChanged(presentCount - 1);
-                  },
-                  onIncrement: () => onPresentChanged(presentCount + 1),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: wrapWithModel(
-                model: model.studentCounterModel2,
-                updateCallback: onChanged,
-                child: StudentCounterWidget(
-                  label: 'Absent',
-                  subtitle: 'Students missing',
-                  value: absentCount.toString().padLeft(2, '0'),
-                  onDecrement: () {
-                    if (absentCount > 0) onAbsentChanged(absentCount - 1);
-                  },
-                  onIncrement: () => onAbsentChanged(absentCount + 1),
-                ),
-              ),
-            ),
-          ].divide(const SizedBox(width: 16.0)),
+        const SizedBox(height: AppSpacing.md),
+        _buildCounterCard(
+          context,
+          label: 'Students Absent',
+          subtitle: 'Number of students missing',
+          value: absentCount,
+          icon: Icons.person_off_rounded,
+          color: AppColors.error,
+          onChanged: onAbsentChanged,
         ),
-      ].divide(const SizedBox(height: 16.0)),
+      ],
+    );
+  }
+
+  Widget _buildCounterCard(
+    BuildContext context, {
+    required String label,
+    required String subtitle,
+    required int value,
+    required IconData icon,
+    required Color color,
+    required Function(int) onChanged,
+  }) {
+    final theme = Theme.of(context);
+    
+    return AppCard(
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: theme.textTheme.labelLarge),
+                Text(subtitle, style: theme.textTheme.labelSmall),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              _buildRoundButton(
+                icon: Icons.remove_rounded,
+                onTap: value > 0 ? () => onChanged(value - 1) : null,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              SizedBox(
+                width: 32,
+                child: Text(
+                  value.toString().padLeft(2, '0'),
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              _buildRoundButton(
+                icon: Icons.add_rounded,
+                onTap: () => onChanged(value + 1),
+                color: color,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoundButton({required IconData icon, VoidCallback? onTap, Color? color}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.full),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.xs),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.outline),
+          color: onTap == null ? AppColors.background : Colors.transparent,
+        ),
+        child: Icon(icon, size: 20, color: onTap == null ? AppColors.textTertiary : (color ?? AppColors.textPrimary)),
+      ),
     );
   }
 }

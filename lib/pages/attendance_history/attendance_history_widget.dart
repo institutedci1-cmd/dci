@@ -1,12 +1,13 @@
 import '/backend/models/student_attendance.dart';
 import '/backend/providers/repository_providers.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import '../../shared/app_style.dart';
+import '../../shared/app_colors.dart';
+import '../../components/shared/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
+
 export 'attendance_history_model.dart';
 
 class AttendanceHistoryWidget extends ConsumerStatefulWidget {
@@ -16,121 +17,82 @@ class AttendanceHistoryWidget extends ConsumerStatefulWidget {
   static String routePath = '/attendanceHistory';
 
   @override
-  ConsumerState<AttendanceHistoryWidget> createState() =>
-      _AttendanceHistoryWidgetState();
+  ConsumerState<AttendanceHistoryWidget> createState() => _AttendanceHistoryWidgetState();
 }
 
 class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidget> {
-  late AttendanceHistoryModel _model;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => AttendanceHistoryModel());
-  }
-
-  @override
-  void dispose() {
-    _model.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldKey,
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-      body: Column(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Attendance Logs'),
+      ),
+      body: StreamBuilder<List<StudentAttendance>>(
+        stream: ref.watch(attendanceRepositoryProvider).getStudentAttendanceLogs(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final records = snapshot.data ?? [];
+          if (records.isEmpty) {
+            return Center(
+              child: Text('No attendance records found.', style: Theme.of(context).textTheme.bodyMedium),
+            );
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            itemCount: records.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+            itemBuilder: (context, index) {
+              final record = records[index];
+              return _buildLogCard(record);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildLogCard(StudentAttendance record) {
+    final theme = Theme.of(context);
+    final statusColor = _getStatusColor(record.status);
+    
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
         children: [
-          wrapWithModel(
-            model: _model.headerSectionModel,
-            updateCallback: () => safeSetState(() {}),
-            child: HeaderSectionWidget(
-              title: 'Student Attendance Logs',
-              subtitle: 'Track record of classes',
-              description: 'View individual student attendance records marked by you.',
-              onBackPressed: () async => context.goNamed(AttendanceDashboardWidget.routeName),
-              showActionIcon: false,
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: statusColor.withOpacity(0.1),
+            child: Icon(_getStatusIcon(record.status), color: statusColor, size: 20),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(record.studentName, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  'Class: ${record.className} • Subject: ${record.subject}',
+                  style: theme.textTheme.labelSmall,
+                ),
+                Text(
+                  dateTimeFormat('yMMMd', record.date),
+                  style: theme.textTheme.labelSmall?.copyWith(color: AppColors.textTertiary),
+                ),
+              ],
             ),
           ),
-          Expanded(
-            child: StreamBuilder<List<StudentAttendance>>(
-              stream: ref.watch(attendanceRepositoryProvider).getStudentAttendanceLogs(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final records = snapshot.data!;
-                if (records.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No student attendance records found.',
-                      style: FlutterFlowTheme.of(context).bodyMedium,
-                    ),
-                  );
-                }
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: records.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final record = records[index];
-                    return Container(
-                      decoration: const BoxDecoration(),
-                      child: Material(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                          side: BorderSide(
-                            color: FlutterFlowTheme.of(context).alternate,
-                          ),
-                        ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
-                            child: Icon(
-                              _getStatusIcon(record.status),
-                              color: _getStatusColor(record.status),
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            record.studentName,
-                            style: FlutterFlowTheme.of(context).bodyLarge.override(
-                                  font: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          subtitle: Text(
-                            'Class: ${record.className} • Subject: ${record.subject}\n${dateTimeFormat('yMMMd', record.date)}',
-                            style: FlutterFlowTheme.of(context).bodySmall,
-                          ),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: _getStatusColor(record.status)),
-                            ),
-                            child: Text(
-                              record.status,
-                              style: TextStyle(
-                                color: _getStatusColor(record.status),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+            child: Text(
+              record.status,
+              style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -139,20 +101,20 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
   }
 
   Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Present': return Colors.green;
-      case 'Absent': return Colors.red;
-      case 'Leave': return Colors.orange;
-      default: return Colors.grey;
-    }
+    return switch (status) {
+      'Present' => AppColors.success,
+      'Absent' => AppColors.error,
+      'Leave' => AppColors.warning,
+      _ => AppColors.textTertiary,
+    };
   }
 
   IconData _getStatusIcon(String status) {
-    switch (status) {
-      case 'Present': return Icons.check_circle_rounded;
-      case 'Absent': return Icons.cancel_rounded;
-      case 'Leave': return Icons.pause_circle_rounded;
-      default: return Icons.help_rounded;
-    }
+    return switch (status) {
+      'Present' => Icons.check_circle_rounded,
+      'Absent' => Icons.cancel_rounded,
+      'Leave' => Icons.pause_circle_rounded,
+      _ => Icons.help_rounded,
+    };
   }
 }

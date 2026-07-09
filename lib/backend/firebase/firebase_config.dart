@@ -6,7 +6,7 @@ Future initFirebase() async {
   if (kIsWeb) {
     await Firebase.initializeApp(
         options: const FirebaseOptions(
-            apiKey: "AIzaSyD-TJTrUG64w5dWhUbTOBTBkM2se6VcHxE",
+            apiKey: "AIzaSyCknvyWpsKdjc9pkyWJSH_6SYU_bG1WuDc", // Updated from google-services.json
             authDomain: "d-c-i-teacher-app-lffjyu.firebaseapp.com",
             projectId: "d-c-i-teacher-app-lffjyu",
             storageBucket: "d-c-i-teacher-app-lffjyu.firebasestorage.app",

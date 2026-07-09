@@ -1,16 +1,20 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/providers/repository_providers.dart';
-import '/components/button/button_widget.dart';
 import '/components/profile_header/profile_header_widget.dart';
-import '/components/profile_info_tile/profile_info_tile_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import '/backend/services/pdf_service.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
+import '/components/shared/app_card.dart';
+import '/components/shared/app_button.dart';
+import '/components/shared/app_section_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'teacher_profile_model.dart';
+
+export 'teacher_profile_model.dart';
 
 class TeacherProfileWidget extends ConsumerStatefulWidget {
   const TeacherProfileWidget({super.key});
@@ -24,14 +28,12 @@ class TeacherProfileWidget extends ConsumerStatefulWidget {
 
 class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
   late TeacherProfileModel _model;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => TeacherProfileModel());
-
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -47,56 +49,44 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: AppColors.background,
         body: StreamBuilder<Map<String, dynamic>?>(
           stream: ref.watch(userRepositoryProvider).getUserStream(),
           builder: (context, snapshot) {
             final userData = snapshot.data;
 
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  wrapWithModel(
-                    model: _model.profileHeaderModel,
-                    updateCallback: () => safeSetState(() {}),
-                    child: ProfileHeaderWidget(
-                      designation: userData?['designation'] ??
-                          'Senior Faculty • M.Sc., M.Ed.',
-                      name: currentUserDisplayName != ''
-                          ? currentUserDisplayName
-                          : (userData?['display_name'] ??
-                              'Prof. Rajesh Deshmukh'),
-                      photoUrl: currentUserPhoto != ''
-                          ? currentUserPhoto
-                          : userData?['photo_url'],
-                    ),
+            return CustomScrollView(
+              slivers: [
+                _buildSliverHeader(userData),
+                SliverPadding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _buildActionRow(context),
+                      const SizedBox(height: AppSpacing.xl),
+                      const AppSectionHeader(title: 'Personal Information'),
+                      const SizedBox(height: AppSpacing.md),
+                      _buildInfoGrid(context, userData),
+                      const SizedBox(height: AppSpacing.xl),
+                      const AppSectionHeader(title: 'Professional Details'),
+                      const SizedBox(height: AppSpacing.md),
+                      _buildProfessionalDetails(context, userData),
+                      const SizedBox(height: AppSpacing.xl),
+                      const AppSectionHeader(title: 'App Preferences'),
+                      const SizedBox(height: AppSpacing.md),
+                      _buildPreferencesCard(context, userData),
+                      const SizedBox(height: AppSpacing.xl),
+                      AppButton(
+                        text: 'Logout',
+                        variant: AppButtonVariant.outline,
+                        icon: Icons.logout_rounded,
+                        onPressed: () => _handleLogout(context),
+                      ),
+                      const SizedBox(height: AppSpacing.xxl),
+                    ]),
                   ),
-                  _buildActionButtons(context),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildUserRoleBadge(context, userData),
-                        const SizedBox(height: 12.0),
-                        _buildPersonalInformation(context, userData),
-                        const SizedBox(height: 20.0),
-                        _buildEducationExpertise(context, userData),
-                        const SizedBox(height: 20.0),
-                        _buildAppLinksSection(context),
-                        const SizedBox(height: 20.0),
-                        _buildSettingsSection(context, userData),
-                        const SizedBox(height: 20.0),
-                        _buildAboutSection(context),
-                        const SizedBox(height: 20.0),
-                        _buildLogoutButton(context),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32.0),
-                ],
-              ),
+                ),
+              ],
             );
           },
         ),
@@ -104,188 +94,118 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: wrapWithModel(
-              model: _model.buttonModel1,
-              updateCallback: () => safeSetState(() {}),
-              child: ButtonWidget(
-                icon: const Icon(Icons.edit_rounded, size: 18.0),
-                iconPresent: true,
-                content: 'Edit Profile',
-                variant: 'outline',
-                size: 'medium',
-                onPressed: () => context.pushNamed(EditProfileWidget.routeName),
-              ),
-            ),
+  Widget _buildSliverHeader(Map<String, dynamic>? userData) {
+    return SliverAppBar(
+      expandedHeight: 220,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: AppColors.primary,
+      automaticallyImplyLeading: false,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+        onPressed: () => context.safePop(),
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        background: ProfileHeaderWidget(
+          designation: userData?['designation'] ?? 'Senior Faculty',
+          name: userData?['display_name'] ?? currentUserDisplayName != '' ? currentUserDisplayName : 'Teacher',
+          photoUrl: userData?['photo_url'] ?? currentUserPhoto,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionRow(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: AppButton(
+            text: 'Edit Profile',
+            variant: AppButtonVariant.primary,
+            icon: Icons.edit_rounded,
+            onPressed: () => context.pushNamed(EditProfileWidget.routeName),
           ),
-          const SizedBox(width: 12.0),
-          Expanded(
-            child: wrapWithModel(
-              model: _model.buttonModel2,
-              updateCallback: () => safeSetState(() {}),
-              child: ButtonWidget(
-                icon: const Icon(Icons.share_rounded, size: 18.0),
-                iconPresent: true,
-                content: 'Share CV',
-                variant: 'secondary',
-                size: 'medium',
-                onPressed: () async {
-                  final userData = await ref.read(userRepositoryProvider).getUserData();
-                  if (userData != null) {
-                    await PdfService.generateTeacherCV(userData);
-                  }
-                },
-              ),
-            ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: AppButton(
+            text: 'Export CV',
+            variant: AppButtonVariant.secondary,
+            icon: Icons.file_download_rounded,
+            onPressed: () async {
+              final userData = await ref.read(userRepositoryProvider).getUserData();
+              if (userData != null) {
+                await PdfService.generateTeacherCV(userData);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoGrid(BuildContext context, Map<String, dynamic>? userData) {
+    return Column(
+      children: [
+        _buildInfoTile(context, Icons.email_outlined, 'Email', userData?['email'] ?? currentUserEmail),
+        const SizedBox(height: AppSpacing.sm),
+        _buildInfoTile(context, Icons.phone_outlined, 'Phone', userData?['phone_number'] ?? currentPhoneNumber),
+        const SizedBox(height: AppSpacing.sm),
+        _buildInfoTile(context, Icons.badge_outlined, 'Employee ID', userData?['employee_id'] ?? 'N/A'),
+      ],
+    );
+  }
+
+  Widget _buildProfessionalDetails(BuildContext context, Map<String, dynamic>? userData) {
+    return AppCard(
+      child: Column(
+        children: [
+          _buildDetailRow(context, 'Qualification', userData?['qualification'] ?? 'N/A'),
+          const Divider(height: AppSpacing.xl),
+          _buildDetailRow(context, 'Expertise', userData?['subject_expertise'] ?? 'N/A'),
+          const Divider(height: AppSpacing.xl),
+          _buildDetailRow(context, 'Experience', userData?['experience'] ?? 'N/A'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreferencesCard(BuildContext context, Map<String, dynamic>? userData) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          SwitchListTile.adaptive(
+            value: userData?['notifications_enabled'] ?? true,
+            onChanged: (val) => ref.read(userRepositoryProvider).updateNotificationSettings(val),
+            title: Text('Push Notifications', style: Theme.of(context).textTheme.bodyLarge),
+            subtitle: Text('Receive alerts for school events', style: Theme.of(context).textTheme.bodySmall),
+            activeColor: AppColors.accent,
+          ),
+          const Divider(height: 1),
+          ListTile(
+            onTap: () => context.pushNamed(SettingsWidget.routeName),
+            title: Text('App Settings', style: Theme.of(context).textTheme.bodyLarge),
+            trailing: const Icon(Icons.chevron_right_rounded),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPersonalInformation(BuildContext context, Map<String, dynamic>? userData) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader(context, 'Personal Information'),
-        wrapWithModel(
-          model: _model.profileInfoTileModel1,
-          updateCallback: () => safeSetState(() {}),
-          child: ProfileInfoTileWidget(
-            icon: Icon(Icons.email_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
-            label: 'Email Address',
-            value: currentUserEmail != '' ? currentUserEmail : (userData?['email'] ?? 'rajesh.d@deshmukhcoaching.com'),
-          ),
-        ),
-        wrapWithModel(
-          model: _model.profileInfoTileModel2,
-          updateCallback: () => safeSetState(() {}),
-          child: ProfileInfoTileWidget(
-            icon: Icon(Icons.phone_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
-            label: 'Mobile Number',
-            value: currentPhoneNumber != '' ? currentPhoneNumber : (userData?['phone_number'] ?? '+91 98765 43210'),
-          ),
-        ),
-        wrapWithModel(
-          model: _model.profileInfoTileModel3,
-          updateCallback: () => safeSetState(() {}),
-          child: ProfileInfoTileWidget(
-            icon: Icon(Icons.badge_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
-            label: 'Employee ID',
-            value: userData?['employee_id'] ?? 'Deshmukh-T-2024-089',
-          ),
-        ),
-        wrapWithModel(
-          model: _model.profileInfoTileModel4,
-          updateCallback: () => safeSetState(() {}),
-          child: ProfileInfoTileWidget(
-            icon: Icon(Icons.event_available_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
-            label: 'Joined Date',
-            value: userData?['joined_date'] ?? '15 May 2018',
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEducationExpertise(BuildContext context, Map<String, dynamic>? userData) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader(context, 'Education & Expertise'),
-        wrapWithModel(
-          model: _model.profileInfoTileModel5,
-          updateCallback: () => safeSetState(() {}),
-          child: ProfileInfoTileWidget(
-            icon: Icon(Icons.school_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
-            label: 'Qualification',
-            value: userData?['qualification'] ?? 'M.Sc. Physics, M.Ed. Education',
-          ),
-        ),
-        wrapWithModel(
-          model: _model.profileInfoTileModel6,
-          updateCallback: () => safeSetState(() {}),
-          child: ProfileInfoTileWidget(
-            icon: Icon(Icons.psychology_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
-            label: 'Subject Expertise',
-            value: userData?['subject_expertise'] ?? 'Advanced Physics & Mathematics',
-          ),
-        ),
-        wrapWithModel(
-          model: _model.profileInfoTileModel7,
-          updateCallback: () => safeSetState(() {}),
-          child: ProfileInfoTileWidget(
-            icon: Icon(Icons.workspace_premium_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
-            label: 'Experience',
-            value: userData?['experience'] ?? '12 Years in Competitive Coaching',
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsSection(BuildContext context, Map<String, dynamic>? userData) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader(context, 'Settings & Preferences'),
-        Material(
-          color: FlutterFlowTheme.of(context).secondaryBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-            side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
-          ),
-          child: SwitchListTile.adaptive(
-            value: userData?['notifications_enabled'] ?? true,
-            onChanged: (newValue) async {
-              await ref
-                  .read(userRepositoryProvider)
-                  .updateNotificationSettings(newValue);
-            },
-            title: Text('Push Notifications', style: FlutterFlowTheme.of(context).bodyLarge),
-            subtitle: Text('Receive alerts for new announcements.', style: FlutterFlowTheme.of(context).labelSmall),
-            activeThumbColor: FlutterFlowTheme.of(context).primary,
-            activeTrackColor: FlutterFlowTheme.of(context).primary10,
-            controlAffinity: ListTileControlAffinity.trailing,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAboutSection(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: FlutterFlowTheme.of(context).info),
-      ),
-      padding: const EdgeInsets.all(24.0),
+  Widget _buildInfoTile(BuildContext context, IconData icon, String label, String value) {
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_rounded, size: 24.0),
-          const SizedBox(width: 16.0),
+          Icon(icon, color: AppColors.primary, size: 20),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'About Deshmukh Teacher Portal',
-                  style: FlutterFlowTheme.of(context).labelLarge.override(
-                    font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  'This profile is managed by the Deshmukh HR department.',
-                  style: FlutterFlowTheme.of(context).bodySmall,
-                ),
+                Text(label, style: Theme.of(context).textTheme.labelSmall),
+                Text(value, style: Theme.of(context).textTheme.bodyLarge),
               ],
             ),
           ),
@@ -294,110 +214,36 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
     );
   }
 
-  Widget _buildUserRoleBadge(BuildContext context, Map<String, dynamic>? userData) {
-    final role = userData?['role'] ?? 'Teacher';
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).primary10,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: FlutterFlowTheme.of(context).primary),
-        ),
-        child: Text(
-          role.toUpperCase(),
-          style: FlutterFlowTheme.of(context).labelSmall.override(
-            font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-            color: FlutterFlowTheme.of(context).primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppLinksSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildSectionHeader(context, 'App & Preferences'),
-        _buildListTile(
-          context,
-          icon: Icons.notifications_none_rounded,
-          title: 'Notification Center',
-          onTap: () => context.pushNamed(NotificationsWidget.routeName),
-        ),
-        _buildListTile(
-          context,
-          icon: Icons.settings_outlined,
-          title: 'Settings',
-          onTap: () => context.pushNamed(SettingsWidget.routeName),
-        ),
+        Text(label, style: Theme.of(context).textTheme.labelLarge),
+        Text(value, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
       ],
     );
   }
 
-  Widget _buildListTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
-        ),
-        child: ListTile(
-          onTap: onTap,
-          leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
-          title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
-          trailing: const Icon(Icons.chevron_right_rounded),
-        ),
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to exit?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), 
+            child: const Text('Logout', style: TextStyle(color: AppColors.error))
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context) {
-    return wrapWithModel(
-      model: createModel(context, () => ButtonModel()),
-      updateCallback: () => safeSetState(() {}),
-      child: ButtonWidget(
-        icon: Icon(Icons.logout_rounded, color: FlutterFlowTheme.of(context).error, size: 24.0),
-        iconPresent: true,
-        content: 'Logout',
-        variant: 'outline',
-        onPressed: () async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Logout'),
-              content: const Text('Are you sure you want to log out?'),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Logout')),
-              ],
-            ),
-          ) ?? false;
-          if (confirm) {
-            await ref.read(authRepositoryProvider).signOut();
-            if (!context.mounted) return;
-            context.goNamed(LoginWidget.routeName);
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Text(
-        title,
-        style: FlutterFlowTheme.of(context).titleMedium.override(
-          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-          color: FlutterFlowTheme.of(context).primaryText,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
+    ) ?? false;
+    
+    if (confirm) {
+      await ref.read(authRepositoryProvider).signOut();
+      if (!context.mounted) return;
+      context.goNamed(LoginWidget.routeName);
+    }
   }
 }

@@ -1,144 +1,76 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/shared/app_style.dart';
-import '/shared/app_colors.dart';
-import '/index.dart';
+import '../../flutter_flow/flutter_flow_util.dart';
+import '../../shared/app_style.dart';
+import '../../shared/app_colors.dart';
+import '../../index.dart';
 import 'package:flutter/material.dart';
-import 'dashboard_card_model.dart';
-export 'dashboard_card_model.dart';
+import '../shared/app_card.dart';
 
-class DashboardCardWidget extends StatefulWidget {
+class DashboardCardWidget extends StatelessWidget {
+  final String title;
+  final Widget icon;
+  final String target;
+
   const DashboardCardWidget({
     super.key,
-    Color? bgColor,
-    this.icon,
-    Color? iconColor,
-    String? target,
-    String? title,
-  })  : bgColor = bgColor ?? const Color(0x00000000),
-        iconColor = iconColor ?? const Color(0x00000000),
-        target = target ?? 'DailyReport',
-        title = title ?? 'Daily Report';
-
-  final Color bgColor;
-  final Widget? icon;
-  final Color iconColor;
-  final String target;
-  final String title;
-
-  @override
-  State<DashboardCardWidget> createState() => _DashboardCardWidgetState();
-}
-
-class _DashboardCardWidgetState extends State<DashboardCardWidget> {
-  late DashboardCardModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => DashboardCardModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
+    required this.title,
+    required this.icon,
+    required this.target,
+  });
 
   String _routeNameForTarget(String target) {
-    final routeName = switch (target) {
+    return switch (target) {
       'DailyReport' => DailyReportFormWidget.routeName,
       'Attendance' => AttendanceDashboardWidget.routeName,
       'Homework' => HomeworkAssignmentWidget.routeName,
       'TeacherProfile' => TeacherProfileWidget.routeName,
       'Announcements' => AnnouncementsFeedWidget.routeName,
-      'AboutDeshmukh' => AboutDeshmukhWidget.routeName,
       'Students' => StudentListWidget.routeName,
       _ => ReportsDashboardWidget.routeName,
     };
-    return routeName;
   }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
+    final theme = Theme.of(context);
+
+    return AppCard(
+      onTap: () {
         try {
-          final routeName = _routeNameForTarget(widget.target);
+          final routeName = _routeNameForTarget(target);
           context.pushNamed(routeName);
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Navigation error: $e'),
-            ),
+            SnackBar(content: Text('Navigation error: $e')),
           );
         }
       },
-      borderRadius: AppRadius.card,
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).secondaryBackground,
-          borderRadius: AppRadius.card,
-          border: Border.all(
-            color: FlutterFlowTheme.of(context).alternate,
-            width: 1.0,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: AppColors.primary10,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: IconTheme(
+              data: const IconThemeData(color: AppColors.primary, size: 24),
+              child: icon,
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 10,
-              color: Colors.black.withAlpha((0.04 * 255).toInt()),
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 52.0,
-                height: 52.0,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha((0.1 * 255).toInt()),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                alignment: const AlignmentDirectional(0, 0),
-                child: IconTheme(
-                  data: const IconThemeData(
-                    color: AppColors.primary,
-                    size: 26,
-                  ),
-                  child: widget.icon!,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                widget.title,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.label.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: FlutterFlowTheme.of(context).primaryText,
-                  fontSize: 13,
-                ),
-              ),
-            ],
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

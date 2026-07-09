@@ -16,6 +16,8 @@ import 'backend/services/notification_service.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 
+import '../../shared/app_style.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
@@ -86,14 +88,8 @@ class MyAppState extends ConsumerState<MyApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en', '')],
-      theme: ThemeData(
-        brightness: Brightness.light,
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.light, // Forcing light theme for premium enterprise feel if requested
       themeMode: _themeMode,
       routerConfig: router,
     );

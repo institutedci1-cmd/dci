@@ -1,12 +1,12 @@
 import '/backend/models/homework_assignment.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import '../../shared/app_style.dart';
+import '../../shared/app_colors.dart';
+import '../shared/app_card.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'homework_card_model.dart';
 export 'homework_card_model.dart';
 
-class HomeworkCardWidget extends StatefulWidget {
+class HomeworkCardWidget extends StatelessWidget {
   const HomeworkCardWidget({
     super.key,
     required this.assignment,
@@ -14,114 +14,67 @@ class HomeworkCardWidget extends StatefulWidget {
   });
 
   final HomeworkAssignment assignment;
-  final Future Function()? onTap;
-
-  @override
-  State<HomeworkCardWidget> createState() => _HomeworkCardWidgetState();
-}
-
-class _HomeworkCardWidgetState extends State<HomeworkCardWidget> {
-  late HomeworkCardModel _model;
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => HomeworkCardModel());
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-    super.dispose();
-  }
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final status = widget.assignment.status;
+    final theme = Theme.of(context);
+    final isPublished = assignment.status == 'published';
     
-    return Container(
-      decoration: const BoxDecoration(),
-      child: Material(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(16.0),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0),
-            border: Border.all(
-              color: FlutterFlowTheme.of(context).alternate,
-            ),
-          ),
-          child: ListTile(
-            onTap: () async {
-              if (widget.onTap != null) {
-                await widget.onTap!();
-              }
-            },
-            title: Text(
-              '${widget.assignment.className} - ${widget.assignment.subject}',
-              style: FlutterFlowTheme.of(context).bodyLarge.override(
-                    font: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.bold,
-                    ),
+    return AppCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: (isPublished ? AppColors.success : AppColors.warning).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                ),
+                child: Text(
+                  assignment.status.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: isPublished ? AppColors.success : AppColors.warning,
                     fontWeight: FontWeight.bold,
+                    fontSize: 10,
                   ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              ),
+              Text(
+                'Due: ${assignment.dueDate}',
+                style: theme.textTheme.labelSmall?.copyWith(color: AppColors.accent, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            '${assignment.className} • ${assignment.subject}',
+            style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            assignment.title,
+            style: theme.textTheme.titleLarge?.copyWith(fontSize: 18),
+          ),
+          if (assignment.attachments.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Row(
               children: [
-                Text(widget.assignment.title, style: FlutterFlowTheme.of(context).bodyMedium),
-                if (widget.assignment.teacher.isNotEmpty)
-                  Text('Assigned by: ${widget.assignment.teacher}',
-                      style: FlutterFlowTheme.of(context).bodySmall),
+                const Icon(Icons.attachment_rounded, size: 14, color: AppColors.textTertiary),
+                const SizedBox(width: 4),
                 Text(
-                  'Due: ${widget.assignment.dueDate}',
-                  style: FlutterFlowTheme.of(context).labelSmall.override(
-                    font: GoogleFonts.inter(),
-                    color: FlutterFlowTheme.of(context).primary,
-                  ),
+                  '${assignment.attachments.length} attachment(s)',
+                  style: theme.textTheme.labelSmall,
                 ),
-                if (widget.assignment.attachments.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.attachment_rounded,
-                            size: 14,
-                            color: FlutterFlowTheme.of(context).secondaryText),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${widget.assignment.attachments.length} attachment(s)',
-                          style: FlutterFlowTheme.of(context).bodySmall.override(
-                                font: GoogleFonts.inter(),
-                                fontSize: 10,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ].divide(const SizedBox(height: 2.0)),
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: status == 'published'
-                      ? FlutterFlowTheme.of(context).success
-                      : FlutterFlowTheme.of(context).warning,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    status.toUpperCase(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                ),
-                const Icon(Icons.chevron_right_rounded),
               ],
             ),
-          ),
-        ),
+          ],
+        ],
       ),
     );
   }

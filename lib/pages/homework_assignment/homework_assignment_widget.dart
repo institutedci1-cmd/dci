@@ -1,14 +1,16 @@
 import '/backend/models/homework_assignment.dart';
 import '/backend/providers/repository_providers.dart';
-import '/components/button/button_widget.dart';
-import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
+import '/components/shared/app_button.dart';
+import '/components/shared/app_section_header.dart';
+import '/components/shared/app_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sections/homework_class_details_section.dart';
@@ -30,7 +32,6 @@ class HomeworkAssignmentWidget extends ConsumerStatefulWidget {
 
 class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWidget> {
   late HomeworkAssignmentModel _model;
-
   final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -38,7 +39,8 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
   void initState() {
     super.initState();
     _model = createModel(context, () => HomeworkAssignmentModel());
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    _model.textFieldModel1.inputTextController ??= TextEditingController();
+    _model.textFieldModel2.inputTextController ??= TextEditingController();
   }
 
   @override
@@ -47,30 +49,141 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
     super.dispose();
   }
 
-  Future<void> _pickFile() async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: const Text('Assign Homework'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.history_rounded),
+              onPressed: () => context.pushNamed(HomeworkHistoryWidget.routeName),
+            ),
+          ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const AppSectionHeader(title: 'Class Selection'),
+                const SizedBox(height: AppSpacing.md),
+                HomeworkClassDetailsSection(model: _model, onChanged: () => safeSetState(() {})),
+                const SizedBox(height: AppSpacing.xl),
+                const AppSectionHeader(title: 'Assignment Content'),
+                const SizedBox(height: AppSpacing.md),
+                AssignmentDetailsSection(model: _model, onChanged: () => safeSetState(() {})),
+                const SizedBox(height: AppSpacing.xl),
+                const AppSectionHeader(title: 'Deadline & Files'),
+                const SizedBox(height: AppSpacing.md),
+                DueDateSection(model: _model, onChanged: () => safeSetState(() {})),
+                const SizedBox(height: AppSpacing.md),
+                _buildAttachmentsSection(),
+                const SizedBox(height: AppSpacing.xxl),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppButton(
+                        text: 'Save Draft',
+                        variant: AppButtonVariant.outline,
+                        onPressed: () => _saveHomework('draft'),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: AppButton(
+                        text: 'Publish',
+                        onPressed: () => _saveHomework('published'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
+  }
 
+  Widget _buildAttachmentsSection() {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Attachments', style: Theme.of(context).textTheme.labelLarge),
+              TextButton.icon(
+                icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                label: const Text('Add File'),
+                onPressed: _pickFile,
+              ),
+            ],
+          ),
+          if (_model.attachmentUrls.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _model.attachmentUrls.map((url) => _buildFileBadge(url)).toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileBadge(String url) {
+    final fileName = url.split('%2F').last.split('?').first;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppColors.outline),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.insert_drive_file_outlined, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              fileName.length > 15 ? '${fileName.substring(0, 12)}...' : fileName,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: () {
+              setState(() => _model.attachmentUrls.remove(url));
+              ref.read(storageServiceProvider).deleteAttachment(url);
+            },
+            child: const Icon(Icons.close_rounded, color: AppColors.error, size: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.pickFiles();
     if (result != null && result.files.single.path != null) {
       setState(() => _model.isDataUploading = true);
       try {
-        final file = File(result.files.single.path!);
-        final storageService = ref.read(storageServiceProvider);
-        final url = await storageService.uploadHomeworkAttachment(file);
-        
-        if (url != null && mounted) {
-          setState(() {
-            _model.attachmentUrls.add(url);
-          });
-        }
+        final url = await ref.read(storageServiceProvider).uploadHomeworkAttachment(File(result.files.single.path!));
+        if (url != null) setState(() => _model.attachmentUrls.add(url));
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Upload failed: $e')),
-          );
-        }
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
       } finally {
         if (mounted) setState(() => _model.isDataUploading = false);
       }
@@ -104,187 +217,5 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: _buildForm(context),
-            ),
-            _buildHomeworkFooter(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return wrapWithModel(
-      model: _model.headerSectionModel,
-      updateCallback: () => safeSetState(() {}),
-      child: HeaderSectionWidget(
-        title: 'Assign Homework',
-        onBackPressed: () async => context.safePop(),
-        actionIcon:
-            const Icon(Icons.history_rounded, color: Colors.white, size: 24.0),
-        onActionPressed: () async =>
-            context.pushNamed(HomeworkHistoryWidget.routeName),
-      ),
-    );
-  }
-
-  Widget _buildForm(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            HomeworkClassDetailsSection(
-                model: _model, onChanged: () => safeSetState(() {})),
-            AssignmentDetailsSection(
-                model: _model, onChanged: () => safeSetState(() {})),
-            _buildAttachmentsSection(context),
-            DueDateSection(model: _model, onChanged: () => safeSetState(() {})),
-            _buildInfoNote(context),
-          ].divide(const SizedBox(height: 24.0)),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoNote(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0), border: Border.all(color: FlutterFlowTheme.of(context).info)),
-      padding: const EdgeInsets.all(24.0),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_rounded, size: 20.0),
-          SizedBox(width: 16),
-          Expanded(child: Text('This assignment will be visible to all students in the selected class immediately after submission.')),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAttachmentsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Attachments',
-              style: FlutterFlowTheme.of(context).bodyLarge.override(
-                    font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            if (_model.isDataUploading)
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              InkWell(
-                onTap: _pickFile,
-                child: Row(
-                  children: [
-                    Icon(Icons.add_circle_outline_rounded,
-                        color: FlutterFlowTheme.of(context).primary, size: 20),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Add File',
-                      style: FlutterFlowTheme.of(context).bodySmall.override(
-                            font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                            color: FlutterFlowTheme.of(context).primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        if (_model.attachmentUrls.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _model.attachmentUrls.map((url) => _buildFileBadge(url)).toList(),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildFileBadge(String url) {
-    final fileName = url.split('%2F').last.split('?').first;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).accent4,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.insert_drive_file_outlined, size: 16),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              fileName.length > 15 ? '${fileName.substring(0, 12)}...' : fileName,
-              style: FlutterFlowTheme.of(context).bodySmall,
-            ),
-          ),
-          const SizedBox(width: 8),
-          InkWell(
-            onTap: () {
-              setState(() {
-                _model.attachmentUrls.remove(url);
-              });
-              ref.read(storageServiceProvider).deleteAttachment(url);
-            },
-            child: Icon(Icons.close_rounded,
-                color: FlutterFlowTheme.of(context).error, size: 16),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHomeworkFooter(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: FlutterFlowTheme.of(context).secondaryBackground, border: Border(top: BorderSide(color: FlutterFlowTheme.of(context).alternate))),
-      padding: const EdgeInsets.all(24.0),
-      child: Row(
-        children: [
-          Expanded(child: _buildFooterButton('Save Draft', 'outline', () => _saveHomework('draft'), _model.buttonModel2)),
-          const SizedBox(width: 16),
-          Expanded(child: _buildFooterButton('Publish', 'primary', () => _saveHomework('published'), _model.buttonModel3)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFooterButton(String text, String variant, VoidCallback onPressed, FlutterFlowModel model) {
-    return wrapWithModel(
-      model: model,
-      updateCallback: () => safeSetState(() {}),
-      child: ButtonWidget(content: text, variant: variant, size: 'medium', onPressed: onPressed),
-    );
   }
 }

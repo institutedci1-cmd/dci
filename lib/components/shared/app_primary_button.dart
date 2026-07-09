@@ -3,6 +3,14 @@ import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';
 
 class AppPrimaryButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final IconData? icon;
+  final bool fullWidth;
+  final double? width;
+  final Color? color;
+
   const AppPrimaryButton({
     super.key,
     required this.text,
@@ -13,14 +21,6 @@ class AppPrimaryButton extends StatelessWidget {
     this.width,
     this.color,
   });
-
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final IconData? icon;
-  final bool fullWidth;
-  final double? width;
-  final Color? color;
 
   @override
   Widget build(BuildContext context) {

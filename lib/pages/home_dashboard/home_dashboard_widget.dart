@@ -7,10 +7,15 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
+import '/components/shared/app_card.dart';
+import '/components/shared/app_section_header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 export 'home_dashboard_model.dart';
 
 class HomeDashboardWidget extends ConsumerStatefulWidget {
@@ -25,361 +30,201 @@ class HomeDashboardWidget extends ConsumerStatefulWidget {
 
 class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
   late HomeDashboardModel _model;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => HomeDashboardModel());
-
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: AppColors.background,
         body: currentUserUid.isEmpty
             ? const Center(child: CircularProgressIndicator())
-            : FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
+            : StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
                     .collection('users')
                     .doc(currentUserUid)
-                    .get(),
+                    .snapshots(),
                 builder: (context, userSnapshot) {
-                  if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (userSnapshot.hasError) {
-                    return Center(child: Text('Error loading user data: ${userSnapshot.error}'));
-                  }
                   final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
 
-                  return FutureBuilder<DocumentSnapshot>(
-                    future: FirebaseFirestore.instance
-                        .collection('config')
-                        .doc('dashboard_config')
-                        .get(),
-                    builder: (context, configSnapshot) {
-                      if (configSnapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      final dashboardConfig = configSnapshot.data?.data() as Map<String, dynamic>?;
-
-                      return Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _buildTopHeader(context, userData),
-                          Expanded(
-                            flex: 1,
-                            child: SingleChildScrollView(
-                              primary: false,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        _buildSectionTitle(context, 'Management Modules'),
-                                        _buildModulesGrid(context),
-                                        const SizedBox(height: 24.0),
-                                        _buildRecentActivitySection(context),
-                                        const SizedBox(height: 24.0),
-                                        _buildAIHelpSection(context, dashboardConfig),
-                                      ].divide(const SizedBox(height: 24.0)),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                  return CustomScrollView(
+                    slivers: [
+                      _buildSliverAppBar(context, userData),
+                      SliverPadding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            const AppSectionHeader(
+                              title: 'Management Modules',
+                              subtitle: 'Quick access to school operations',
                             ),
-                          ),
-                          _buildBottomNavBar(context),
-                        ],
-                      );
-                    },
+                            const SizedBox(height: AppSpacing.md),
+                            _buildModulesGrid(context),
+                            const SizedBox(height: AppSpacing.xl),
+                            _buildRecentActivitySection(context),
+                            const SizedBox(height: AppSpacing.xl),
+                            _buildAIHelpSection(context),
+                            const SizedBox(height: AppSpacing.xxl),
+                          ]),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
+        bottomNavigationBar: _buildBottomNavBar(context),
       ),
     );
   }
 
-  Widget _buildTopHeader(BuildContext context, Map<String, dynamic>? userData) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            FlutterFlowTheme.of(context).primary,
-            FlutterFlowTheme.of(context).tertiary
-          ],
-          stops: const [0.0, 1.0],
-          begin: const AlignmentDirectional(0.0, -1.0),
-          end: const AlignmentDirectional(0, 1.0),
+  Widget _buildSliverAppBar(BuildContext context, Map<String, dynamic>? userData) {
+    final theme = Theme.of(context);
+    
+    return SliverAppBar(
+      expandedHeight: 140.0,
+      floating: false,
+      pinned: true,
+      backgroundColor: AppColors.primary,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          color: AppColors.primary,
+          child: Stack(
+            children: [
+              // Subtle background pattern or circles could go here for "Premium" feel
+              Positioned(
+                right: -20,
+                top: -20,
+                child: CircleAvatar(
+                  radius: 80,
+                  backgroundColor: Colors.white.withOpacity(0.03),
+                ),
+              ),
+            ],
+          ),
         ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(32.0),
-          bottomRight: Radius.circular(32.0),
-        ),
-        shape: BoxShape.rectangle,
-      ),
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(16.0, 44.0, 16.0, 20.0),
-        child: Column(
+        titlePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        title: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome back,',
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              font: GoogleFonts.inter(),
-                              color: FlutterFlowTheme.of(context).onBackground80,
-                              fontSize: 13,
-                              lineHeight: 1.4,
-                            ),
-                      ),
-                      Text(
-                        userData?['display_name'] ??
-                            (currentUserDisplayName != ''
-                                ? currentUserDisplayName
-                                : 'Prof. Rajesh Deshmukh'),
-                        maxLines: 1,
-                        style: FlutterFlowTheme.of(context).titleMedium.override(
-                              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                              color: FlutterFlowTheme.of(context).onBackground,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                      ),
-                    ].divide(const SizedBox(height: 2.0)),
-                  ),
-                ),
-                const SizedBox(width: 12.0),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Stack(
-                      alignment: const AlignmentDirectional(1.0, -1.0),
-                      children: [
-                        FlutterFlowIconButton(
-                          borderRadius: 12.0,
-                          buttonSize: 36.0,
-                          fillColor: FlutterFlowTheme.of(context).onPrimary15,
-                          icon: Icon(
-                            Icons.notifications_none_rounded,
-                            color: FlutterFlowTheme.of(context).onPrimary,
-                            size: 20.0,
-                          ),
-                          onPressed: () =>
-                              context.pushNamed(NotificationsWidget.routeName),
-                        ),
-                        FutureBuilder<int>(
-                          future: ref
-                              .read(notificationRepositoryProvider)
-                              .getUnreadCountStream()
-                              .first,
-                          builder: (context, snapshot) {
-                            final count = snapshot.data ?? 0;
-                            if (count == 0) return const SizedBox.shrink();
-                            return Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context).error,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                count > 9 ? '9+' : count.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 7,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    FlutterFlowIconButton(
-                      borderRadius: 12.0,
-                      buttonSize: 36.0,
-                      fillColor: FlutterFlowTheme.of(context).onPrimary15,
-                      icon: Icon(
-                        Icons.logout_rounded,
-                        color: FlutterFlowTheme.of(context).onPrimary,
-                        size: 20.0,
-                      ),
-                      onPressed: () async {
-                        await ref.read(authRepositoryProvider).signOut();
-                        if (!context.mounted) return;
-                        context.goNamed(LoginWidget.routeName);
-                      },
-                    ),
-                  ].divide(const SizedBox(width: 8.0)),
-                ),
-              ],
+            Text(
+              'Welcome back,',
+              style: theme.textTheme.labelSmall?.copyWith(color: Colors.white70),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.calendar_today_rounded,
-                  color: FlutterFlowTheme.of(context).onBackground,
-                  size: 16.0,
-                ),
-                Expanded(
-                  child: Text(
-                    dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
-                    maxLines: 1,
-                    style: FlutterFlowTheme.of(context).labelSmall.override(
-                          font: GoogleFonts.inter(),
-                          color: FlutterFlowTheme.of(context).onBackground,
-                          fontSize: 12,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                  ),
-                ),
-              ].divide(const SizedBox(width: 8.0)),
+            Text(
+              userData?['display_name'] ?? currentUserDisplayName != '' ? currentUserDisplayName : 'Teacher',
+              style: theme.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-          ].divide(const SizedBox(height: 12.0)),
+          ],
         ),
       ),
+      actions: [
+        _buildNotificationAction(context),
+        IconButton(
+          icon: const Icon(Icons.logout_rounded, color: Colors.white),
+          onPressed: () async {
+            await ref.read(authRepositoryProvider).signOut();
+            if (!context.mounted) return;
+            context.goNamed(LoginWidget.routeName);
+          },
+        ),
+        const SizedBox(width: AppSpacing.sm),
+      ],
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Text(
-      title,
-      style: FlutterFlowTheme.of(context).titleMedium.override(
-            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-            color: FlutterFlowTheme.of(context).primaryText,
-            lineHeight: 1.35,
+  Widget _buildNotificationAction(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.notifications_none_rounded, color: Colors.white),
+          onPressed: () => context.pushNamed(NotificationsWidget.routeName),
+        ),
+        Positioned(
+          right: 8,
+          top: 8,
+          child: StreamBuilder<int>(
+            stream: ref.read(notificationRepositoryProvider).getUnreadCountStream(),
+            builder: (context, snapshot) {
+              final count = snapshot.data ?? 0;
+              if (count == 0) return const SizedBox.shrink();
+              return Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: AppColors.error,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primary, width: 2),
+                ),
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                child: Text(
+                  count > 9 ? '9+' : count.toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            },
           ),
+        ),
+      ],
     );
   }
 
   Widget _buildModulesGrid(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: wrapWithModel(
-                model: _model.dashboardCardModel1,
-                updateCallback: () => safeSetState(() {}),
-                child: const DashboardCardWidget(
-                  target: 'DailyReport',
-                  title: 'Daily Report',
-                  icon: Icon(Icons.assessment_rounded),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: wrapWithModel(
-                model: _model.dashboardCardModel2,
-                updateCallback: () => safeSetState(() {}),
-                child: const DashboardCardWidget(
-                  target: 'Attendance',
-                  title: 'Attendance',
-                  icon: Icon(Icons.fact_check_rounded),
-                ),
-              ),
-            ),
-          ],
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      crossAxisSpacing: AppSpacing.md,
+      mainAxisSpacing: AppSpacing.md,
+      childAspectRatio: 1.4,
+      children: const [
+        DashboardCardWidget(
+          target: 'DailyReport',
+          title: 'Daily Report',
+          icon: Icon(Icons.assessment_rounded),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: wrapWithModel(
-                model: _model.dashboardCardModel3,
-                updateCallback: () => safeSetState(() {}),
-                child: const DashboardCardWidget(
-                  target: 'Homework',
-                  title: 'Homework',
-                  icon: Icon(Icons.edit_note_rounded),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: wrapWithModel(
-                model: _model.dashboardCardModel4,
-                updateCallback: () => safeSetState(() {}),
-                child: const DashboardCardWidget(
-                  target: 'TeacherProfile',
-                  title: 'Profile',
-                  icon: Icon(Icons.person_rounded),
-                ),
-              ),
-            ),
-          ],
+        DashboardCardWidget(
+          target: 'Attendance',
+          title: 'Attendance',
+          icon: Icon(Icons.fact_check_rounded),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: wrapWithModel(
-                model: _model.dashboardCardModel5,
-                updateCallback: () => safeSetState(() {}),
-                child: const DashboardCardWidget(
-                  target: 'Announcements',
-                  title: 'Announcements',
-                  icon: Icon(Icons.campaign_rounded),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: wrapWithModel(
-                model: _model.dashboardCardModel6,
-                updateCallback: () => safeSetState(() {}),
-                child: const DashboardCardWidget(
-                  target: 'Students',
-                  title: 'Students',
-                  icon: Icon(Icons.people_rounded),
-                ),
-              ),
-            ),
-          ],
+        DashboardCardWidget(
+          target: 'Homework',
+          title: 'Homework',
+          icon: Icon(Icons.edit_note_rounded),
+        ),
+        DashboardCardWidget(
+          target: 'Students',
+          title: 'Students',
+          icon: Icon(Icons.people_rounded),
+        ),
+        DashboardCardWidget(
+          target: 'Announcements',
+          title: 'Notices',
+          icon: Icon(Icons.campaign_rounded),
+        ),
+        DashboardCardWidget(
+          target: 'TeacherProfile',
+          title: 'My Profile',
+          icon: Icon(Icons.person_rounded),
         ),
       ],
     );
@@ -390,32 +235,34 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(context, 'Recent Activity'),
-        const SizedBox(height: 12.0),
-        FutureBuilder<List<DailyReport>>(
-          future: ref.read(dailyReportRepositoryProvider).getRecentReports(limit: 3).first,
+        AppSectionHeader(
+          title: 'Recent Activity',
+          action: TextButton(
+            onPressed: () => context.pushNamed(ReportHistoryWidget.routeName),
+            child: const Text('View All'),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        StreamBuilder<List<DailyReport>>(
+          stream: ref.read(dailyReportRepositoryProvider).getRecentReports(limit: 3),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            if (snapshot.hasError) {
-              return Text(
-                'Could not load activity.',
-                style: FlutterFlowTheme.of(context).bodySmall,
-              );
-            }
             final reports = snapshot.data ?? [];
             if (reports.isEmpty) {
-              return Text(
-                'No recent activity found.',
-                style: FlutterFlowTheme.of(context).bodySmall,
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                child: Center(
+                  child: Text('No recent activity found.', style: Theme.of(context).textTheme.bodySmall),
+                ),
               );
             }
             return Column(
               children: reports.map((report) {
                 return RecentActivityItemWidget(
                   title: '${report.className} - ${report.subject}',
-                  subtitle: 'Topic: ${report.chapter}\n${dateTimeFormat('yMMMd', report.createdAt)}',
+                  subtitle: 'Topic: ${report.chapter} • ${dateTimeFormat('yMMMd', report.createdAt)}',
                   onTap: () => context.pushNamed(ReportHistoryWidget.routeName),
                 );
               }).toList(),
@@ -426,170 +273,78 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
     );
   }
 
-  Widget _buildAIHelpSection(BuildContext context, Map<String, dynamic>? dashboardConfig) {
-    return InkWell(
-      onTap: () async {
-        if (dashboardConfig?['ai_help_url'] != null) {
-          await launchURL(dashboardConfig!['ai_help_url']);
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).secondaryBackground,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(
-            color: FlutterFlowTheme.of(context).alternate,
-            width: 1.0,
+  Widget _buildAIHelpSection(BuildContext context) {
+    return AppCard(
+      onTap: () {}, // Link to AI help
+      color: AppColors.accent.withOpacity(0.05),
+      border: const BorderSide(color: AppColors.accent, width: 0.5),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.accent,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 24),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).primary10,
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                alignment: const AlignmentDirectional(0.0, 0.0),
-                child: Icon(
-                  Icons.auto_awesome_rounded,
-                  color: FlutterFlowTheme.of(context).primary,
-                  size: 20.0,
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      dashboardConfig?['ai_title'] ?? 'Deshmukh AI Assistant',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                            color: FlutterFlowTheme.of(context).primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    Text(
-                      dashboardConfig?['ai_description'] ??
-                          'Help with lesson planning or data.',
-                      maxLines: 1,
-                      style: FlutterFlowTheme.of(context).labelSmall.override(
-                            font: GoogleFonts.inter(),
-                            color: FlutterFlowTheme.of(context).secondaryText,
-                            fontSize: 11,
-                          ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: FlutterFlowTheme.of(context).secondaryText,
-                size: 20.0,
-              ),
-            ].divide(const SizedBox(width: 12.0)),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Deshmukh AI Assistant', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.accent)),
+                Text('Get help with lesson planning or data analysis.', style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
-        ),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.accent),
+        ],
       ),
     );
   }
 
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        shape: BoxShape.rectangle,
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.outline, width: 1)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            height: 1.0,
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).alternate,
-              shape: BoxShape.rectangle,
-            ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavBarItem(context, Icons.home_rounded, 'Home', true, () {}),
+              _buildNavBarItem(context, Icons.description_outlined, 'Reports', false, () => context.goNamed(ReportsDashboardWidget.routeName)),
+              _buildNavBarItem(context, Icons.event_note_outlined, 'Attend.', false, () => context.goNamed(AttendanceDashboardWidget.routeName)),
+              _buildNavBarItem(context, Icons.account_circle_outlined, 'Profile', false, () => context.goNamed(TeacherProfileWidget.routeName)),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavBarItem(
-                  context,
-                  icon: Icons.home_rounded,
-                  label: 'Home',
-                  isSelected: true,
-                  onTap: () => context.goNamed(HomeDashboardWidget.routeName),
-                ),
-                _buildNavBarItem(
-                  context,
-                  icon: Icons.description_outlined,
-                  label: 'Reports',
-                  onTap: () => context.goNamed(ReportsDashboardWidget.routeName),
-                ),
-                _buildNavBarItem(
-                  context,
-                  icon: Icons.event_note_outlined,
-                  label: 'Attend.',
-                  onTap: () => context.goNamed(AttendanceDashboardWidget.routeName),
-                ),
-                _buildNavBarItem(
-                  context,
-                  icon: Icons.account_circle_outlined,
-                  label: 'Profile',
-                  onTap: () => context.goNamed(TeacherProfileWidget.routeName),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildNavBarItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isSelected = false,
-  }) {
-    final color = isSelected
-        ? FlutterFlowTheme.of(context).primary
-        : FlutterFlowTheme.of(context).secondaryText;
+  Widget _buildNavBarItem(BuildContext context, IconData icon, String label, bool isSelected, VoidCallback onTap) {
+    final color = isSelected ? AppColors.accent : AppColors.textTertiary;
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 26),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: FlutterFlowTheme.of(context).labelSmall.override(
-                      font: GoogleFonts.inter(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                      color: color,
-                    ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

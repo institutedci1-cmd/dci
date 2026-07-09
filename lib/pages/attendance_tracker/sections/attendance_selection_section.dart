@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../shared/app_style.dart';
+import '../../../shared/app_colors.dart';
 import '../../../flutter_flow/flutter_flow_drop_down.dart';
 import '../../../flutter_flow/form_field_controller.dart';
-import '../../../flutter_flow/flutter_flow_theme.dart';
 import '../../../flutter_flow/flutter_flow_util.dart';
 import '../../../components/shared/app_search_bar.dart';
+import '../../../components/shared/app_card.dart';
 import '../attendance_tracker_model.dart';
 
 class AttendanceSelectionSection extends StatelessWidget {
@@ -25,8 +26,10 @@ class AttendanceSelectionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         children: [
           Row(
@@ -34,19 +37,23 @@ class AttendanceSelectionSection extends StatelessWidget {
               Expanded(
                 child: InkWell(
                   onTap: onDateChanged,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   child: Container(
-                    height: 48,
+                    height: 52,
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+                      border: Border.all(color: AppColors.outline),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today_rounded, size: 18, color: FlutterFlowTheme.of(context).primary),
+                        const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.primary),
                         const SizedBox(width: AppSpacing.sm),
-                        Text(dateTimeFormat('yMMMd', model.selectedDate)),
+                        Text(
+                          dateTimeFormat('yMMMd', model.selectedDate),
+                          style: theme.textTheme.bodyMedium,
+                        ),
                       ],
                     ),
                   ),
@@ -61,15 +68,15 @@ class AttendanceSelectionSection extends StatelessWidget {
                     model.selectedClass = val;
                     onClassChanged();
                   },
-                  height: 48,
-                  hintText: 'Class',
-                  fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                  height: 52,
+                  hintText: 'Select Class',
+                  fillColor: AppColors.surface,
                   borderRadius: AppRadius.md,
                   borderWidth: 1,
-                  borderColor: FlutterFlowTheme.of(context).alternate,
+                  borderColor: AppColors.outline,
                   hidesUnderline: true,
-                  textStyle: FlutterFlowTheme.of(context).bodyMedium,
-                  elevation: 2.0,
+                  textStyle: theme.textTheme.bodyMedium ?? const TextStyle(),
+                  elevation: 0,
                   margin: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
                 ),
               ),
@@ -78,7 +85,7 @@ class AttendanceSelectionSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           AppSearchBar(
             controller: model.subjectFieldModel.inputTextController,
-            hintText: 'Enter Subject Name...',
+            hintText: 'Enter subject name...',
             onChanged: (_) => onSubjectChanged(),
           ),
         ],

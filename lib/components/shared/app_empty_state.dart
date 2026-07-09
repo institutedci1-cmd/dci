@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';
-import 'app_primary_button.dart';
+import 'app_button.dart';
 
 class AppEmptyState extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String title;
   final String description;
   final String? actionLabel;
@@ -12,7 +12,7 @@ class AppEmptyState extends StatelessWidget {
 
   const AppEmptyState({
     super.key,
-    required this.icon,
+    this.icon,
     required this.title,
     required this.description,
     this.actionLabel,
@@ -21,42 +21,47 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha((0.05 * 255).toInt()),
-                shape: BoxShape.circle,
+            if (icon != null) ...[
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                decoration: BoxDecoration(
+                  color: AppColors.primary10,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: 48,
+                  color: AppColors.primary,
+                ),
               ),
-              child: Icon(
-                icon,
-                size: 64,
-                color: AppColors.primary.withAlpha((0.5 * 255).toInt()),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.lg),
+            ],
             Text(
               title,
-              style: AppTypography.section.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               description,
-              style: AppTypography.caption,
+              style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             if (actionLabel != null && onActionPressed != null) ...[
               const SizedBox(height: AppSpacing.xl),
-              AppPrimaryButton(
+              AppButton(
                 text: actionLabel!,
                 onPressed: onActionPressed!,
                 fullWidth: false,
+                width: 200,
               ),
             ],
           ],

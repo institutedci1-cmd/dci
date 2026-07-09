@@ -19,67 +19,66 @@ class AttendanceStudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isPresent = status == 'Present';
     final statusColor = isPresent ? AppColors.success : AppColors.error;
     
     return AppCard(
       onTap: onTap,
       padding: EdgeInsets.zero,
-      border: BorderSide(
-        color: statusColor.withAlpha((0.3 * 255).toInt()),
-        width: 1.5,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 6,
-            height: 72,
-            color: statusColor,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Checkbox(
-            value: isPresent,
-            activeColor: AppColors.success,
-            onChanged: (_) => onTap(),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  name,
-                  style: AppTypography.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Roll No: $rollNo',
-                  style: AppTypography.caption,
-                ),
-              ],
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              color: statusColor,
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: AppSpacing.md),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: isPresent ? AppColors.successLight : AppColors.errorLight,
-              borderRadius: BorderRadius.circular(100),
+            const SizedBox(width: AppSpacing.md),
+            Checkbox(
+              value: isPresent,
+              activeColor: AppColors.success,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              onChanged: (_) => onTap(),
             ),
-            child: Text(
-              status.toUpperCase(),
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 10,
-                letterSpacing: 0.5,
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      name,
+                      style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Roll No: $rollNo',
+                      style: theme.textTheme.labelSmall,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+            Container(
+              margin: const EdgeInsets.only(right: AppSpacing.md),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppRadius.full),
+              ),
+              child: Text(
+                status.toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: statusColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

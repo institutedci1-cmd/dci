@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../shared/app_style.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
+import '../../shared/app_colors.dart';
 
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -9,6 +9,7 @@ class AppCard extends StatelessWidget {
   final Color? color;
   final double? elevation;
   final BorderSide? border;
+  final double? borderRadius;
 
   const AppCard({
     super.key,
@@ -18,39 +19,29 @@ class AppCard extends StatelessWidget {
     this.color,
     this.elevation,
     this.border,
+    this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(),
-      child: Material(
-        color: color ?? FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: AppRadius.card,
-        elevation: elevation ?? 0,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: AppRadius.card,
-            border: border != null ? Border.fromBorderSide(border!) : Border.all(
-              color: FlutterFlowTheme.of(context).alternate,
-              width: 1,
-            ),
-            boxShadow: elevation != 0 ? [
-              BoxShadow(
-                blurRadius: elevation ?? 12,
-                color: Colors.black.withAlpha((0.05 * 255).toInt()),
-                offset: const Offset(0, 4),
-              )
-            ] : null,
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: AppRadius.card,
-            child: Padding(
-              padding: padding ?? const EdgeInsets.all(AppSpacing.md),
-              child: child,
-            ),
-          ),
+    return Material(
+      color: color ?? AppColors.surface,
+      elevation: elevation ?? 0,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadius ?? AppRadius.lg),
+        side: border ?? const BorderSide(
+          color: AppColors.outline,
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        splashColor: AppColors.primary.withOpacity(0.05),
+        highlightColor: Colors.transparent,
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(AppSpacing.lg),
+          child: child,
         ),
       ),
     );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/components/form_section_header/form_section_header_widget.dart';
-import '/components/text_field/text_field_widget.dart';
+import '../../../../shared/app_style.dart';
+import '../../../../shared/app_colors.dart';
+import '../../../../components/shared/app_card.dart';
+import '../../../../components/shared/app_text_field.dart';
 import '../daily_report_form_model.dart';
 
 class AdditionalInfoSection extends StatelessWidget {
@@ -17,54 +17,26 @@ class AdditionalInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        wrapWithModel(
-          model: model.formSectionHeaderModel4,
-          updateCallback: onChanged,
-          child: FormSectionHeaderWidget(
-            icon: Icon(
-              Icons.assignment_rounded,
-              color: FlutterFlowTheme.of(context).primary,
-              size: 20.0,
-            ),
-            title: 'Additional Info',
-          ),
-        ),
-        wrapWithModel(
-          model: model.textFieldModel5,
-          updateCallback: onChanged,
-          child: const TextFieldWidget(
+    return AppCard(
+      child: Column(
+        children: [
+          AppTextField(
             label: 'Homework Assigned',
-            labelPresent: true,
-            leadingIcon: Icon(
-              Icons.edit_note_rounded,
-              size: 24.0,
-            ),
-            leadingIconPresent: true,
-            hint: 'Describe the homework...',
-            variant: 'outlined',
+            hintText: 'Describe assignments given to students',
+            controller: model.textFieldModel5.inputTextController,
+            prefixIcon: Icons.edit_note_rounded,
+            maxLines: 3,
           ),
-        ),
-        wrapWithModel(
-          model: model.textFieldModel6,
-          updateCallback: onChanged,
-          child: const TextFieldWidget(
+          const SizedBox(height: AppSpacing.md),
+          AppTextField(
             label: 'Remarks',
-            labelPresent: true,
-            leadingIcon: Icon(
-              Icons.notes_rounded,
-              size: 24.0,
-            ),
-            leadingIconPresent: true,
-            hint: 'Any other observations...',
-            variant: 'outlined',
+            hintText: 'Other observations or notes',
+            controller: model.textFieldModel6.inputTextController,
+            prefixIcon: Icons.notes_rounded,
+            maxLines: 2,
           ),
-        ),
-      ].divide(const SizedBox(height: 16.0)),
+        ],
+      ),
     );
   }
 }

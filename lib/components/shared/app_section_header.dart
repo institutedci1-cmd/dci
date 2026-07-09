@@ -1,69 +1,61 @@
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
 import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';
 
 class AppSectionHeader extends StatelessWidget {
   final String title;
+  final String? subtitle;
+  final Widget? action;
   final IconData? icon;
-  final VoidCallback? onActionPressed;
-  final String? actionLabel;
 
   const AppSectionHeader({
     super.key,
     required this.title,
+    this.subtitle,
+    this.action,
     this.icon,
-    this.onActionPressed,
-    this.actionLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha((0.1 * 255).toInt()),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                size: 20,
-                color: AppColors.primary,
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 20, color: AppColors.primary),
+                    const SizedBox(width: AppSpacing.sm),
+                  ],
+                  Text(
+                    title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            if (action != null) action!,
           ],
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            title,
-            style: AppTypography.section.copyWith(
-              fontWeight: FontWeight.bold,
-              color: FlutterFlowTheme.of(context).primaryText,
+            subtitle!,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
-          const Spacer(),
-          if (onActionPressed != null && actionLabel != null)
-            TextButton(
-              onPressed: onActionPressed,
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                actionLabel!,
-                style: AppTypography.label.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
         ],
-      ),
+      ],
     );
   }
 }
