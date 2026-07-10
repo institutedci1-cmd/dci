@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -80,7 +79,7 @@ class MyAppState extends ConsumerState<MyApp> {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Deshmukh Teacher App',
+      title: 'DCI Teacher App',
       scrollBehavior: MyAppScrollBehavior(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

@@ -1,5 +1,11 @@
 // Export models
 export 'backend/models/student.dart';
+export 'backend/models/daily_report.dart';
+export 'backend/models/homework.dart';
+export 'backend/models/homework_assignment.dart';
+export 'backend/models/student_attendance.dart';
+export 'backend/models/announcement.dart';
+export 'backend/models/notification_model.dart';
 
 // Export pages
 export 'pages/login/login_widget.dart';

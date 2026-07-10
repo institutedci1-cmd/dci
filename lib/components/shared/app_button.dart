@@ -11,6 +11,7 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
   final IconData? icon;
   final double? width;
+  final double height;
   final bool fullWidth;
 
   const AppButton({
@@ -21,6 +22,7 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.icon,
     this.width,
+    this.height = 48,
     this.fullWidth = true,
   });
 
@@ -38,7 +40,7 @@ class AppButton extends StatelessWidget {
         textColor = Colors.white;
         break;
       case AppButtonVariant.secondary:
-        bgColor = AppColors.accent;
+        bgColor = AppColors.secondary;
         textColor = Colors.white;
         break;
       case AppButtonVariant.outline:
@@ -60,7 +62,7 @@ class AppButton extends StatelessWidget {
       backgroundColor: bgColor,
       foregroundColor: textColor,
       elevation: 0,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: AppRadius.button,
         side: borderSide,
@@ -82,14 +84,15 @@ class AppButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 20),
+                Icon(icon, size: 18),
                 const SizedBox(width: AppSpacing.sm),
               ],
               Text(
                 text,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: textColor,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
                 ),
               ),
             ],
@@ -97,7 +100,7 @@ class AppButton extends StatelessWidget {
 
     return SizedBox(
       width: fullWidth ? (width ?? double.infinity) : width,
-      height: 52,
+      height: height,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: buttonStyle,

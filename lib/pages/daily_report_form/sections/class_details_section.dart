@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '/backend/services/app_constants.dart';
 import '../../../../shared/app_style.dart';
-import '../../../../shared/app_colors.dart';
 import '../../../../components/shared/app_dropdown.dart';
 import '../../../../components/shared/app_text_field.dart';
 import '../../../../components/shared/app_card.dart';
@@ -30,7 +29,7 @@ class ClassDetailsSection extends StatelessWidget {
                   label: 'Class',
                   hintText: 'Select Class',
                   options: AppConstants.classOptions,
-                  value: model.dropdownValue1,
+                  controller: model.dropdownValueController1,
                   onChanged: (val) {
                     model.dropdownValue1 = val;
                     onChanged();
@@ -43,7 +42,7 @@ class ClassDetailsSection extends StatelessWidget {
                   label: 'Subject',
                   hintText: 'Select Subject',
                   options: AppConstants.subjectOptions,
-                  value: model.dropdownValue2,
+                  controller: model.dropdownValueController2,
                   onChanged: (val) {
                     model.dropdownValue2 = val;
                     onChanged();
@@ -57,7 +56,7 @@ class ClassDetailsSection extends StatelessWidget {
             label: 'Teacher',
             hintText: 'Select Teacher',
             options: AppConstants.teacherOptions,
-            value: model.dropdownValue3,
+            controller: model.dropdownValueController3,
             onChanged: (val) {
               model.dropdownValue3 = val;
               onChanged();

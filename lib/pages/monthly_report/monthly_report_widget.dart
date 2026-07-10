@@ -1,17 +1,17 @@
-import '/backend/services/app_constants.dart';
-import '/backend/models/student_attendance.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/backend/models/student.dart';
+import '/backend/providers/monthly_report_provider.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import '/shared/app_colors.dart';
+import '/shared/app_style.dart';
+import '/components/shared/app_card.dart';
 import 'monthly_report_model.dart';
+
 export 'monthly_report_model.dart';
 
 class MonthlyReportWidget extends ConsumerStatefulWidget {
@@ -26,212 +26,278 @@ class MonthlyReportWidget extends ConsumerStatefulWidget {
 
 class _MonthlyReportWidgetState extends ConsumerState<MonthlyReportWidget> {
   late MonthlyReportModel _model;
-  bool _isLoading = false;
-  List<Student> _students = [];
-  Map<String, List<StudentAttendance>> _attendanceData = {};
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => MonthlyReportModel());
+    _model.selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
   }
 
-  Future<void> _fetchReport() async {
-    if (_model.selectedClass == null || _model.selectedMonth == null) return;
-
-    setState(() => _isLoading = true);
-    try {
-      final studentRepo = ref.read(studentRepositoryProvider);
-      final attendanceRepo = ref.read(attendanceRepositoryProvider);
-
-      final students = await studentRepo.getStudentsByClass(_model.selectedClass!);
-      final attendance = await attendanceRepo.getMonthlyAttendance(
-        _model.selectedClass!, 
-        _model.selectedMonth!
-      );
-
-      final grouped = <String, List<StudentAttendance>>{};
-      for (var record in attendance) {
-        grouped.putIfAbsent(record.studentId, () => []).add(record);
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _students = students;
-        _attendanceData = grouped;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-        setState(() => _isLoading = false);
-      }
+  void _onFilterChanged() {
+    if (_model.selectedClass != null && _model.selectedMonth != null) {
+      ref.read(monthlyReportProvider.notifier).fetchReport(
+            _model.selectedClass!,
+            _model.selectedMonth!,
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final reportState = ref.watch(monthlyReportProvider);
+    final isDesktop = MediaQuery.of(context).size.width > 900;
+
     return Scaffold(
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
-          wrapWithModel(
-            model: createModel(context, () => HeaderSectionModel()),
-            updateCallback: () => safeSetState(() {}),
-            child: HeaderSectionWidget(
-              title: 'Monthly Attendance',
-              subtitle: 'Attendance analysis per student',
-              onBackPressed: () async => context.safePop(),
-              showActionIcon: false,
-            ),
+          HeaderSectionWidget(
+            title: 'Monthly Attendance',
+            subtitle: 'Analysis per student',
+            onBackPressed: () async => context.safePop(),
+            showActionIcon: false,
           ),
           _buildFilters(context),
-          if (_isLoading)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
-          else if (_students.isEmpty && _model.selectedClass != null)
-            Expanded(child: Center(child: Text('No records found.', style: FlutterFlowTheme.of(context).bodyMedium)))
-          else if (_model.selectedClass == null)
-            Expanded(child: Center(child: Text('Select Class & Month', style: FlutterFlowTheme.of(context).bodyMedium)))
-          else
-            _buildReportList(context),
+          Expanded(
+            child: _buildBody(reportState, isDesktop),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBody(MonthlyReportState state, bool isDesktop) {
+    if (state.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.errorMessage != null) {
+      return _buildErrorState(state.errorMessage!);
+    }
+
+    if (_model.selectedClass == null) {
+      return _buildInitialState();
+    }
+
+    if (state.students.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    if (isDesktop) {
+      return _buildGridView(state);
+    }
+    return _buildListView(state);
+  }
+
+  Widget _buildInitialState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.analytics_outlined, size: 64, color: AppColors.textTertiary.withValues(alpha: 0.5)),
+          const SizedBox(height: AppSpacing.md),
+          Text('Select Class & Month', style: AppTypography.sectionTitle),
+          Text('Choose criteria to view analysis', style: AppTypography.caption),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.folder_open_rounded, size: 64, color: AppColors.textTertiary.withValues(alpha: 0.5)),
+          const SizedBox(height: AppSpacing.md),
+          Text('No records found', style: AppTypography.sectionTitle),
+          Text('Try selecting a different class or month', style: AppTypography.caption),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error),
+            const SizedBox(height: AppSpacing.md),
+            Text('Failed to load report', style: AppTypography.sectionTitle),
+            Text(error, textAlign: TextAlign.center, style: AppTypography.caption),
+            const SizedBox(height: AppSpacing.lg),
+            ElevatedButton(
+              onPressed: _onFilterChanged,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildFilters(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return StreamBuilder<List<Student>>(
+      stream: ref.watch(studentRepositoryProvider).getAllStudentsStream(),
+      builder: (context, snapshot) {
+        final allStudents = snapshot.data ?? [];
+        final classOptions = allStudents
+            .map((s) => s.className)
+            .where((c) => c.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
+
+        return Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            children: [
+              Expanded(
+                child: FlutterFlowDropDown<String>(
+                  controller: _model.classDropdownController ??= FormFieldController<String>(_model.selectedClass),
+                  options: classOptions,
+                  onChanged: (val) {
+                    setState(() => _model.selectedClass = val);
+                    _onFilterChanged();
+                  },
+                  height: 48,
+                  hintText: 'Select Class',
+                  fillColor: AppColors.surface,
+                  borderRadius: AppRadius.md,
+                  borderWidth: 1,
+                  borderColor: AppColors.outline,
+                  hidesUnderline: true,
+                  textStyle: AppTypography.bodyMedium,
+                  elevation: 0,
+                  margin: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _model.selectedMonth ?? DateTime.now(),
+                      firstDate: DateTime(2024),
+                      lastDate: DateTime.now(),
+                      helpText: 'SELECT MONTH',
+                    );
+                    if (picked != null) {
+                      setState(() => _model.selectedMonth = DateTime(picked.year, picked.month));
+                      _onFilterChanged();
+                    }
+                  },
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(color: AppColors.outline),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_month_rounded, size: 18, color: AppColors.primary),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          DateFormat('MMM yyyy').format(_model.selectedMonth!),
+                          style: AppTypography.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildListView(MonthlyReportState state) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      itemCount: state.students.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (context, index) => _buildReportCard(state, index),
+    );
+  }
+
+  Widget _buildGridView(MonthlyReportState state) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: 3,
+        crossAxisSpacing: AppSpacing.md,
+        mainAxisSpacing: AppSpacing.md,
+      ),
+      itemCount: state.students.length,
+      itemBuilder: (context, index) => _buildReportCard(state, index),
+    );
+  }
+
+  Widget _buildReportCard(MonthlyReportState state, int index) {
+    final student = state.students[index];
+    final logs = state.attendanceData[student.studentId] ?? [];
+    final presentCount = logs.where((l) => l.status == 'Present').length;
+    final totalDays = logs.length;
+    final percentage = totalDays == 0 ? 0.0 : (presentCount / totalDays) * 100;
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
           Expanded(
-            child: FlutterFlowDropDown<String>(
-              controller: _model.classDropdownController ??= FormFieldController<String>(_model.selectedClass),
-              options: AppConstants.classOptions,
-              onChanged: (val) {
-                setState(() => _model.selectedClass = val);
-                _fetchReport();
-              },
-              height: 48,
-              hintText: 'Select Class',
-              fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: FlutterFlowTheme.of(context).alternate,
-              hidesUnderline: true,
-              textStyle: FlutterFlowTheme.of(context).bodyMedium,
-              elevation: 2.0,
-              margin: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Roll ${student.rollNo} • ${student.name}',
+                  style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Present: $presentCount / $totalDays days',
+                  style: AppTypography.caption,
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: InkWell(
-              onTap: () async {
-                // Simplified month picker - in a real app you'd want a specialized month picker
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: _model.selectedMonth ?? DateTime.now(),
-                  firstDate: DateTime(2024),
-                  lastDate: DateTime.now(),
-                  helpText: 'SELECT MONTH',
-                );
-                if (picked != null) {
-                  setState(() => _model.selectedMonth = DateTime(picked.year, picked.month));
-                  _fetchReport();
-                }
-              },
-              child: Container(
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_month_rounded, size: 18, color: FlutterFlowTheme.of(context).primary),
-                    const SizedBox(width: 8),
-                    Text(DateFormat('MMM yyyy').format(_model.selectedMonth!)),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(width: AppSpacing.sm),
+          _buildPercentageIndicator(percentage),
         ],
       ),
     );
   }
 
-  Widget _buildReportList(BuildContext context) {
-    return Expanded(
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: _students.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final student = _students[index];
-          final logs = _attendanceData[student.studentId] ?? [];
-          final presentCount = logs.where((l) => l.status == 'Present').length;
-          final totalDays = logs.length;
-          final percentage = totalDays == 0 ? 0.0 : (presentCount / totalDays) * 100;
-
-          return Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).secondaryBackground,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Roll ${student.rollNo} • ${student.name}',
-                        style: FlutterFlowTheme.of(context).bodyLarge.override(
-                          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Present: $presentCount / $totalDays days',
-                        style: FlutterFlowTheme.of(context).labelSmall,
-                      ),
-                    ],
-                  ),
-                ),
-                _buildPercentageIndicator(percentage),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildPercentageIndicator(double percentage) {
-    final color = percentage >= 90 
-        ? Colors.green 
-        : (percentage >= 75 ? Colors.orange : Colors.red);
-        
+    final color = percentage >= 90
+        ? AppColors.success
+        : (percentage >= 75 ? AppColors.warning : AppColors.error);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withAlpha((0.1 * 255).toInt()),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withAlpha((0.5 * 255).toInt())),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppRadius.full),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         '${percentage.toStringAsFixed(1)}%',
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.bold,
-          fontSize: 14,
+          fontSize: 12,
         ),
       ),
     );

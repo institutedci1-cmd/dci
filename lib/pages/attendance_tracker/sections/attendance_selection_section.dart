@@ -5,23 +5,27 @@ import '../../../flutter_flow/flutter_flow_drop_down.dart';
 import '../../../flutter_flow/form_field_controller.dart';
 import '../../../flutter_flow/flutter_flow_util.dart';
 import '../../../components/shared/app_search_bar.dart';
-import '../../../components/shared/app_card.dart';
+import '../../../components/shared/app_button.dart';
 import '../attendance_tracker_model.dart';
 
 class AttendanceSelectionSection extends StatelessWidget {
   final AttendanceTrackerModel model;
   final List<String> classOptions;
-  final VoidCallback onClassChanged;
   final VoidCallback onDateChanged;
-  final VoidCallback onSubjectChanged;
+  final Function(String?) onClassChanged;
+  final Function(String?) onSubjectChanged;
+  final VoidCallback onFetchStudents;
+  final bool isLoading;
 
   const AttendanceSelectionSection({
     super.key,
     required this.model,
     required this.classOptions,
-    required this.onClassChanged,
     required this.onDateChanged,
+    required this.onClassChanged,
     required this.onSubjectChanged,
+    required this.onFetchStudents,
+    this.isLoading = false,
   });
 
   @override
@@ -29,7 +33,7 @@ class AttendanceSelectionSection extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
       child: Column(
         children: [
           Row(
@@ -39,7 +43,7 @@ class AttendanceSelectionSection extends StatelessWidget {
                   onTap: onDateChanged,
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   child: Container(
-                    height: 52,
+                    height: 48,
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
@@ -52,41 +56,45 @@ class AttendanceSelectionSection extends StatelessWidget {
                         const SizedBox(width: AppSpacing.sm),
                         Text(
                           dateTimeFormat('yMMMd', model.selectedDate),
-                          style: theme.textTheme.bodyMedium,
+                          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: FlutterFlowDropDown<String>(
                   controller: model.classDropdownController ??= FormFieldController<String>(model.selectedClass),
                   options: classOptions,
-                  onChanged: (val) {
-                    model.selectedClass = val;
-                    onClassChanged();
-                  },
-                  height: 52,
+                  onChanged: onClassChanged,
+                  height: 48,
                   hintText: 'Select Class',
                   fillColor: AppColors.surface,
                   borderRadius: AppRadius.md,
                   borderWidth: 1,
                   borderColor: AppColors.outline,
                   hidesUnderline: true,
-                  textStyle: theme.textTheme.bodyMedium ?? const TextStyle(),
+                  textStyle: theme.textTheme.bodyMedium?.copyWith(fontSize: 14) ?? const TextStyle(fontSize: 14),
                   elevation: 0,
-                  margin: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+                  margin: const EdgeInsetsDirectional.fromSTEB(AppSpacing.md, 0, AppSpacing.md, 0),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           AppSearchBar(
             controller: model.subjectFieldModel.inputTextController,
             hintText: 'Enter subject name...',
-            onChanged: (_) => onSubjectChanged(),
+            onChanged: onSubjectChanged,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          AppButton(
+            text: 'Load Student List',
+            onPressed: onFetchStudents,
+            isLoading: isLoading,
+            variant: AppButtonVariant.primary,
           ),
         ],
       ),

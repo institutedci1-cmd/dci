@@ -40,6 +40,9 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
   late TextFieldModel textFieldModel5;
   // Model for TextField (Remarks).
   late TextFieldModel textFieldModel6;
+  // Controllers for attendance
+  late TextEditingController presentController;
+  late TextEditingController absentController;
   // Model for Button.
   late ButtonModel buttonModel;
 
@@ -59,6 +62,11 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
         createModel(context, () => FormSectionHeaderModel());
     textFieldModel5 = createModel(context, () => TextFieldModel());
     textFieldModel6 = createModel(context, () => TextFieldModel());
+    dropdownValueController1 = FormFieldController<String>(null);
+    dropdownValueController2 = FormFieldController<String>(null);
+    dropdownValueController3 = FormFieldController<String>(null);
+    presentController = TextEditingController(text: '0');
+    absentController = TextEditingController(text: '0');
     buttonModel = createModel(context, () => ButtonModel());
 
     textFieldModel3.inputTextControllerValidator =
@@ -98,6 +106,8 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
     formSectionHeaderModel4.dispose();
     textFieldModel5.dispose();
     textFieldModel6.dispose();
+    presentController.dispose();
+    absentController.dispose();
     buttonModel.dispose();
   }
 }

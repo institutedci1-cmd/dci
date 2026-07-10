@@ -6,7 +6,6 @@ import '../../components/shared/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
 
 export 'notifications_model.dart';
 
@@ -76,7 +75,7 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
         padding: const EdgeInsets.only(right: 20),
         decoration: BoxDecoration(
           color: AppColors.error,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: const Icon(Icons.delete_outline, color: Colors.white),
       ),
@@ -87,9 +86,9 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
           }
         },
         padding: const EdgeInsets.all(AppSpacing.md),
-        color: item.isRead ? AppColors.surface : AppColors.accent.withOpacity(0.03),
+        color: item.isRead ? AppColors.surface : AppColors.accent.withValues(alpha: 0.03),
         border: BorderSide(
-          color: item.isRead ? AppColors.outline : AppColors.accent.withOpacity(0.2),
+          color: item.isRead ? AppColors.outline : AppColors.accent.withValues(alpha: 0.2),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +96,7 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
             Container(
               padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: (item.isRead ? AppColors.textTertiary : AppColors.accent).withOpacity(0.1),
+                color: (item.isRead ? AppColors.textTertiary : AppColors.accent).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -150,7 +149,7 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none_rounded, size: 64, color: AppColors.textTertiary),
+          Icon(Icons.notifications_none_rounded, size: 48, color: AppColors.textTertiary),
           const SizedBox(height: AppSpacing.md),
           Text(
             'No notifications yet',

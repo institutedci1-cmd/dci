@@ -6,31 +6,30 @@ import 'attendance_tracker_widget.dart' show AttendanceTrackerWidget;
 import 'package:flutter/material.dart';
 
 class AttendanceTrackerModel extends FlutterFlowModel<AttendanceTrackerWidget> {
-  // State fields for Class Dropdown
+  // --- UI State ---
+  bool isSaving = false;
+  bool isAlreadySubmitted = false;
+  bool sendWhatsAppAlerts = false;
+
+  // --- Form Fields ---
   String? selectedClass;
   FormFieldController<String>? classDropdownController;
-
-  // State field for Date
   DateTime? selectedDate;
-
-  // State field for Subject Text field
   late TextFieldModel subjectFieldModel;
-
-  // Search field
   late TextFieldModel searchFieldModel;
-  String searchQuery = '';
 
-  // Map of studentId to attendance status (Present, Absent)
-  Map<String, String> attendanceMap = {};
-
-  // Model for Save Button.
+  // --- Component Models ---
   late ButtonModel buttonModel;
 
   @override
   void initState(BuildContext context) {
     buttonModel = createModel(context, () => ButtonModel());
     searchFieldModel = createModel(context, () => TextFieldModel());
+    searchFieldModel.inputTextController = TextEditingController();
+    
     subjectFieldModel = createModel(context, () => TextFieldModel());
+    subjectFieldModel.inputTextController = TextEditingController();
+    
     selectedDate = DateTime.now();
   }
 

@@ -127,10 +127,8 @@ class ExcelService {
       }
 
       if (bytes == null) {
-        print('Excel Import: Bytes are null');
         return [];
       }
-      print('Excel Import: Read ${bytes.length} bytes');
 
       final excel = Excel.decodeBytes(bytes);
       final List<Map<String, String>> studentsData = [];
@@ -192,8 +190,6 @@ class ExcelService {
           if (name.isEmpty && studentId.isEmpty) continue;
 
           if (name.isEmpty || studentId.isEmpty || className.isEmpty) {
-            print(
-                'Excel Import: Skipping row $i due to missing required fields (Name: $name, ID: $studentId, Class: $className)');
             continue;
           }
 
@@ -226,7 +222,6 @@ class ExcelService {
       }
       return studentsData;
     } catch (e) {
-      print('Excel import error: $e');
       return [];
     }
   }
@@ -245,12 +240,11 @@ class ExcelService {
         await file.writeAsBytes(bytes);
         await Share.shareXFiles(
           [XFile(path)],
-          text: 'Exported Excel File',
+          subject: 'Exported Excel File',
         );
       }
       return true;
     } catch (e) {
-      print('Excel export error: $e');
       return false;
     }
   }

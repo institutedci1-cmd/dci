@@ -33,11 +33,15 @@ class AppSectionHeader extends StatelessWidget {
                     Icon(icon, size: 20, color: AppColors.primary),
                     const SizedBox(width: AppSpacing.sm),
                   ],
-                  Text(
-                    title,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ),
                 ],

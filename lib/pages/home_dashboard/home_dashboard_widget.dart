@@ -52,101 +52,170 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: AppColors.background,
-        body: currentUserUid.isEmpty
-            ? const Center(child: CircularProgressIndicator())
-            : StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(currentUserUid)
-                    .snapshots(),
-                builder: (context, userSnapshot) {
-                  final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
 
-                  return CustomScrollView(
-                    slivers: [
-                      _buildSliverAppBar(context, userData),
-                      SliverPadding(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate([
-                            const AppSectionHeader(
-                              title: 'Management Modules',
-                              subtitle: 'Quick access to school operations',
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            _buildModulesGrid(context),
-                            const SizedBox(height: AppSpacing.xl),
-                            _buildRecentActivitySection(context),
-                            const SizedBox(height: AppSpacing.xl),
-                            _buildAIHelpSection(context),
-                            const SizedBox(height: AppSpacing.xxl),
-                          ]),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
         bottomNavigationBar: _buildBottomNavBar(context),
+
+        body: SafeArea(
+          child: currentUserUid.isEmpty
+              ? const Center(
+            child: CircularProgressIndicator(),
+          )
+              : StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(currentUserUid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState ==
+                  ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              final userData = snapshot.data?.data();
+
+              return Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+
+                    // Header
+                    _buildDashboardHeader(
+                      context,
+                      userData,
+                    ),
+
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Six Modules
+                    _buildModulesGrid(context),
+
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Recent Activity
+                    Expanded(
+                      child: _buildRecentActivitySection(context),
+                    ),
+
+                    const SizedBox(height: AppSpacing.md),
+
+                    // AI Card
+                    _buildAIHelpSection(context),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context, Map<String, dynamic>? userData) {
-    final theme = Theme.of(context);
-    
-    return SliverAppBar(
-      expandedHeight: 140.0,
-      floating: false,
-      pinned: true,
-      backgroundColor: AppColors.primary,
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          color: AppColors.primary,
-          child: Stack(
+  Widget _buildDashboardHeader(
+      BuildContext context,
+      Map<String, dynamic>? userData,
+      ) {
+    final displayName =
+    (userData?['display_name'] as String?)
+        ?.trim()
+        .isNotEmpty ==
+        true
+        ? userData!['display_name']
+        : (currentUserDisplayName.isNotEmpty
+        ? currentUserDisplayName
+        : 'Teacher');
+
+    return Container(
+      height: 90,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 16,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              mainAxisAlignment:
+              MainAxisAlignment.center,
+              children: [
+
+                Text(
+                  'Welcome',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(
+                    color: Colors.white70,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  displayName.toString(),
+                  maxLines: 1,
+                  overflow:
+                  TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(
+                    color: Colors.white,
+                    fontWeight:
+                    FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Stack(
             children: [
-              // Subtle background pattern or circles could go here for "Premium" feel
-              Positioned(
-                right: -20,
-                top: -20,
-                child: CircleAvatar(
-                  radius: 80,
-                  backgroundColor: Colors.white.withOpacity(0.03),
+
+              IconButton(
+                onPressed: () {
+                  context.pushNamed(
+                    NotificationsWidget.routeName,
+                  );
+                },
+                icon: const Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.white,
                 ),
               ),
+
             ],
           ),
-        ),
-        titlePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome back,',
-              style: theme.textTheme.labelSmall?.copyWith(color: Colors.white70),
+
+          IconButton(
+            onPressed: () async {
+
+              await ref
+                  .read(authRepositoryProvider)
+                  .signOut();
+
+              if (!context.mounted) return;
+
+              context.goNamed(
+                LoginWidget.routeName,
+              );
+            },
+            icon: const Icon(
+              Icons.logout_rounded,
+              color: Colors.white,
             ),
-            Text(
-              userData?['display_name'] ?? currentUserDisplayName != '' ? currentUserDisplayName : 'Teacher',
-              style: theme.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
-      actions: [
-        _buildNotificationAction(context),
-        IconButton(
-          icon: const Icon(Icons.logout_rounded, color: Colors.white),
-          onPressed: () async {
-            await ref.read(authRepositoryProvider).signOut();
-            if (!context.mounted) return;
-            context.goNamed(LoginWidget.routeName);
-          },
-        ),
-        const SizedBox(width: AppSpacing.sm),
-      ],
     );
   }
 
@@ -188,142 +257,333 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
   }
 
   Widget _buildModulesGrid(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: AppSpacing.md,
-      mainAxisSpacing: AppSpacing.md,
-      childAspectRatio: 1.4,
-      children: const [
-        DashboardCardWidget(
-          target: 'DailyReport',
-          title: 'Daily Report',
-          icon: Icon(Icons.assessment_rounded),
-        ),
-        DashboardCardWidget(
-          target: 'Attendance',
-          title: 'Attendance',
-          icon: Icon(Icons.fact_check_rounded),
-        ),
-        DashboardCardWidget(
-          target: 'Homework',
-          title: 'Homework',
-          icon: Icon(Icons.edit_note_rounded),
-        ),
-        DashboardCardWidget(
-          target: 'Students',
-          title: 'Students',
-          icon: Icon(Icons.people_rounded),
-        ),
-        DashboardCardWidget(
-          target: 'Announcements',
-          title: 'Notices',
-          icon: Icon(Icons.campaign_rounded),
-        ),
-        DashboardCardWidget(
-          target: 'TeacherProfile',
-          title: 'My Profile',
-          icon: Icon(Icons.person_rounded),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentActivitySection(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppSectionHeader(
-          title: 'Recent Activity',
-          action: TextButton(
-            onPressed: () => context.pushNamed(ReportHistoryWidget.routeName),
-            child: const Text('View All'),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        StreamBuilder<List<DailyReport>>(
-          stream: ref.read(dailyReportRepositoryProvider).getRecentReports(limit: 3),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final reports = snapshot.data ?? [];
-            if (reports.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
-                child: Center(
-                  child: Text('No recent activity found.', style: Theme.of(context).textTheme.bodySmall),
-                ),
-              );
-            }
-            return Column(
-              children: reports.map((report) {
-                return RecentActivityItemWidget(
-                  title: '${report.className} - ${report.subject}',
-                  subtitle: 'Topic: ${report.chapter} • ${dateTimeFormat('yMMMd', report.createdAt)}',
-                  onTap: () => context.pushNamed(ReportHistoryWidget.routeName),
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAIHelpSection(BuildContext context) {
-    return AppCard(
-      onTap: () {}, // Link to AI help
-      color: AppColors.accent.withOpacity(0.05),
-      border: const BorderSide(color: AppColors.accent, width: 0.5),
-      child: Row(
+    return const SizedBox(
+      height: 300,
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.accent,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
-            child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: AppSpacing.md),
+
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text('Deshmukh AI Assistant', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.accent)),
-                Text('Get help with lesson planning or data analysis.', style: Theme.of(context).textTheme.bodySmall),
+
+                Expanded(
+                  child: DashboardCardWidget(
+                    target: 'DailyReport',
+                    title: 'Daily Report',
+                    icon: Icon(Icons.assessment_rounded),
+                  ),
+                ),
+
+                SizedBox(width: AppSpacing.md),
+
+                Expanded(
+                  child: DashboardCardWidget(
+                    target: 'Attendance',
+                    title: 'Attendance',
+                    icon: Icon(Icons.fact_check_rounded),
+                  ),
+                ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.accent),
+
+          SizedBox(height: AppSpacing.md),
+
+          Expanded(
+            child: Row(
+              children: [
+
+                Expanded(
+                  child: DashboardCardWidget(
+                    target: 'Homework',
+                    title: 'Homework',
+                    icon: Icon(Icons.edit_note_rounded),
+                  ),
+                ),
+
+                SizedBox(width: AppSpacing.md),
+
+                Expanded(
+                  child: DashboardCardWidget(
+                    target: 'Students',
+                    title: 'Students',
+                    icon: Icon(Icons.people_rounded),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: AppSpacing.md),
+
+          Expanded(
+            child: Row(
+              children: [
+
+                Expanded(
+                  child: DashboardCardWidget(
+                    target: 'Announcements',
+                    title: 'Notices',
+                    icon: Icon(Icons.campaign_rounded),
+                  ),
+                ),
+
+                SizedBox(width: AppSpacing.md),
+
+                Expanded(
+                  child: DashboardCardWidget(
+                    target: 'TeacherProfile',
+                    title: 'My Profile',
+                    icon: Icon(Icons.person_rounded),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomNavBar(BuildContext context) {
+  Widget _buildRecentActivitySection(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.outline, width: 1)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.outline.withOpacity(0.2),
+        ),
       ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            Row(
+              mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
+              children: [
+
+                Text(
+                  'Recent Activity',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                TextButton(
+                  onPressed: () {
+                    context.pushNamed(
+                      ReportHistoryWidget.routeName,
+                    );
+                  },
+                  child: const Text('View All'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            Expanded(
+              child: StreamBuilder<List<DailyReport>>(
+                stream: ref
+                    .read(dailyReportRepositoryProvider)
+                    .getRecentReports(limit: 2),
+                builder: (context, snapshot) {
+
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text(
+                        'Unable to load reports',
+                      ),
+                    );
+                  }
+
+                  final reports = snapshot.data ?? [];
+
+                  if (reports.isEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+
+                          Icon(
+                            Icons.history,
+                            size: 42,
+                            color: Colors.grey,
+                          ),
+
+                          SizedBox(height: 12),
+
+                          Text(
+                            'No recent activity',
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    physics:
+                    const NeverScrollableScrollPhysics(),
+                    itemCount: reports.length,
+                    separatorBuilder: (_, __) =>
+                    const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+
+                      final report = reports[index];
+
+                      return RecentActivityItemWidget(
+                        title:
+                        '${report.className} • ${report.subject}',
+
+                        subtitle:
+                        report.chapter,
+
+                        onTap: () {
+                          context.pushNamed(
+                            ReportHistoryWidget
+                                .routeName,
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAIHelpSection(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          // TODO: AI Assistant
+        },
+        child: Ink(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.primary.withOpacity(.15),
+            ),
+          ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavBarItem(context, Icons.home_rounded, 'Home', true, () {}),
-              _buildNavBarItem(context, Icons.description_outlined, 'Reports', false, () => context.goNamed(ReportsDashboardWidget.routeName)),
-              _buildNavBarItem(context, Icons.event_note_outlined, 'Attend.', false, () => context.goNamed(AttendanceDashboardWidget.routeName)),
-              _buildNavBarItem(context, Icons.account_circle_outlined, 'Profile', false, () => context.goNamed(TeacherProfileWidget.routeName)),
+
+              Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.white,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  children: [
+
+                    Text(
+                      'DCI AI Assistant',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    Text(
+                      'Lesson plans, homework & reports',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 18,
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBottomNavBar(BuildContext context) {
+    return NavigationBar(
+      height: 64,
+      selectedIndex: 0,
+      onDestinationSelected: (index) {
+        switch (index) {
+          case 0:
+            break;
+          case 1:
+            context.goNamed(ReportsDashboardWidget.routeName);
+            break;
+          case 2:
+            context.goNamed(AttendanceDashboardWidget.routeName);
+            break;
+          case 3:
+            context.goNamed(TeacherProfileWidget.routeName);
+            break;
+        }
+      },
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.description_outlined),
+          selectedIcon: Icon(Icons.description),
+          label: 'Reports',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.event_note_outlined),
+          selectedIcon: Icon(Icons.event_note),
+          label: 'Attend',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
     );
   }
 

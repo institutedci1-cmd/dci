@@ -21,10 +21,10 @@ class AppSearchBar extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      height: 52,
+      height: 48,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: AppRadius.card,
         border: Border.all(
           color: AppColors.outline,
           width: 1,
@@ -49,10 +49,13 @@ class AppSearchBar extends StatelessWidget {
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                hintStyle: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textTertiary),
+                contentPadding: EdgeInsets.zero,
+                hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textTertiary,
+                  fontSize: 14,
+                ),
               ),
-              style: theme.textTheme.bodyMedium,
+              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
             ),
           ),
           if (controller != null && controller!.text.isNotEmpty)

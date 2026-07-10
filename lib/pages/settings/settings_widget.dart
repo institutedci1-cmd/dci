@@ -6,7 +6,6 @@ import '/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
 
 export 'settings_model.dart';
 
@@ -72,19 +71,22 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
 
     return AppCard(
       padding: EdgeInsets.zero,
-      child: SwitchListTile.adaptive(
-        value: isDarkMode,
-        onChanged: (val) {
-          final newMode = val ? ThemeMode.dark : ThemeMode.light;
-          MyApp.of(context).setThemeMode(newMode);
-        },
-        activeColor: AppColors.accent,
-        secondary: Icon(
-          isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-          color: AppColors.primary,
+      child: Material(
+        color: Colors.transparent,
+        child: SwitchListTile.adaptive(
+          value: isDarkMode,
+          onChanged: (val) {
+            final newMode = val ? ThemeMode.dark : ThemeMode.light;
+            MyApp.of(context).setThemeMode(newMode);
+          },
+          activeColor: AppColors.accent,
+          secondary: Icon(
+            isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+            color: AppColors.primary,
+          ),
+          title: Text('Dark Mode', style: Theme.of(context).textTheme.bodyLarge),
+          subtitle: Text('Toggle app appearance', style: Theme.of(context).textTheme.labelSmall),
         ),
-        title: Text('Dark Mode', style: Theme.of(context).textTheme.bodyLarge),
-        subtitle: Text('Toggle app appearance', style: Theme.of(context).textTheme.labelSmall),
       ),
     );
   }

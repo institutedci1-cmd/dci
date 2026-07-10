@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/button/button_widget.dart';
@@ -65,17 +64,19 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
   }
 
   Future<void> _pickAndUploadImage() async {
-    final result = await FilePicker.pickFiles(
+    final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: false,
+      withData: true,
     );
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null && result.files.single.bytes != null) {
       setState(() => _isUploading = true);
       try {
         final repository = ref.read(userRepositoryProvider);
-        final file = File(result.files.single.path!);
-        final newUrl = await repository.uploadProfilePicture(file);
+        final file = result.files.single;
+        final extension = file.extension != null ? '.${file.extension}' : '.jpg';
+        final newUrl = await repository.uploadProfilePicture(file.bytes!, extension);
         
         if (newUrl != null && mounted) {
           setState(() {
@@ -110,10 +111,22 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
         employeeId: _model.textFieldModel7.inputTextController?.text ?? '',
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Success'),
+          content: const Text('Profile updated successfully!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.safePop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
       );
-      context.safePop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

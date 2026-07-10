@@ -247,7 +247,9 @@ class FirebaseAuthManager extends AuthManager
           phoneAuthManager.triggerOnCodeSent = false;
           phoneAuthManager.phoneAuthError = e;
         });
-        completer.complete(false);
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
       },
       codeSent: (verificationId, _) {
         phoneAuthManager.update(() {
@@ -255,7 +257,9 @@ class FirebaseAuthManager extends AuthManager
           phoneAuthManager.triggerOnCodeSent = true;
           phoneAuthManager.phoneAuthError = null;
         });
-        completer.complete(true);
+        if (!completer.isCompleted) {
+          completer.complete(true);
+        }
       },
       codeAutoRetrievalTimeout: (_) {},
     );

@@ -1,7 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/profile_header/profile_header_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import '/backend/services/pdf_service.dart';
@@ -12,7 +11,6 @@ import '/components/shared/app_button.dart';
 import '/components/shared/app_section_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 export 'teacher_profile_model.dart';
 
@@ -108,7 +106,9 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
       flexibleSpace: FlexibleSpaceBar(
         background: ProfileHeaderWidget(
           designation: userData?['designation'] ?? 'Senior Faculty',
-          name: userData?['display_name'] ?? currentUserDisplayName != '' ? currentUserDisplayName : 'Teacher',
+          name: (userData?['display_name']?.toString().isNotEmpty ?? false)
+              ? userData!['display_name']
+              : (currentUserDisplayName.isNotEmpty ? currentUserDisplayName : 'Teacher'),
           photoUrl: userData?['photo_url'] ?? currentUserPhoto,
         ),
       ),
@@ -175,12 +175,15 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
       padding: EdgeInsets.zero,
       child: Column(
         children: [
-          SwitchListTile.adaptive(
-            value: userData?['notifications_enabled'] ?? true,
-            onChanged: (val) => ref.read(userRepositoryProvider).updateNotificationSettings(val),
-            title: Text('Push Notifications', style: Theme.of(context).textTheme.bodyLarge),
-            subtitle: Text('Receive alerts for school events', style: Theme.of(context).textTheme.bodySmall),
-            activeColor: AppColors.accent,
+          Material(
+            color: Colors.transparent,
+            child: SwitchListTile.adaptive(
+              value: userData?['notifications_enabled'] ?? true,
+              onChanged: (val) => ref.read(userRepositoryProvider).updateNotificationSettings(val),
+              title: Text('Push Notifications', style: Theme.of(context).textTheme.bodyLarge),
+              subtitle: Text('Receive alerts for school events', style: Theme.of(context).textTheme.bodySmall),
+              activeColor: AppColors.accent,
+            ),
           ),
           const Divider(height: 1),
           ListTile(
@@ -204,8 +207,18 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: Theme.of(context).textTheme.labelSmall),
-                Text(value, style: Theme.of(context).textTheme.bodyLarge),
+                Text(
+                  label, 
+                  style: Theme.of(context).textTheme.labelSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  value, 
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
@@ -216,10 +229,18 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
 
   Widget _buildDetailRow(BuildContext context, String label, String value) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: Theme.of(context).textTheme.labelLarge),
-        Text(value, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            value, 
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }

@@ -5,11 +5,8 @@ import 'package:provider/provider.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
-import '../../backend/models/student.dart';
-import '/pages/edit_student/edit_student_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-
 import '/index.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';

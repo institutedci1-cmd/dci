@@ -24,32 +24,65 @@ class DailyReportRepository {
     return reports.isNotEmpty ? reports.first : null;
   }
 
+  Future<List<List<DailyReport>>> getReportsPaginated({int limit = 20}) async {
+    return [];
+  }
+
   Future<List<DailyReport>> getReports({int limit = 20}) async {
     final user = _auth.currentUser;
     if (user == null) return [];
 
-    final querySnapshot = await _reportsCollection
-        .where('createdBy', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
-        .get();
+    try {
+      final querySnapshot = await _reportsCollection
+          .limit(limit)
+          .get();
 
-    return querySnapshot.docs
-        .map((doc) => DailyReport.fromFirestore(doc))
-        .toList();
+      final reports = querySnapshot.docs
+          .map((doc) => DailyReport.fromFirestore(doc))
+          .toList();
+          
+      reports.sort((a, b) => (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+      return reports;
+    } catch (e) {
+      return [];
+    }
   }
 
-  Stream<List<DailyReport>> getRecentReports({int limit = 3}) {
+  Stream<List<DailyReport>> getRecentReports({int limit = 10}) {
     final user = _auth.currentUser;
-    if (user == null) return Stream.value([]);
+    if (user == null) {
+      return Stream.value([]);
+    }
 
     return _reportsCollection
-        .where('createdBy', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => DailyReport.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          final reports = snapshot.docs
+              .map((doc) {
+                try {
+                  return DailyReport.fromFirestore(doc);
+                } catch (e) {
+                  return null;
+                }
+              })
+              .whereType<DailyReport>()
+              .toList();
+          
+          reports.sort((a, b) => (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+          return reports;
+        }).handleError((error) {
+          return <DailyReport>[];
+        });
+  }
+
+  Future<void> updateReport(DailyReport report) async {
+    if (report.id.isEmpty) return;
+    await _reportsCollection.doc(report.id).set(report.toFirestore(), SetOptions(merge: true));
+  }
+
+  Future<void> deleteReport(String id) async {
+    if (id.isEmpty) return;
+    await _reportsCollection.doc(id).delete();
   }
 }

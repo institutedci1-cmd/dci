@@ -4,12 +4,14 @@ import '/backend/services/validation_service.dart';
 import '/components/auth_header/auth_header_widget.dart';
 import '/components/button/button_widget.dart';
 import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 export 'login_model.dart';
 
 class LoginWidget extends ConsumerStatefulWidget {
@@ -33,12 +35,24 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => LoginModel());
+    _loadRememberedUser();
   }
 
   @override
   void dispose() {
     _model.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRememberedUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('remembered_email');
+    if (savedEmail != null && savedEmail.isNotEmpty) {
+      safeSetState(() {
+        _model.textFieldModel1.inputTextController?.text = savedEmail;
+        _model.rememberMe = true;
+      });
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -53,6 +67,13 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
       
       final authRepository = ref.read(authRepositoryProvider);
       await authRepository.signInWithEmail(email, password);
+
+      final prefs = await SharedPreferences.getInstance();
+      if (_model.rememberMe) {
+        await prefs.setString('remembered_email', email);
+      } else {
+        await prefs.remove('remembered_email');
+      }
 
       if (!mounted) return;
       context.goNamed(HomeDashboardWidget.routeName);
@@ -92,13 +113,13 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40.0),
                 wrapWithModel(
                   model: _model.authHeaderModel,
                   updateCallback: () => safeSetState(() {}),
@@ -106,7 +127,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
                 ),
                 const SizedBox(height: 32.0),
                 _buildLoginCard(context),
-                const SizedBox(height: 32.0),
+                const SizedBox(height: 24.0),
                 _buildFooterLinks(context),
               ],
             ),
@@ -119,10 +140,18 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
   Widget _buildLoginCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(24.0),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: AppColors.outline),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(32.0),
+      padding: const EdgeInsets.all(24.0),
       child: Form(
         key: _formKey,
         child: Column(
@@ -140,39 +169,17 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
     );
   }
 
-  Widget _buildPhoneLoginButton(BuildContext context) {
-    return wrapWithModel(
-      model: _model.buttonModel3,
-      updateCallback: () => safeSetState(() {}),
-      child: ButtonWidget(
-        icon: const Icon(Icons.phone_android_rounded, size: 20),
-        iconPresent: true,
-        content: 'Sign in with Phone',
-        variant: 'outline',
-        size: 'large',
-        fullWidth: true,
-        onPressed: () => context.pushNamed(PhoneLoginWidget.routeName),
-      ),
-    );
-  }
-
   Widget _buildLoginTitle(BuildContext context) {
     return Column(
       children: [
         Text(
-          'Welcome Back',
-          style: FlutterFlowTheme.of(context).titleLarge.override(
-            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-            fontWeight: FontWeight.bold,
-          ),
+          'Teacher Portal',
+          style: AppTypography.h1.copyWith(color: AppColors.primary),
         ),
         const SizedBox(height: 4.0),
         Text(
-          'Sign in to manage your classes',
-          style: FlutterFlowTheme.of(context).bodyMedium.override(
-            font: GoogleFonts.inter(),
-            color: FlutterFlowTheme.of(context).secondaryText,
-          ),
+          'Login to manage your dashboard',
+          style: AppTypography.secondaryText,
         ),
       ],
     );
@@ -197,27 +204,51 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
         wrapWithModel(
           model: _model.textFieldModel2,
           updateCallback: () => safeSetState(() {}),
-          child: TextFieldWidget(
+          child: const TextFieldWidget(
             label: 'Password',
             hint: 'Enter your password',
-            leadingIcon: const Icon(Icons.lock_outlined, size: 20),
+            leadingIcon: Icon(Icons.lock_outlined, size: 20),
             leadingIconPresent: true,
             obscureText: true,
-            validator: (val) => ValidationService.validateRequired(val, 'Password'),
+            validator: ValidationService.validatePassword,
           ),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: _handleResetPassword,
-            child: Text(
-              'Forgot Password?',
-              style: FlutterFlowTheme.of(context).bodySmall.override(
-                font: GoogleFonts.inter(),
-                color: FlutterFlowTheme.of(context).primary,
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: () => setState(() => _model.rememberMe = !_model.rememberMe),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: Checkbox(
+                      value: _model.rememberMe,
+                      onChanged: (val) => setState(() => _model.rememberMe = val ?? false),
+                      activeColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('Remember Me', style: AppTypography.caption),
+                ],
               ),
             ),
-          ),
+            TextButton(
+              onPressed: _handleResetPassword,
+              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+              child: Text(
+                'Forgot Password?',
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -228,12 +259,28 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
       model: _model.buttonModel2,
       updateCallback: () => safeSetState(() {}),
       child: ButtonWidget(
-        content: 'Login to Dashboard',
+        content: 'Sign In',
         variant: 'primary',
         size: 'large',
         fullWidth: true,
         loading: _isLoading,
         onPressed: _handleLogin,
+      ),
+    );
+  }
+
+  Widget _buildPhoneLoginButton(BuildContext context) {
+    return wrapWithModel(
+      model: _model.buttonModel3,
+      updateCallback: () => safeSetState(() {}),
+      child: ButtonWidget(
+        icon: const Icon(Icons.phone_android_rounded, size: 20),
+        iconPresent: true,
+        content: 'Sign in with Phone',
+        variant: 'outline',
+        size: 'large',
+        fullWidth: true,
+        onPressed: () => context.pushNamed(PhoneLoginWidget.routeName),
       ),
     );
   }
@@ -244,34 +291,14 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Need help?', style: FlutterFlowTheme.of(context).bodySmall),
-            const SizedBox(width: 4),
-            InkWell(
-              onTap: () => launchURL('mailto:admin@deshmukhcoaching.com'),
-              child: Text(
-                'Contact Admin',
-                style: FlutterFlowTheme.of(context).bodySmall.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                  color: FlutterFlowTheme.of(context).primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Don\'t have an account?', style: FlutterFlowTheme.of(context).bodySmall),
+            Text('Don\'t have an account?', style: AppTypography.caption),
             const SizedBox(width: 4),
             InkWell(
               onTap: () => context.pushNamed(SignUpWidget.routeName),
               child: Text(
                 'Sign Up',
-                style: FlutterFlowTheme.of(context).bodySmall.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                  color: FlutterFlowTheme.of(context).primary,
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -279,7 +306,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
           ],
         ),
         const SizedBox(height: 20),
-        Text('Version 1.0.5 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
+        Text('Version 1.0.6 (Enterprise)', style: AppTypography.caption),
       ],
     );
   }

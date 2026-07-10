@@ -75,7 +75,24 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
     try {
       final updatedStudent = _model.toStudent(docId, existing: widget.student);
       await ref.read(studentRepositoryProvider).updateStudent(updatedStudent);
-      if (mounted) context.safePop();
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Success'),
+            content: Text(widget.student == null ? 'Student added successfully!' : 'Student details updated!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.safePop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
@@ -144,7 +161,7 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.outline, width: 2),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
               ],
             ),
             child: ClipRRect(

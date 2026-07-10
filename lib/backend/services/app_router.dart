@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../models/daily_report.dart';
+import '../models/homework.dart';
 import '../providers/repository_providers.dart';
-import '/index.dart';
+import '../../index.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
@@ -54,7 +56,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         name: DailyReportFormWidget.routeName,
         path: DailyReportFormWidget.routePath,
-        builder: (context, state) => const DailyReportFormWidget(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final DailyReport? report = extra?['initialReport'];
+          return DailyReportFormWidget(initialReport: report);
+        },
       ),
       GoRoute(
         name: ReportsDashboardWidget.routeName,
@@ -103,7 +109,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         name: HomeworkAssignmentWidget.routeName,
         path: HomeworkAssignmentWidget.routePath,
-        builder: (context, state) => const HomeworkAssignmentWidget(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final Homework? initialHomework = extra?['initialHomework'];
+          return HomeworkAssignmentWidget(initialHomework: initialHomework);
+        },
       ),
       GoRoute(
         name: HomeworkHistoryWidget.routeName,

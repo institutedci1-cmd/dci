@@ -26,6 +26,11 @@ class AttendanceStudentCard extends StatelessWidget {
     return AppCard(
       onTap: onTap,
       padding: EdgeInsets.zero,
+      elevation: 0,
+      border: BorderSide(
+        color: statusColor.withValues(alpha: 0.2),
+        width: 1,
+      ),
       child: IntrinsicHeight(
         child: Row(
           children: [
@@ -33,28 +38,30 @@ class AttendanceStudentCard extends StatelessWidget {
               width: 4,
               color: statusColor,
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: AppSpacing.sm),
             Checkbox(
               value: isPresent,
               activeColor: AppColors.success,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
               onChanged: (_) => onTap(),
             ),
-            const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       name,
-                      style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                     ),
                     Text(
                       'Roll No: $rollNo',
-                      style: theme.textTheme.labelSmall,
+                      style: theme.textTheme.labelSmall?.copyWith(fontSize: 12),
                     ),
                   ],
                 ),
@@ -62,9 +69,9 @@ class AttendanceStudentCard extends StatelessWidget {
             ),
             Container(
               margin: const EdgeInsets.only(right: AppSpacing.md),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppRadius.full),
               ),
               child: Text(

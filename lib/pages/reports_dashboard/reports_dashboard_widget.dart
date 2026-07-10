@@ -1,4 +1,3 @@
-import '/backend/models/daily_report.dart';
 import '/backend/providers/repository_providers.dart';
 import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';

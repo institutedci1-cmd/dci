@@ -82,13 +82,39 @@ class AttendanceRepository {
     if (user == null) return Stream.value([]);
 
     return _studentAttendanceCollection
-        .where('markedBy', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true)
+        // .where('markedBy', isEqualTo: user.uid)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => StudentAttendance.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          final logs = snapshot.docs
+              .map((doc) => StudentAttendance.fromFirestore(doc))
+              .toList();
+          // Manual sort
+          logs.sort((a, b) => (b.date).compareTo(a.date));
+          return logs;
+        });
+  }
+
+  Future<QuerySnapshot> getPaginatedAttendanceLogs({
+    int limit = 20,
+    DocumentSnapshot? startAfter,
+    String? className,
+    String? status,
+  }) async {
+    Query query = _studentAttendanceCollection.orderBy('date', descending: true);
+
+    if (className != null && className.isNotEmpty) {
+      query = query.where('class', isEqualTo: className);
+    }
+    if (status != null && status.isNotEmpty) {
+      query = query.where('status', isEqualTo: status);
+    }
+
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
+
+    return query.limit(limit).get();
   }
 
   Future<List<StudentAttendance>> getMonthlyAttendance(String className, DateTime month) async {

@@ -67,8 +67,6 @@ class StudentRepository {
   }
 
   Future<void> bulkAddStudents(List<Map<String, String>> studentsData) async {
-    print('StudentRepository: Starting bulk add for ${studentsData.length} students');
-    
     // Validation: Collect errors for a report
     final List<String> errors = [];
     final Set<String> seenIds = {};
@@ -140,14 +138,8 @@ class StudentRepository {
       }
       
       try {
-        if (errors.isNotEmpty) {
-          print('StudentRepository: Validation failed for some rows: ${errors.join(", ")}');
-          // For now we just log, but in a real app we might want to return these to UI
-        }
         await currentBatch.commit();
-        print('StudentRepository: Committed batch of ${chunk.length} students');
       } catch (e) {
-        print('StudentRepository: Error committing batch: $e');
         rethrow;
       }
     }

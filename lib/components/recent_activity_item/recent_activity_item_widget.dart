@@ -1,5 +1,4 @@
 import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,12 +17,12 @@ class RecentActivityItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 6.0),
       child: Material(
         color: FlutterFlowTheme.of(context).secondaryBackground,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(10.0),
           side: BorderSide(
             color: FlutterFlowTheme.of(context).alternate,
           ),
@@ -31,22 +30,22 @@ class RecentActivityItemWidget extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
             child: Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
                     color: FlutterFlowTheme.of(context).primary10,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Icon(Icons.history_rounded, 
-                    size: 18, 
+                  child: Icon(Icons.history_rounded,
+                    size: 16, 
                     color: FlutterFlowTheme.of(context).primary
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +55,7 @@ class RecentActivityItemWidget extends StatelessWidget {
                         maxLines: 1,
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                              fontSize: 13,
+                              fontSize: 12,
                               overflow: TextOverflow.ellipsis,
                             ),
                       ),
@@ -65,15 +64,15 @@ class RecentActivityItemWidget extends StatelessWidget {
                         maxLines: 1,
                         style: FlutterFlowTheme.of(context).labelSmall.override(
                               font: GoogleFonts.inter(),
-                              fontSize: 11,
+                              fontSize: 10,
                               overflow: TextOverflow.ellipsis,
                             ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, 
-                  size: 20, 
+                Icon(Icons.chevron_right_rounded,
+                  size: 18, 
                   color: FlutterFlowTheme.of(context).secondaryText
                 ),
               ],

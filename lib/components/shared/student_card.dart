@@ -32,20 +32,31 @@ class StudentCard extends StatelessWidget {
               children: [
                 Text(
                   student.name,
-                  style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Wrap(
-                  spacing: AppSpacing.md,
-                  runSpacing: 2,
+                const SizedBox(height: 2),
+                Row(
                   children: [
-                    _buildInfoItem(context, Icons.tag_rounded, 'Roll ${student.rollNo}'),
-                    _buildInfoItem(context, Icons.class_rounded, student.className),
+                    _buildInfoText(context, 'Roll: ${student.rollNo}'),
+                    _buildDot(context),
+                    _buildInfoText(context, student.className),
                   ],
                 ),
                 if (student.parentPhone != null && student.parentPhone!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  _buildInfoItem(context, Icons.phone_rounded, student.parentPhone!),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(Icons.phone_outlined, size: 12, color: AppColors.textTertiary),
+                      const SizedBox(width: 4),
+                      Text(
+                        student.parentPhone!,
+                        style: theme.textTheme.labelSmall?.copyWith(fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ],
               ],
             ),
@@ -53,7 +64,7 @@ class StudentCard extends StatelessWidget {
           const Icon(
             Icons.chevron_right_rounded,
             color: AppColors.textTertiary,
-            size: 20,
+            size: 18,
           ),
         ],
       ),
@@ -63,8 +74,8 @@ class StudentCard extends StatelessWidget {
   Widget _buildAvatar(BuildContext context) {
     final initials = student.name.trim().isEmpty ? '?' : student.name.trim()[0].toUpperCase();
     return Container(
-      width: 48,
-      height: 48,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
         color: AppColors.primary10,
         shape: BoxShape.circle,
@@ -72,31 +83,39 @@ class StudentCard extends StatelessWidget {
       child: Center(
         child: student.photoUrl != null && student.photoUrl!.isNotEmpty
             ? ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.network(student.photoUrl!, fit: BoxFit.cover, width: 48, height: 48),
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(student.photoUrl!, fit: BoxFit.cover, width: 40, height: 40),
               )
             : Text(
                 initials,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
       ),
     );
   }
 
-  Widget _buildInfoItem(BuildContext context, IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14, color: AppColors.textTertiary),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: Theme.of(context).textTheme.labelSmall,
+  Widget _buildInfoText(BuildContext context, String text) {
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
+    );
+  }
+
+  Widget _buildDot(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Container(
+        width: 3,
+        height: 3,
+        decoration: const BoxDecoration(
+          color: AppColors.textTertiary,
+          shape: BoxShape.circle,
         ),
-      ],
+      ),
     );
   }
 }

@@ -14,6 +14,7 @@ class AppTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool readOnly;
   final VoidCallback? onTap;
+  final Function(String)? onChanged;
 
   const AppTextField({
     super.key,
@@ -28,6 +29,7 @@ class AppTextField extends StatelessWidget {
     this.suffixIcon,
     this.readOnly = false,
     this.onTap,
+    this.onChanged,
   });
 
   @override
@@ -39,7 +41,9 @@ class AppTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: theme.textTheme.labelLarge?.copyWith(
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
         ),
@@ -52,12 +56,20 @@ class AppTextField extends StatelessWidget {
           maxLines: maxLines,
           readOnly: readOnly,
           onTap: onTap,
-          style: theme.textTheme.bodyMedium,
+          onChanged: onChanged,
+          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 14),
           decoration: InputDecoration(
             hintText: hintText,
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20, color: AppColors.textSecondary) : null,
+            prefixIcon: prefixIcon != null 
+                ? Icon(prefixIcon, size: 20, color: AppColors.textSecondary) 
+                : null,
             suffixIcon: suffixIcon,
             counterText: '',
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: 14, // Adjusted for ~48dp overall height
+            ),
           ),
         ),
       ],

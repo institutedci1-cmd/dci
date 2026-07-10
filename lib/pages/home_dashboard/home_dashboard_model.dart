@@ -1,4 +1,3 @@
-import '/components/dashboard_card/dashboard_card_widget.dart';
 import '/components/dashboard_card/dashboard_card_model.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';

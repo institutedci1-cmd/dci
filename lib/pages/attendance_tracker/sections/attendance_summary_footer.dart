@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../shared/app_style.dart';
 import '../../../shared/app_colors.dart';
-import '../../../flutter_flow/flutter_flow_theme.dart';
 import '../../../components/shared/app_button.dart';
 
 class AttendanceSummaryFooter extends StatelessWidget {
@@ -35,7 +34,7 @@ class AttendanceSummaryFooter extends StatelessWidget {
           children: [
             _buildSummary(context),
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
               child: AppButton(
                 text: isAlreadySubmitted ? 'Update Attendance' : 'Submit Attendance',
                 isLoading: isLoading,
@@ -50,7 +49,7 @@ class AttendanceSummaryFooter extends StatelessWidget {
 
   Widget _buildSummary(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -69,14 +68,15 @@ class AttendanceSummaryFooter extends StatelessWidget {
       children: [
         Text(
           value, 
-          style: theme.textTheme.titleLarge?.copyWith(
+          style: theme.textTheme.titleMedium?.copyWith(
             color: color, 
             fontWeight: FontWeight.bold, 
+            fontSize: 18,
           ),
         ),
         Text(
           label, 
-          style: theme.textTheme.labelSmall,
+          style: theme.textTheme.labelSmall?.copyWith(fontSize: 11),
         ),
       ],
     );

@@ -16,7 +16,9 @@ import 'sections/additional_info_section.dart';
 export 'daily_report_form_model.dart';
 
 class DailyReportFormWidget extends ConsumerStatefulWidget {
-  const DailyReportFormWidget({super.key});
+  const DailyReportFormWidget({super.key, this.initialReport});
+
+  final DailyReport? initialReport;
 
   static String routeName = 'DailyReportForm';
   static String routePath = '/dailyReportForm';
@@ -27,20 +29,36 @@ class DailyReportFormWidget extends ConsumerStatefulWidget {
 
 class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
   late DailyReportFormModel _model;
+  final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isSubmitting = false;
-
-  int _presentCount = 0;
-  int _absentCount = 0;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => DailyReportFormModel());
+    
     _model.textFieldModel3.inputTextController ??= TextEditingController();
     _model.textFieldModel4.inputTextController ??= TextEditingController();
     _model.textFieldModel5.inputTextController ??= TextEditingController();
     _model.textFieldModel6.inputTextController ??= TextEditingController();
+
+    if (widget.initialReport != null) {
+      _model.dropdownValue1 = widget.initialReport!.className;
+      _model.dropdownValue2 = widget.initialReport!.subject;
+      _model.dropdownValue3 = widget.initialReport!.teacher;
+      _model.textFieldModel3.inputTextController?.text = widget.initialReport!.chapter;
+      _model.textFieldModel4.inputTextController?.text = widget.initialReport!.topics;
+      _model.presentController.text = widget.initialReport!.presentCount.toString();
+      _model.absentController.text = widget.initialReport!.absentCount.toString();
+      _model.textFieldModel5.inputTextController?.text = widget.initialReport!.homeworkAssigned;
+      _model.textFieldModel6.inputTextController?.text = widget.initialReport!.remarks;
+      
+      // Update controllers in the model as well
+      _model.dropdownValueController1?.value = widget.initialReport!.className;
+      _model.dropdownValueController2?.value = widget.initialReport!.subject;
+      _model.dropdownValueController3?.value = widget.initialReport!.teacher;
+    }
   }
 
   @override
@@ -50,32 +68,53 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
   }
 
   Future<void> _submitReport() async {
-    if (currentUserUid.isEmpty) return;
-    if (!Form.of(context).validate()) return;
+    if (currentUserUid.isEmpty) {
+      return;
+    }
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
     try {
       final report = DailyReport(
-        id: '',
+        id: widget.initialReport?.id ?? '',
         className: _model.dropdownValue1 ?? '',
         subject: _model.dropdownValue2 ?? '',
         teacher: _model.dropdownValue3 ?? '',
         chapter: _model.textFieldModel3.inputTextController?.text ?? '',
         topics: _model.textFieldModel4.inputTextController?.text ?? '',
-        presentCount: _presentCount,
-        absentCount: _absentCount,
+        presentCount: int.tryParse(_model.presentController.text) ?? 0,
+        absentCount: int.tryParse(_model.absentController.text) ?? 0,
         homeworkAssigned: _model.textFieldModel5.inputTextController?.text ?? '',
         remarks: _model.textFieldModel6.inputTextController?.text ?? '',
         createdBy: currentUserUid,
         createdByEmail: currentUserEmail,
-        createdAt: DateTime.now(),
+        createdAt: widget.initialReport?.createdAt ?? DateTime.now(),
       );
 
-      await ref.read(dailyReportRepositoryProvider).submitReport(report);
+      final repository = ref.read(dailyReportRepositoryProvider);
+      if (widget.initialReport == null) {
+        await repository.submitReport(report);
+      } else {
+        await repository.updateReport(report);
+      }
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Report submitted successfully!')));
-        context.goNamed(HomeDashboardWidget.routeName);
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Success'),
+            content: Text(widget.initialReport == null ? 'Report submitted successfully!' : 'Report updated successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.goNamed(HomeDashboardWidget.routeName);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
       }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -95,13 +134,16 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
           backgroundColor: AppColors.surface,
           elevation: 0,
           centerTitle: false,
-          title: Text('Daily Report', style: AppTypography.title),
-          leading: IconButton(
+          title: Text(
+            widget.initialReport == null ? 'Daily Report' : 'Edit Report',
+            style: AppTypography.title,
+          ),          leading: IconButton(
             icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
             onPressed: () => context.safePop(),
           ),
         ),
         body: Form(
+          key: _formKey,
           child: Builder(builder: (context) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
@@ -114,10 +156,6 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
                   const AppSectionHeader(title: 'Attendance Count', icon: Icons.people_rounded),
                   StudentCountSection(
                     model: _model,
-                    presentCount: _presentCount,
-                    absentCount: _absentCount,
-                    onPresentChanged: (val) => setState(() => _presentCount = val),
-                    onAbsentChanged: (val) => setState(() => _absentCount = val),
                     onChanged: () => safeSetState(() {}),
                   ),
                   const SizedBox(height: AppSpacing.xl),
@@ -125,7 +163,7 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
                   AdditionalInfoSection(model: _model, onChanged: () => safeSetState(() {})),
                   const SizedBox(height: AppSpacing.xxl),
                   AppButton(
-                    text: 'Submit Daily Report',
+                    text: widget.initialReport == null ? 'Submit Daily Report' : 'Save Changes',
                     isLoading: _isSubmitting,
                     onPressed: () => _submitReport(),
                   ),

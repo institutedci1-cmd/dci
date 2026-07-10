@@ -8,11 +8,16 @@ class AnnouncementRepository {
 
   Stream<List<Announcement>> getAnnouncementsStream() {
     return _announcementsCollection
-        .orderBy('createdAt', descending: true)
+        // .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Announcement.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          final announcements = snapshot.docs
+              .map((doc) => Announcement.fromFirestore(doc))
+              .toList();
+          // Manual sort
+          announcements.sort((a, b) => (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+          return announcements;
+        });
   }
 
   Future<void> createAnnouncement({
@@ -28,5 +33,18 @@ class AnnouncementRepository {
       'link': link,
       'createdAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<void> updateAnnouncement(String id, Map<String, dynamic> data) async {
+    if (id.isEmpty) return;
+    await _announcementsCollection.doc(id).update({
+      ...data,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> deleteAnnouncement(String id) async {
+    if (id.isEmpty) return;
+    await _announcementsCollection.doc(id).delete();
   }
 }

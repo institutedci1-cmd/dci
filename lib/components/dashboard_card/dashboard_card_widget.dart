@@ -1,5 +1,4 @@
 import '../../flutter_flow/flutter_flow_util.dart';
-import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';
 import '../../index.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +24,9 @@ class DashboardCardWidget extends StatelessWidget {
       'TeacherProfile' => TeacherProfileWidget.routeName,
       'Announcements' => AnnouncementsFeedWidget.routeName,
       'Students' => StudentListWidget.routeName,
+      'MonthlyReport' => MonthlyReportWidget.routeName,
+      'Settings' => SettingsWidget.routeName,
+      'AboutDeshmukh' => AboutDeshmukhWidget.routeName,
       _ => ReportsDashboardWidget.routeName,
     };
   }
@@ -44,30 +46,33 @@ class DashboardCardWidget extends StatelessWidget {
           );
         }
       },
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(10.0), // Reduced from 14 to save space
+      borderRadius: 16.0,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            padding: const EdgeInsets.all(6), // Reduced padding
             decoration: BoxDecoration(
               color: AppColors.primary10,
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: IconTheme(
-              data: const IconThemeData(color: AppColors.primary, size: 24),
+              data: const IconThemeData(color: AppColors.primary, size: 22), // Slightly smaller icon
               child: icon,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+          const SizedBox(height: 6), // Tightened gap
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 14, // Slightly smaller font
+              ),
             ),
           ),
         ],

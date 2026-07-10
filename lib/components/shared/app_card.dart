@@ -5,6 +5,7 @@ import '../../shared/app_colors.dart';
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
   final VoidCallback? onTap;
   final Color? color;
   final double? elevation;
@@ -15,6 +16,7 @@ class AppCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding,
+    this.margin,
     this.onTap,
     this.color,
     this.elevation,
@@ -24,24 +26,28 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: color ?? AppColors.surface,
-      elevation: elevation ?? 0,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius ?? AppRadius.lg),
-        side: border ?? const BorderSide(
-          color: AppColors.outline,
-          width: 1,
+    return Padding(
+      padding: margin ?? EdgeInsets.zero,
+      child: Material(
+        color: color ?? AppColors.surface,
+        elevation: elevation ?? 1,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius ?? AppRadius.md),
+          side: border ?? const BorderSide(
+            color: AppColors.outline,
+            width: 1,
+          ),
         ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        splashColor: AppColors.primary.withOpacity(0.05),
-        highlightColor: Colors.transparent,
-        child: Padding(
-          padding: padding ?? const EdgeInsets.all(AppSpacing.lg),
-          child: child,
+        child: InkWell(
+          onTap: onTap,
+          splashColor: AppColors.primary.withValues(alpha: 0.05),
+          highlightColor: Colors.transparent,
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(AppSpacing.md),
+            child: child,
+          ),
         ),
       ),
     );

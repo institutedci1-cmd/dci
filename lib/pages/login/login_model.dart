@@ -22,6 +22,8 @@ class LoginModel extends FlutterFlowModel<LoginWidget> {
   // Model for Button.
   late ButtonModel buttonModel3;
 
+  bool rememberMe = false;
+
   @override
   void initState(BuildContext context) {
     authHeaderModel = createModel(context, () => AuthHeaderModel());

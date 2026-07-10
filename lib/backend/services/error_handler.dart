@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,10 +23,18 @@ class ErrorHandler {
       return AppError(_mapPlatformError(error.code, error.message), code: error.code);
     } else if (error is FirebaseException) {
       return AppError('Database error: ${error.message}', code: error.code);
+    } else if (error is SocketException) {
+      return AppError('No internet connection. Please check your network.', code: 'no_internet');
     } else if (error is AppError) {
       return error;
     }
-    return AppError(error.toString());
+    
+    final errStr = error.toString().toLowerCase();
+    if (errStr.contains('network') || errStr.contains('connection') || errStr.contains('socket')) {
+      return AppError('Network connection lost. Please try again.', code: 'network_error');
+    }
+
+    return AppError('An unexpected error occurred. Please try again.');
   }
 
   static void show(BuildContext context, dynamic error) {

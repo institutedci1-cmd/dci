@@ -108,8 +108,10 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
             padding: const EdgeInsets.only(left: 4, bottom: 6),
             child: Text(
               widget.label,
-              style: AppTypography.label.copyWith(
-                color: widget.error ? AppColors.error : (_isFocused ? AppColors.primary : AppColors.textSecondary),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: widget.error
+                    ? AppColors.error
+                    : (_isFocused ? AppColors.primary : AppColors.textSecondary),
                 fontWeight: _isFocused ? FontWeight.bold : FontWeight.w500,
               ),
             ),
@@ -153,7 +155,9 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
                     validator: _model.inputTextControllerValidator.asValidator(context),
                     decoration: InputDecoration(
                       hintText: widget.hint,
-                      hintStyle: AppTypography.label.copyWith(color: FlutterFlowTheme.of(context).accent3),
+                      hintStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: FlutterFlowTheme.of(context).accent3,
+                      ),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,

@@ -1,15 +1,14 @@
-import '/backend/models/daily_report.dart';
-import '/backend/providers/repository_providers.dart';
-import '/backend/services/pdf_service.dart';
-import '/backend/services/excel_service/excel_service.dart';
+import '../../backend/models/daily_report.dart';
+import '../../backend/providers/repository_providers.dart';
+import '../../backend/services/pdf_service.dart';
+import '../../backend/services/excel_service/excel_service.dart';
 import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';
 import '../../components/shared/app_card.dart';
-import '../../components/shared/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import '../daily_report_form/daily_report_form_widget.dart';
+import '../../flutter_flow/flutter_flow_util.dart';
 
 export 'report_history_model.dart';
 
@@ -48,13 +47,23 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
     return StreamBuilder<List<DailyReport>>(
       stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 50),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         final reports = snapshot.data ?? [];
         if (reports.isEmpty) {
           return Center(
-            child: Text('No reports found.', style: Theme.of(context).textTheme.bodyMedium),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.history_rounded, size: 48, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text('No reports found.', style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
           );
         }
 
@@ -117,11 +126,48 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
                 icon: const Icon(Icons.picture_as_pdf_rounded, size: 20, color: AppColors.accent),
                 onPressed: () => PdfService.exportDailyReport(report),
               ),
+              IconButton(
+                icon: const Icon(Icons.edit_note_rounded, size: 22, color: AppColors.primary),
+                onPressed: () => context.pushNamed(
+                  DailyReportFormWidget.routeName,
+                  extra: {'initialReport': report},
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.error),
+                onPressed: () => _deleteReport(report),
+              ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _deleteReport(DailyReport report) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Report?'),
+        content: const Text('This will permanently remove this record.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), 
+            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    ) ?? false;
+
+    if (confirm) {
+      try {
+        await ref.read(dailyReportRepositoryProvider).deleteReport(report.id);
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Report deleted.')));
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
   }
 
   Widget _buildMiniStat(String label, String value, Color color) {

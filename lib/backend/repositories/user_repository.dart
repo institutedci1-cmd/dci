@@ -1,8 +1,8 @@
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'dart:io';
 
 class UserRepository {
   UserRepository(
@@ -72,13 +72,10 @@ class UserRepository {
         .update({'notifications_enabled': enabled});
     
     if (!enabled) {
-      // If disabled, we might want to remove the FCM token from the record
-      // to stop sending notifications.
       await _firestore.collection('users').doc(user.uid).update({
         'fcm_token': FieldValue.delete(),
       });
     } else {
-      // If re-enabled, we should re-trigger token fetch
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) {
         await _firestore.collection('users').doc(user.uid).update({
@@ -99,20 +96,16 @@ class UserRepository {
     await user.updatePhotoURL(photoUrl);
   }
 
-  Future<String?> uploadProfilePicture(File imageFile) async {
+  Future<String?> uploadProfilePicture(Uint8List bytes, String extension) async {
     final user = _auth.currentUser;
     if (user == null) return null;
 
     try {
-      final storageRef = _storage.ref().child('users/${user.uid}/profile_photo.jpg');
+      final storageRef = _storage.ref().child('users/${user.uid}/profile_photo$extension');
       
-      // Upload the file
-      final uploadTask = await storageRef.putFile(imageFile);
-      
-      // Get the download URL
+      final uploadTask = await storageRef.putData(bytes);
       final downloadUrl = await uploadTask.ref.getDownloadURL();
       
-      // Update the user profile with the new URL
       await updatePhotoUrl(downloadUrl);
       
       return downloadUrl;
