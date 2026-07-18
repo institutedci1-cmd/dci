@@ -15,7 +15,7 @@ class PdfService {
             children: [
               pw.Header(
                 level: 0,
-                child: pw.Text('Deshmukh Coaching Institute - Daily Report',
+                child: pw.Text('DCI Teachers - Daily Report',
                     style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
               ),
               pw.SizedBox(height: 20),

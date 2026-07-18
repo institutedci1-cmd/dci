@@ -1,13 +1,19 @@
 import '/backend/models/student_attendance.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
+import '/components/shared/app_stat_card.dart';
+import '/components/shared/app_quick_action_button.dart';
+import '/components/shared/app_bottom_nav_bar.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import '../../index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-export 'attendance_dashboard_model.dart';
+
+// Direct imports for the page and its model
+import 'attendance_dashboard_model.dart';
+
 
 class AttendanceDashboardWidget extends ConsumerStatefulWidget {
   const AttendanceDashboardWidget({super.key});
@@ -38,6 +44,8 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
 
   @override
   Widget build(BuildContext context) {
+    final attendanceLogsAsync = ref.watch(studentAttendanceLogsProvider);
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -67,7 +75,7 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildStatsRow(context),
+                  _buildStatsRow(context, attendanceLogsAsync),
                   const SizedBox(height: 24),
                   Text(
                     'Quick Actions',
@@ -79,30 +87,30 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                   Row(
                     children: [
                       Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'Mark Attendance',
-                          Icons.check_box_rounded,
-                          () => context.pushNamed(AttendanceTrackerWidget.routeName),
+                        child: AppQuickActionButton(
+                          title: 'Mark Attendance',
+                          icon: Icons.check_box_rounded,
+                          color: FlutterFlowTheme.of(context).secondary,
+                          onTap: () => context.pushNamed(AttendanceTrackerWidget.routeName),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'History',
-                          Icons.history_toggle_off_rounded,
-                          () => context.pushNamed(AttendanceHistoryWidget.routeName),
+                        child: AppQuickActionButton(
+                          title: 'History',
+                          icon: Icons.history_toggle_off_rounded,
+                          color: FlutterFlowTheme.of(context).secondary,
+                          onTap: () => context.pushNamed(AttendanceHistoryWidget.routeName),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildActionButton(
-                    context,
-                    'Monthly Reports',
-                    Icons.assessment_outlined,
-                    () => context.pushNamed('MonthlyReport'),
+                  AppQuickActionButton(
+                    title: 'Attendance Reports',
+                    icon: Icons.assessment_outlined,
+                    color: FlutterFlowTheme.of(context).secondary,
+                    onTap: () => context.pushNamed(AttendanceReportWidget.routeName),
                   ),
                   const SizedBox(height: 24),
                   Row(
@@ -126,11 +134,8 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                       ),
                     ],
                   ),
-                  StreamBuilder<List<StudentAttendance>>(
-                    stream: ref.watch(attendanceRepositoryProvider).getStudentAttendanceLogs(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) return const SizedBox();
-                      final records = snapshot.data!;
+                  attendanceLogsAsync.when(
+                    data: (records) {
                       if (records.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.all(16.0),
@@ -162,6 +167,11 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                         }).toList(),
                       );
                     },
+                    loading: () => const Center(child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(),
+                    )),
+                    error: (err, stack) => Text('Error: $err'),
                   ),
                 ],
               ),
@@ -169,15 +179,26 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
           ),
         ],
       ),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 2,
+        onTap: (index) {
+          final routes = [
+            HomeDashboardWidget.routeName,
+            ReportsDashboardWidget.routeName,
+            AttendanceDashboardWidget.routeName,
+            TeacherProfileWidget.routeName,
+          ];
+          if (index != 2) {
+            context.goNamed(routes[index]);
+          }
+        },
+      ),
     );
   }
 
-  Widget _buildStatsRow(BuildContext context) {
-    return StreamBuilder<List<StudentAttendance>>(
-      stream: ref.watch(attendanceRepositoryProvider).getStudentAttendanceLogs(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox();
-        final records = snapshot.data!;
+  Widget _buildStatsRow(BuildContext context, AsyncValue<List<StudentAttendance>> logsAsync) {
+    return logsAsync.when(
+      data: (records) {
         final totalMarked = records.length;
         final presentCount = records.where((doc) => doc.status == 'Present').length;
         final attendanceRate = totalMarked == 0 ? 0 : ((presentCount / totalMarked) * 100).toInt();
@@ -185,74 +206,36 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
         return Row(
           children: [
             Expanded(
-              child: _buildStatCard(
-                context,
-                'Total Marks',
-                totalMarked.toString(),
-                Icons.people_rounded,
-                FlutterFlowTheme.of(context).primary,
+              child: AppStatCard(
+                title: 'Total Marks',
+                value: totalMarked.toString(),
+                icon: Icons.people_rounded,
+                color: FlutterFlowTheme.of(context).primary,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: _buildStatCard(
-                context,
-                'Avg. Present',
-                '$attendanceRate%',
-                Icons.trending_up_rounded,
-                FlutterFlowTheme.of(context).success,
+              child: AppStatCard(
+                title: 'Avg. Present',
+                value: '$attendanceRate%',
+                icon: Icons.trending_up_rounded,
+                color: FlutterFlowTheme.of(context).success,
               ),
             ),
           ],
         );
       },
-    );
-  }
-
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      loading: () => Row(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 12),
-          Text(value, style: FlutterFlowTheme.of(context).headlineSmall.override(
-            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-          )),
-          Text(title, style: FlutterFlowTheme.of(context).labelSmall),
+          Expanded(child: Container(height: 100, decoration: BoxDecoration(color: FlutterFlowTheme.of(context).secondaryBackground, borderRadius: BorderRadius.circular(12)))),
+          const SizedBox(width: 16),
+          Expanded(child: Container(height: 100, decoration: BoxDecoration(color: FlutterFlowTheme.of(context).secondaryBackground, borderRadius: BorderRadius.circular(12)))),
         ],
       ),
+      error: (err, stack) => const SizedBox(),
     );
   }
 
-  Widget _buildActionButton(BuildContext context, String title, IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).primary10,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: FlutterFlowTheme.of(context).secondary, size: 28),
-            const SizedBox(height: 8),
-            Text(title, style: FlutterFlowTheme.of(context).bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-              color: FlutterFlowTheme.of(context).secondary,
-            )),
-          ],
-        ),
-      ),
-    );
-  }
 
   Color _getStatusColor(String status) {
     switch (status) {

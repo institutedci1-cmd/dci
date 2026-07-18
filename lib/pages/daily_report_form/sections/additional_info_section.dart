@@ -37,10 +37,12 @@ class AdditionalInfoSection extends StatelessWidget {
         wrapWithModel(
           model: model.textFieldModel5,
           updateCallback: onChanged,
-          child: const TextFieldWidget(
+          child: TextFieldWidget(
+            controller: model.textFieldModel5.inputTextController,
+            focusNode: model.textFieldModel5.inputFocusNode,
             label: 'Homework Assigned',
             labelPresent: true,
-            leadingIcon: Icon(
+            leadingIcon: const Icon(
               Icons.edit_note_rounded,
               size: 24.0,
             ),
@@ -52,10 +54,12 @@ class AdditionalInfoSection extends StatelessWidget {
         wrapWithModel(
           model: model.textFieldModel6,
           updateCallback: onChanged,
-          child: const TextFieldWidget(
+          child: TextFieldWidget(
+            controller: model.textFieldModel6.inputTextController,
+            focusNode: model.textFieldModel6.inputFocusNode,
             label: 'Remarks',
             labelPresent: true,
-            leadingIcon: Icon(
+            leadingIcon: const Icon(
               Icons.notes_rounded,
               size: 24.0,
             ),

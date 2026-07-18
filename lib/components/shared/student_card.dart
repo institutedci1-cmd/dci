@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../backend/models/student.dart';
 import '../../flutter_flow/flutter_flow_theme.dart';
@@ -107,7 +108,14 @@ class StudentCard extends StatelessWidget {
         child: student.photoUrl != null && student.photoUrl!.isNotEmpty
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(26),
-                child: Image.network(student.photoUrl!, fit: BoxFit.cover, width: 52, height: 52),
+                child: CachedNetworkImage(
+                  imageUrl: student.photoUrl!,
+                  fit: BoxFit.cover,
+                  width: 52,
+                  height: 52,
+                  placeholder: (context, url) => Container(color: FlutterFlowTheme.of(context).accent4),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
               )
             : Text(
                 initials,

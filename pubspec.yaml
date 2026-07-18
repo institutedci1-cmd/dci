@@ -1,5 +1,5 @@
 name: d_c_i_teacher_app
-description: Official teacher application for Deshmukh Coaching Institute.
+description: Official teacher application for DCI Teachers.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -98,7 +98,6 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   firebase_crashlytics: ^4.3.7
-  firebase_analytics: ^11.5.0
   pdf: ^3.12.0
   printing: ^5.14.3
   http: ^1.4.0
@@ -113,8 +112,9 @@ dependency_overrides:
 
 dev_dependencies:
   flutter_launcher_icons: 0.13.1
+  flutter_native_splash: ^2.4.4
   flutter_lints: 4.0.0
-  image: 4.2.0
+  image: ^4.3.0
   lints: 4.0.0
   flutter_test:
     sdk: flutter
@@ -133,6 +133,21 @@ flutter_launcher_icons:
   web:
     generate: true
   image_path: 'assets/images/logo.png'
+
+flutter_native_splash:
+  color: "#312E81"
+  image: assets/images/logo.png
+  android_gravity: center
+  ios_content_mode: center
+  android_12:
+    color: "#312E81"
+    image: assets/images/logo.png
+    icon_background_color: "#312E81"
+  color_dark: "#0F172A"
+  android_12_dark:
+    color: "#0F172A"
+    icon_background_color: "#0F172A"
+  web: false
 
 
 # For information on the generic Dart part of this file, see the

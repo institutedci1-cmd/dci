@@ -1,5 +1,6 @@
 import '/components/button/button_widget.dart';
 import '/components/text_field/text_field_widget.dart';
+import '/flutter_flow/flutter_flow_model.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import 'attendance_tracker_widget.dart' show AttendanceTrackerWidget;
@@ -13,8 +14,9 @@ class AttendanceTrackerModel extends FlutterFlowModel<AttendanceTrackerWidget> {
   // State field for Date
   DateTime? selectedDate;
 
-  // State field for Subject Text field
-  late TextFieldModel subjectFieldModel;
+  // State field for Subject Dropdown
+  String? selectedSubject;
+  FormFieldController<String>? subjectDropdownController;
 
   // Search field
   late TextFieldModel searchFieldModel;
@@ -26,11 +28,15 @@ class AttendanceTrackerModel extends FlutterFlowModel<AttendanceTrackerWidget> {
   // Model for Save Button.
   late ButtonModel buttonModel;
 
+  // Dynamic list for subjects
+  List<String> subjectOptions = [];
+
   @override
   void initState(BuildContext context) {
     buttonModel = createModel(context, () => ButtonModel());
     searchFieldModel = createModel(context, () => TextFieldModel());
-    subjectFieldModel = createModel(context, () => TextFieldModel());
+    searchFieldModel.inputTextController ??= TextEditingController();
+    
     selectedDate = DateTime.now();
   }
 
@@ -38,6 +44,5 @@ class AttendanceTrackerModel extends FlutterFlowModel<AttendanceTrackerWidget> {
   void dispose() {
     buttonModel.dispose();
     searchFieldModel.dispose();
-    subjectFieldModel.dispose();
   }
 }

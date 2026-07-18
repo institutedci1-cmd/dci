@@ -5,8 +5,8 @@ import '../base_auth_user_provider.dart';
 
 export '../base_auth_user_provider.dart';
 
-class DeshmukhTeacherAppFirebaseUser extends BaseAuthUser {
-  DeshmukhTeacherAppFirebaseUser(this.user);
+class DCITeacherAppFirebaseUser extends BaseAuthUser {
+  DCITeacherAppFirebaseUser(this.user);
   User? user;
   @override
   bool get loggedIn => user != null;
@@ -56,10 +56,10 @@ class DeshmukhTeacherAppFirebaseUser extends BaseAuthUser {
   static BaseAuthUser fromUserCredential(UserCredential userCredential) =>
       fromFirebaseUser(userCredential.user);
   static BaseAuthUser fromFirebaseUser(User? user) =>
-      DeshmukhTeacherAppFirebaseUser(user);
+      DCITeacherAppFirebaseUser(user);
 }
 
-Stream<BaseAuthUser> deshmukhTeacherAppFirebaseUserStream() =>
+Stream<BaseAuthUser> dciTeacherAppFirebaseUserStream() =>
     FirebaseAuth.instance
         .authStateChanges()
         .debounce((user) => user == null && !loggedIn
@@ -67,7 +67,7 @@ Stream<BaseAuthUser> deshmukhTeacherAppFirebaseUserStream() =>
             : Stream.value(user))
         .map<BaseAuthUser>(
       (user) {
-        currentUser = DeshmukhTeacherAppFirebaseUser(user);
+        currentUser = DCITeacherAppFirebaseUser(user);
         return currentUser!;
       },
     );

@@ -11,10 +11,12 @@ class HomeworkCardWidget extends StatefulWidget {
     super.key,
     required this.assignment,
     this.onTap,
+    this.onShare,
   });
 
   final HomeworkAssignment assignment;
   final Future Function()? onTap;
+  final VoidCallback? onShare;
 
   @override
   State<HomeworkCardWidget> createState() => _HomeworkCardWidgetState();
@@ -101,23 +103,33 @@ class _HomeworkCardWidgetState extends State<HomeworkCardWidget> {
                   ),
               ].divide(const SizedBox(height: 2.0)),
             ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: status == 'published'
-                      ? FlutterFlowTheme.of(context).success
-                      : FlutterFlowTheme.of(context).warning,
-                    borderRadius: BorderRadius.circular(8),
+                if (widget.onShare != null)
+                  IconButton(
+                    icon: const Icon(Icons.share_rounded, color: Colors.green, size: 20),
+                    onPressed: widget.onShare,
                   ),
-                  child: Text(
-                    status.toUpperCase(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: status == 'published'
+                          ? FlutterFlowTheme.of(context).success
+                          : FlutterFlowTheme.of(context).warning,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        status.toUpperCase(),
+                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded),
+                  ],
                 ),
-                const Icon(Icons.chevron_right_rounded),
               ],
             ),
           ),

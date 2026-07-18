@@ -36,6 +36,30 @@ class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
     super.dispose();
   }
 
+  void _shareHomework(HomeworkAssignment assignment) async {
+    final message = '''
+📚 *New Homework Assigned*
+Subject: ${assignment.subject}
+Class: ${assignment.className}
+Title: ${assignment.title}
+Due Date: ${assignment.dueDate}
+
+Description:
+${assignment.description}
+
+Check the app for details and attachments!
+''';
+
+    try {
+      final whatsappService = ref.read(whatsappServiceProvider);
+      await whatsappService.launchWhatsapp(message: message);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error sharing: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,13 +79,8 @@ class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<HomeworkAssignment>>(
-              stream: ref.watch(homeworkRepositoryProvider).getUserHomework(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final assignments = snapshot.data!;
+            child: ref.watch(homeworkStreamProvider).when(
+              data: (assignments) {
                 if (assignments.isEmpty) {
                   return Center(
                     child: Text(
@@ -83,11 +102,14 @@ class _HomeworkHistoryWidgetState extends ConsumerState<HomeworkHistoryWidget> {
                       child: HomeworkCardWidget(
                         assignment: assignment,
                         onTap: () async => _showAttachments(context, assignment),
+                        onShare: () => _shareHomework(assignment),
                       ),
                     );
                   },
                 );
               },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: $err')),
             ),
           ),
         ],

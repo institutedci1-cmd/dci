@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,12 +63,17 @@ class _AuthHeaderWidgetState extends State<AuthHeaderWidget> {
               ),
               alignment: const AlignmentDirectional(0.0, 0.0),
               child: info?['logo_url'] != null
-                  ? Image.network(
-                      info!['logo_url'],
+                  ? CachedNetworkImage(
+                      imageUrl: info!['logo_url'],
                       width: 60,
                       height: 60,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => Icon(
+                      placeholder: (context, url) => const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      errorWidget: (context, url, error) => Icon(
                         Icons.school_rounded,
                         color: FlutterFlowTheme.of(context).primary,
                         size: 48.0,
@@ -85,7 +91,7 @@ class _AuthHeaderWidgetState extends State<AuthHeaderWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  info?['app_name'] ?? 'Deshmukh Teacher App',
+                  info?['app_name'] ?? 'DCI Teachers App',
                   style: FlutterFlowTheme.of(context).headlineMedium.override(
                         font: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
@@ -103,7 +109,7 @@ class _AuthHeaderWidgetState extends State<AuthHeaderWidget> {
                       ),
                 ),
                 Text(
-                  info?['name'] ?? 'Deshmukh Coaching Institute',
+                  info?['name'] ?? 'DCI Teachers',
                   style: FlutterFlowTheme.of(context).bodyMedium.override(
                         font: GoogleFonts.inter(
                           fontWeight:

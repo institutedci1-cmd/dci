@@ -43,10 +43,21 @@ class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {
   // Model for Button.
   late ButtonModel buttonModel;
 
+  // Dynamic lists for dropdowns
+  List<String> teacherOptions = [];
+  List<String> subjectOptions = [];
+  List<String> classOptions = [];
+
   @override
   void initState(BuildContext context) {
     formSectionHeaderModel1 =
         createModel(context, () => FormSectionHeaderModel());
+    
+    // Initialize dropdown controllers
+    dropdownValueController1 = FormFieldController<String>(null);
+    dropdownValueController2 = FormFieldController<String>(null);
+    dropdownValueController3 = FormFieldController<String>(null);
+
     textFieldModel3 = createModel(context, () => TextFieldModel());
     formSectionHeaderModel2 =
         createModel(context, () => FormSectionHeaderModel());

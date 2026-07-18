@@ -28,6 +28,9 @@ class TextFieldWidget extends StatefulWidget {
     this.readOnly = false,
     this.maxLines = 1,
     this.keyboardType = TextInputType.text,
+    this.autofillHints,
+    this.controller,
+    this.focusNode,
   });
 
   final String label;
@@ -49,6 +52,9 @@ class TextFieldWidget extends StatefulWidget {
   final bool readOnly;
   final int maxLines;
   final TextInputType keyboardType;
+  final Iterable<String>? autofillHints;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -69,13 +75,29 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TextFieldModel());
-    _model.inputTextController ??= TextEditingController(text: widget.value);
-    _model.inputFocusNode ??= FocusNode();
+    _model.inputTextController = widget.controller ?? TextEditingController(text: widget.value);
+    _model.inputFocusNode = widget.focusNode ?? FocusNode();
     _model.inputFocusNode!.addListener(_handleFocusChange);
     _model.inputTextControllerValidator = (context, val) => widget.validator?.call(val);
     _obscureText = widget.obscureText;
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+  }
+
+  @override
+  void didUpdateWidget(TextFieldWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != null && widget.controller != _model.inputTextController) {
+      _model.inputFocusNode?.removeListener(_handleFocusChange);
+      _model.inputTextController = widget.controller;
+      _model.inputFocusNode = widget.focusNode ?? _model.inputFocusNode;
+      _model.inputFocusNode?.addListener(_handleFocusChange);
+    }
+
+    if (widget.value != oldWidget.value &&
+        widget.value != _model.inputTextController?.text) {
+      _model.inputTextController?.text = widget.value;
+    }
   }
 
   void _handleFocusChange() {
@@ -151,6 +173,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
                     onChanged: widget.onChange,
                     onFieldSubmitted: widget.onSubmit,
                     validator: _model.inputTextControllerValidator.asValidator(context),
+                    autofillHints: widget.autofillHints,
                     decoration: InputDecoration(
                       hintText: widget.hint,
                       hintStyle: AppTypography.label.copyWith(color: FlutterFlowTheme.of(context).accent3),

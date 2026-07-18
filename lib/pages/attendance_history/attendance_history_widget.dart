@@ -1,13 +1,18 @@
-import '/backend/models/student_attendance.dart';
+
 import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
+import '/components/shared/app_primary_button.dart';
+import '/shared/app_style.dart';
+import '/shared/app_colors.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-export 'attendance_history_model.dart';
+
+// Direct imports for the page and its model
+import 'attendance_history_model.dart';
+import '/pages/attendance_dashboard/attendance_dashboard_widget.dart';
 
 class AttendanceHistoryWidget extends ConsumerStatefulWidget {
   const AttendanceHistoryWidget({super.key});
@@ -55,13 +60,8 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<StudentAttendance>>(
-              stream: ref.watch(attendanceRepositoryProvider).getStudentAttendanceLogs(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final records = snapshot.data!;
+            child: ref.watch(studentAttendanceLogsProvider).when(
+              data: (records) {
                 if (records.isEmpty) {
                   return Center(
                     child: Text(
@@ -131,6 +131,32 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                   },
                 );
               },
+              error: (error, stack) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+                      const SizedBox(height: 16),
+                      Text('Error Loading Data', style: AppTypography.section),
+                      const SizedBox(height: 8),
+                      Text(
+                        error.toString(),
+                        textAlign: TextAlign.center,
+                        style: AppTypography.caption,
+                      ),
+                      const SizedBox(height: 24),
+                      AppPrimaryButton(
+                        text: 'Try Again',
+                        width: 150,
+                        onPressed: () => ref.invalidate(studentAttendanceLogsProvider),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
             ),
           ),
         ],

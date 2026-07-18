@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '/backend/services/app_constants.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -48,8 +47,8 @@ class ClassDetailsSection extends StatelessWidget {
                 context,
                 label: 'Class',
                 hint: 'Select Class',
-                options: AppConstants.classOptions,
-                initialValue: model.dropdownValue1 ?? AppConstants.classOptions.last,
+                options: model.classOptions,
+                initialValue: model.dropdownValue1,
                 onChanged: (val) {
                   model.dropdownValue1 = val;
                   onChanged();
@@ -64,8 +63,8 @@ class ClassDetailsSection extends StatelessWidget {
                 label: 'Subject',
                 hint: 'Select Subject',
                 icon: Icons.menu_book_rounded,
-                options: AppConstants.subjectOptions,
-                initialValue: model.dropdownValue2 ?? AppConstants.subjectOptions.first,
+                options: model.subjectOptions,
+                initialValue: model.dropdownValue2,
                 onChanged: (val) {
                   model.dropdownValue2 = val;
                   onChanged();
@@ -80,8 +79,8 @@ class ClassDetailsSection extends StatelessWidget {
           label: 'Teacher',
           hint: 'Select Teacher',
           icon: Icons.person_rounded,
-          options: AppConstants.teacherOptions,
-          initialValue: model.dropdownValue3 ?? AppConstants.teacherOptions.first,
+          options: model.teacherOptions,
+          initialValue: model.dropdownValue3,
           onChanged: (val) {
             model.dropdownValue3 = val;
             onChanged();
@@ -92,10 +91,12 @@ class ClassDetailsSection extends StatelessWidget {
         wrapWithModel(
           model: model.textFieldModel3,
           updateCallback: onChanged,
-          child: const TextFieldWidget(
+          child: TextFieldWidget(
+            controller: model.textFieldModel3.inputTextController,
+            focusNode: model.textFieldModel3.inputFocusNode,
             label: 'Chapter',
             labelPresent: true,
-            leadingIcon: Icon(
+            leadingIcon: const Icon(
               Icons.bookmark_rounded,
               size: 24.0,
             ),
@@ -113,7 +114,7 @@ class ClassDetailsSection extends StatelessWidget {
     required String label,
     required String hint,
     required List<String> options,
-    required String initialValue,
+    required String? initialValue,
     required Function(String?) onChanged,
     FormFieldController<String>? controller,
     IconData icon = Icons.arrow_drop_down_rounded,
@@ -127,7 +128,7 @@ class ClassDetailsSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
           child: FlutterFlowDropDown<String>(
-            controller: controller ??= FormFieldController<String>(initialValue),
+            controller: controller!,
             options: options,
             onChanged: onChanged,
             width: fullWidth ? double.infinity : 200.0,

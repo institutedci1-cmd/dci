@@ -1,13 +1,16 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '/backend/providers/repository_providers.dart';
+import '/shared/app_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'header_section_model.dart';
+
+
 export 'header_section_model.dart';
 
-class HeaderSectionWidget extends StatefulWidget {
+class HeaderSectionWidget extends ConsumerWidget {
   const HeaderSectionWidget({
     super.key,
     this.title,
@@ -16,8 +19,8 @@ class HeaderSectionWidget extends StatefulWidget {
     this.onBackPressed,
     this.onActionPressed,
     this.actionIcon,
-    bool? showActionIcon,
-  })  : showActionIcon = showActionIcon ?? true;
+    this.showActionIcon = true,
+  });
 
   final String? title;
   final String? subtitle;
@@ -28,43 +31,15 @@ class HeaderSectionWidget extends StatefulWidget {
   final bool showActionIcon;
 
   @override
-  State<HeaderSectionWidget> createState() => _HeaderSectionWidgetState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the repository provider to get the stream
+    final configRepo = ref.watch(configRepositoryProvider);
 
-class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
-  late HeaderSectionModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => HeaderSectionModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('config')
-          .doc('institute_info')
-          .get(),
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: configRepo.getInstituteInfoStream(),
       builder: (context, snapshot) {
-        final info = snapshot.data?.data() as Map<String, dynamic>?;
-        final instituteName = info?['name'] ?? 'Deshmukh Coaching Institute';
+        final info = snapshot.data;
+        final instituteName = info?['name'] ?? 'DCI Teachers';
 
         return Container(
           decoration: BoxDecoration(
@@ -80,6 +55,7 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
               bottomLeft: Radius.circular(20.0),
               bottomRight: Radius.circular(20.0),
             ),
+            boxShadow: AppShadows.low,
           ),
           child: Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(16.0, 44.0, 16.0, 16.0),
@@ -91,74 +67,85 @@ class _HeaderSectionWidgetState extends State<HeaderSectionWidget> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FlutterFlowIconButton(
-                          borderRadius: 12.0,
-                          buttonSize: 36.0,
-                          fillColor: FlutterFlowTheme.of(context).onPrimary15,
-                          icon: Icon(
-                            Icons.arrow_back_rounded,
-                            color: FlutterFlowTheme.of(context).onPrimary,
-                            size: 20.0,
-                          ),
-                          onPressed: () async {
-                            if (widget.onBackPressed != null) {
-                              await widget.onBackPressed!();
-                            } else {
-                              context.safePop();
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.title ?? 'Assign Homework',
-                              style: FlutterFlowTheme.of(context).titleMedium.override(
-                                    font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                                    color: FlutterFlowTheme.of(context).onPrimary,
-                                  ),
-                            ),
-                            Text(
-                              widget.subtitle ?? instituteName,
-                              style: FlutterFlowTheme.of(context).labelSmall.override(
-                                    font: GoogleFonts.inter(),
-                                    color: FlutterFlowTheme.of(context).onPrimary80,
-                                    fontSize: 11,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    if (widget.showActionIcon)
-                      FlutterFlowIconButton(
-                        borderRadius: 12.0,
-                        buttonSize: 36.0,
-                        fillColor: FlutterFlowTheme.of(context).onPrimary15,
-                        icon: widget.actionIcon ??
-                            Icon(
-                              Icons.help_outline_rounded,
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FlutterFlowIconButton(
+                            borderRadius: 12.0,
+                            buttonSize: 36.0,
+                            fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                            icon: Icon(
+                              Icons.arrow_back_rounded,
                               color: FlutterFlowTheme.of(context).onPrimary,
                               size: 20.0,
                             ),
-                        onPressed: () async {
-                          if (widget.onActionPressed != null) {
-                            await widget.onActionPressed!();
-                          }
-                        },
+                            onPressed: () async {
+                              if (onBackPressed != null) {
+                                await onBackPressed!();
+                              } else {
+                                context.safePop();
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title ?? 'Assign Homework',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: FlutterFlowTheme.of(context).titleMedium.override(
+                                        font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                                        color: FlutterFlowTheme.of(context).onPrimary,
+                                      ),
+                                ),
+                                Text(
+                                  subtitle ?? instituteName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: FlutterFlowTheme.of(context).labelSmall.override(
+                                        font: GoogleFonts.inter(),
+                                        color: FlutterFlowTheme.of(context).onPrimary80,
+                                        fontSize: 11,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (showActionIcon)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: FlutterFlowIconButton(
+                          borderRadius: 12.0,
+                          buttonSize: 36.0,
+                          fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                          icon: actionIcon ??
+                              Icon(
+                                Icons.help_outline_rounded,
+                                color: FlutterFlowTheme.of(context).onPrimary,
+                                size: 20.0,
+                              ),
+                          onPressed: () async {
+                            if (onActionPressed != null) {
+                              await onActionPressed!();
+                            }
+                          },
+                        ),
                       ),
                   ],
                 ),
-                if (widget.description != null)
+                if (description != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 12.0, left: 4.0),
                     child: Text(
-                      widget.description!,
+                      description!,
                       style: FlutterFlowTheme.of(context).bodySmall.override(
                             font: GoogleFonts.inter(),
                             color: FlutterFlowTheme.of(context).onPrimary70,

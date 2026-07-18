@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,45 +8,45 @@ import '/index.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
-
+  
   return GoRouter(
-    initialLocation: '/',
+    // Removed hardcoded initialLocation to allow Web to use the actual URL in the address bar
     debugLogDiagnostics: true,
+    refreshListenable: _AuthListenable(authRepository.authStateChanges),
     redirect: (context, state) {
-      final loggedIn = authRepository.currentUser != null;
-      final isLoggingIn = state.matchedLocation == LoginWidget.routePath || 
-                          state.matchedLocation == SignUpWidget.routePath ||
-                          state.matchedLocation == PhoneLoginWidget.routePath;
+      final user = authRepository.currentUser;
+      final loggedIn = user != null;
+      
+      // Determine if we are on the login page
+      final isLoggingIn = state.matchedLocation == LoginWidget.routePath;
 
-      if (!loggedIn) {
-        return isLoggingIn ? null : LoginWidget.routePath;
+      // 1. If not logged in and not on login page, go to login
+      if (!loggedIn && !isLoggingIn) {
+        return LoginWidget.routePath;
       }
 
-      if (isLoggingIn) {
+      // 2. If logged in and trying to go to login, go to home
+      if (loggedIn && isLoggingIn) {
         return HomeDashboardWidget.routePath;
       }
 
+      // 3. If on root '/', go to home
+      if (state.matchedLocation == '/') {
+        return HomeDashboardWidget.routePath;
+      }
+
+      // 4. Otherwise, stay where you are (this allows URLs like /reportsDashboard to work)
       return null;
     },
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const HomeDashboardWidget(),
+        redirect: (_, __) => HomeDashboardWidget.routePath,
       ),
       GoRoute(
         name: LoginWidget.routeName,
         path: LoginWidget.routePath,
         builder: (context, state) => const LoginWidget(),
-      ),
-      GoRoute(
-        name: PhoneLoginWidget.routeName,
-        path: PhoneLoginWidget.routePath,
-        builder: (context, state) => const PhoneLoginWidget(),
-      ),
-      GoRoute(
-        name: SignUpWidget.routeName,
-        path: SignUpWidget.routePath,
-        builder: (context, state) => const SignUpWidget(),
       ),
       GoRoute(
         name: HomeDashboardWidget.routeName,
@@ -82,9 +84,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AttendanceHistoryWidget(),
       ),
       GoRoute(
-        name: MonthlyReportWidget.routeName,
-        path: MonthlyReportWidget.routePath,
-        builder: (context, state) => const MonthlyReportWidget(),
+        name: AttendanceReportWidget.routeName,
+        path: AttendanceReportWidget.routePath,
+        builder: (context, state) => const AttendanceReportWidget(),
       ),
       GoRoute(
         name: StudentListWidget.routeName,
@@ -126,6 +128,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const EditProfileWidget(),
       ),
       GoRoute(
+        name: AddUserWidget.routeName,
+        path: AddUserWidget.routePath,
+        builder: (context, state) => const AddUserWidget(),
+      ),
+      GoRoute(
         name: NotificationsWidget.routeName,
         path: NotificationsWidget.routePath,
         builder: (context, state) => const NotificationsWidget(),
@@ -136,9 +143,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SettingsWidget(),
       ),
       GoRoute(
-        name: AboutDeshmukhWidget.routeName,
-        path: AboutDeshmukhWidget.routePath,
-        builder: (context, state) => const AboutDeshmukhWidget(),
+        name: AboutDCIWidget.routeName,
+        path: AboutDCIWidget.routePath,
+        builder: (context, state) => const AboutDCIWidget(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
@@ -148,3 +155,18 @@ final routerProvider = Provider<GoRouter>((ref) {
     ),
   );
 });
+
+/// A simple Listenable that triggers whenever the auth stream emits a value.
+class _AuthListenable extends ChangeNotifier {
+  _AuthListenable(Stream<User?> authStream) {
+    _subscription = authStream.listen((_) => notifyListeners());
+  }
+
+  late final StreamSubscription<User?> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}

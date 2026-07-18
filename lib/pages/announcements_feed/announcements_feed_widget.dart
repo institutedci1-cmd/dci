@@ -1,6 +1,7 @@
 import '/backend/models/announcement.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/announcement_card/announcement_card_widget.dart';
+import '/components/shared/app_bottom_nav_bar.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -39,6 +40,41 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
     super.dispose();
   }
 
+  void _shareAnnouncement(Announcement announcement) async {
+    final isParentMeeting = announcement.category == 'PARENT_MEETING';
+    final message = isParentMeeting 
+      ? '''
+🤝 *Parent Meeting Invitation*
+Title: ${announcement.title}
+Date: ${dateTimeFormat('yMMMd', announcement.createdAt ?? DateTime.now())}
+
+Dear Parents,
+${announcement.description}
+
+Please make it convenient to attend.
+Regards,
+DCI Team
+'''
+      : '''
+📢 *New Announcement: ${announcement.title}*
+Category: ${announcement.category}
+Date: ${dateTimeFormat('yMMMd', announcement.createdAt ?? DateTime.now())}
+
+${announcement.description}
+
+Read more in the DCI Teacher App.
+''';
+
+    try {
+      final whatsappService = ref.read(whatsappServiceProvider);
+      await whatsappService.launchWhatsapp(message: message);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error sharing: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -57,7 +93,18 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
             Expanded(
               child: _buildAnnouncementsList(context),
             ),
-            _buildBottomNavBar(context),
+            AppBottomNavBar(
+              currentIndex: -1,
+              onTap: (index) {
+                final routes = [
+                  HomeDashboardWidget.routeName,
+                  ReportsDashboardWidget.routeName,
+                  AttendanceDashboardWidget.routeName,
+                  TeacherProfileWidget.routeName,
+                ];
+                context.goNamed(routes[index]);
+              },
+            ),
           ],
         ),
       ),
@@ -90,17 +137,7 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
                 ),
                 onPressed: () async => context.goNamed(HomeDashboardWidget.routeName),
               ),
-              FlutterFlowIconButton(
-                borderRadius: 8.0,
-                buttonSize: 40.0,
-                fillColor: Colors.transparent,
-                icon: Icon(
-                  Icons.search_rounded,
-                  color: FlutterFlowTheme.of(context).onPrimary,
-                  size: 24.0,
-                ),
-                onPressed: () {},
-              ),
+              const SizedBox(width: 40),
             ],
           ),
           const SizedBox(height: 16.0),
@@ -115,7 +152,7 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
                 ),
               ),
               Text(
-                'Latest updates from Deshmukh Institute',
+                'Latest updates from DCI Teachers',
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                   font: GoogleFonts.inter(),
                   color: FlutterFlowTheme.of(context).onPrimary80,
@@ -129,13 +166,8 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
   }
 
   Widget _buildAnnouncementsList(BuildContext context) {
-    return FutureBuilder<List<Announcement>>(
-      future: ref.read(announcementRepositoryProvider).getAnnouncementsStream().first,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final announcements = snapshot.data ?? [];
+    return ref.watch(announcementsStreamProvider).when(
+      data: (announcements) {
         if (announcements.isEmpty) {
           return Center(
             child: Text(
@@ -146,11 +178,8 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
         }
         return ListView.builder(
           padding: const EdgeInsets.all(24.0),
-          itemCount: announcements.length + 1,
+          itemCount: announcements.length,
           itemBuilder: (context, index) {
-            if (index == announcements.length) {
-              return _buildEndOfList();
-            }
             final announcement = announcements[index];
             return AnnouncementCardWidget(
               category: announcement.category,
@@ -158,28 +187,13 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
               description: announcement.description,
               title: announcement.title,
               onTap: () async => _showAnnouncementDialog(context, announcement),
+              onShare: () => _shareAnnouncement(announcement),
             );
           },
         );
       },
-    );
-  }
-
-  Widget _buildEndOfList() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        children: [
-          Icon(Icons.info_outline_rounded, color: FlutterFlowTheme.of(context).onSurface, size: 20.0),
-          Text(
-            'You\'re all caught up!',
-            style: FlutterFlowTheme.of(context).labelMedium.override(
-              font: GoogleFonts.inter(),
-              color: FlutterFlowTheme.of(context).onSurface,
-            ),
-          ),
-        ].divide(const SizedBox(height: 4.0)),
-      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
     );
   }
 
@@ -187,7 +201,7 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
     String selectedCategory = 'GENERAL';
-    final categories = ['GENERAL', 'EXAM', 'EVENT', 'HOLIDAY', 'URGENT'];
+    final categories = ['GENERAL', 'EXAM', 'EVENT', 'HOLIDAY', 'URGENT', 'PARENT_MEETING'];
 
     showModalBottomSheet(
       context: context,
@@ -327,48 +341,6 @@ class _AnnouncementsFeedWidgetState extends ConsumerState<AnnouncementsFeedWidge
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavBar(BuildContext context) {
-    return Container(
-      height: 80.0,
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        border: Border(top: BorderSide(color: FlutterFlowTheme.of(context).alternate)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavBarItem(Icons.home_rounded, 'Home', false, () => context.goNamed(HomeDashboardWidget.routeName)),
-          _buildNavBarItem(Icons.assessment_rounded, 'Report', false, () => context.goNamed(DailyReportFormWidget.routeName)),
-          _buildNavBarItem(Icons.campaign_rounded, 'Notices', true, () {}),
-          _buildNavBarItem(Icons.person_rounded, 'Profile', false, () => context.goNamed(TeacherProfileWidget.routeName)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavBarItem(IconData icon, String label, bool isSelected, VoidCallback onTap) {
-    final color = isSelected ? FlutterFlowTheme.of(context).primary : FlutterFlowTheme.of(context).secondaryText;
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: FlutterFlowTheme.of(context).labelSmall.override(
-                font: GoogleFonts.inter(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
-                color: color,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

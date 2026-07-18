@@ -56,12 +56,12 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
 
   String _routeNameForTarget(String target) {
     final routeName = switch (target) {
-      'DailyReport' => DailyReportFormWidget.routeName,
+      'DailyReport' => ReportsDashboardWidget.routeName,
       'Attendance' => AttendanceDashboardWidget.routeName,
       'Homework' => HomeworkAssignmentWidget.routeName,
       'TeacherProfile' => TeacherProfileWidget.routeName,
       'Announcements' => AnnouncementsFeedWidget.routeName,
-      'AboutDeshmukh' => AboutDeshmukhWidget.routeName,
+      'AboutDCI' => AboutDCIWidget.routeName,
       'Students' => StudentListWidget.routeName,
       _ => ReportsDashboardWidget.routeName,
     };
@@ -70,6 +70,8 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    
     return InkWell(
       onTap: () async {
         try {
@@ -85,18 +87,17 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
       },
       borderRadius: AppRadius.card,
       child: Container(
-        width: double.infinity,
         decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).secondaryBackground,
+          color: theme.secondaryBackground,
           borderRadius: AppRadius.card,
           border: Border.all(
-            color: FlutterFlowTheme.of(context).alternate,
+            color: theme.alternate,
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
               blurRadius: 10,
-              color: Colors.black.withAlpha((0.04 * 255).toInt()),
+              color: Colors.black.withAlpha(10),
               offset: const Offset(0, 4),
             )
           ],
@@ -109,17 +110,17 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 52.0,
-                height: 52.0,
+                width: AppSize.iconXl,
+                height: AppSize.iconXl,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha((0.1 * 255).toInt()),
-                  borderRadius: BorderRadius.circular(12.0),
+                  color: AppColors.primary.withAlpha(25),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 alignment: const AlignmentDirectional(0, 0),
                 child: IconTheme(
                   data: const IconThemeData(
                     color: AppColors.primary,
-                    size: 26,
+                    size: AppSize.iconMd,
                   ),
                   child: widget.icon!,
                 ),
@@ -128,11 +129,11 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
               Text(
                 widget.title,
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.label.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: FlutterFlowTheme.of(context).primaryText,
+                  color: theme.primaryText,
                   fontSize: 13,
                 ),
               ),

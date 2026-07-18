@@ -77,19 +77,49 @@ class AuthRepository {
   }
 
   Future<void> createUserDoc(User user) async {
-    final userDoc = _firestore.collection('users').doc(user.uid);
-    final doc = await userDoc.get();
-    if (!doc.exists) {
-      await userDoc.set({
-        'email': user.email ?? '',
-        'display_name': user.displayName ?? '',
-        'photo_url': user.photoURL ?? '',
-        'uid': user.uid,
-        'created_time': FieldValue.serverTimestamp(),
-        'role': 'Teacher',
-        'notifications_enabled': true,
-      });
+    final userDocRef = _firestore.collection('users').doc(user.uid);
+    final doc = await userDocRef.get();
+    
+    if (doc.exists) {
+      // User document already exists (with the correct UID as ID)
+      return;
     }
+
+    // If doc by UID doesn't exist, check if there's a pre-provisioned doc by EMAIL
+    final preProvisionedQuery = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: user.email?.toLowerCase())
+        .where('is_pre_provisioned', isEqualTo: true)
+        .get();
+
+    if (preProvisionedQuery.docs.isNotEmpty) {
+      final preDoc = preProvisionedQuery.docs.first;
+      final preData = preDoc.data();
+      
+      // Found a pre-provisioned doc. Copy data to the UID-based doc and remove the old one.
+      await userDocRef.set({
+        ...preData,
+        'uid': user.uid,
+        'photo_url': user.photoURL ?? preData['photo_url'] ?? '',
+        'is_pre_provisioned': false, // No longer pre-provisioned
+        'updated_time': FieldValue.serverTimestamp(),
+      });
+      
+      // Delete the temporary pre-provisioned doc
+      await preDoc.reference.delete();
+      return;
+    }
+
+    // Default: Create a brand new Teacher profile if nothing existed
+    await userDocRef.set({
+      'email': user.email?.toLowerCase() ?? '',
+      'display_name': user.displayName ?? '',
+      'photo_url': user.photoURL ?? '',
+      'uid': user.uid,
+      'created_time': FieldValue.serverTimestamp(),
+      'role': 'Teacher',
+      'notifications_enabled': true,
+    });
   }
 
   Future<void> updatePassword(String newPassword) async {

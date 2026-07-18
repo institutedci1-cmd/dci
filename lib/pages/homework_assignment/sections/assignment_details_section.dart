@@ -38,7 +38,9 @@ class AssignmentDetailsSection extends StatelessWidget {
               wrapWithModel(
                 model: model.textFieldModel1,
                 updateCallback: onChanged,
-                child: const TextFieldWidget(
+                child: TextFieldWidget(
+                  controller: model.textFieldModel1.inputTextController,
+                  focusNode: model.textFieldModel1.inputFocusNode,
                   label: 'Homework Title',
                   labelPresent: true,
                   hint: 'e.g. Quadratic Equations Practice',
@@ -49,7 +51,9 @@ class AssignmentDetailsSection extends StatelessWidget {
               wrapWithModel(
                 model: model.textFieldModel2,
                 updateCallback: onChanged,
-                child: const TextFieldWidget(
+                child: TextFieldWidget(
+                  controller: model.textFieldModel2.inputTextController,
+                  focusNode: model.textFieldModel2.inputFocusNode,
                   label: 'Description',
                   labelPresent: true,
                   hint: 'Describe the tasks or questions...',

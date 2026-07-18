@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/button/button_widget.dart';
@@ -76,7 +77,7 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
         final repository = ref.read(userRepositoryProvider);
         final file = File(result.files.single.path!);
         final newUrl = await repository.uploadProfilePicture(file);
-        
+
         if (newUrl != null && mounted) {
           setState(() {
             _currentPhotoUrl = newUrl;
@@ -148,10 +149,12 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
                 borderRadius: BorderRadius.circular(50),
                 child: _isUploading
                     ? const Center(child: CircularProgressIndicator())
-                    : Image.network(
-                        _currentPhotoUrl ??
+                    : CachedNetworkImage(
+                        imageUrl: _currentPhotoUrl ??
                             'https://dimg.dreamflow.cloud/v1/image/professional%20teacher%20portrait',
                         fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => const Icon(Icons.person, size: 50),
                       ),
               ),
             ),
@@ -208,86 +211,90 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      _buildPhotoUploadSection(context),
-                      const SizedBox(height: 24),
-                      wrapWithModel(
-                        model: _model.textFieldModel1,
-                        updateCallback: () => safeSetState(() {}),
-                        child: const TextFieldWidget(
-                          label: 'Full Name',
-                          hint: 'Enter your name',
-                          variant: 'outlined',
+                  child: AutofillGroup(
+                    child: Column(
+                      children: [
+                        _buildPhotoUploadSection(context),
+                        const SizedBox(height: 24),
+                        wrapWithModel(
+                          model: _model.textFieldModel1,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Full Name',
+                            hint: 'Enter your name',
+                            variant: 'outlined',
+                            autofillHints: [AutofillHints.name],
+                          ),
                         ),
-                      ),
-                      wrapWithModel(
-                        model: _model.textFieldModel2,
-                        updateCallback: () => safeSetState(() {}),
-                        child: const TextFieldWidget(
-                          label: 'Designation',
-                          hint: 'e.g. Senior Physics Faculty',
-                          variant: 'outlined',
+                        wrapWithModel(
+                          model: _model.textFieldModel2,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Designation',
+                            hint: 'e.g. Senior Physics Faculty',
+                            variant: 'outlined',
+                          ),
                         ),
-                      ),
-                      wrapWithModel(
-                        model: _model.textFieldModel3,
-                        updateCallback: () => safeSetState(() {}),
-                        child: const TextFieldWidget(
-                          label: 'Phone Number',
-                          hint: 'e.g. +91 98765 43210',
-                          variant: 'outlined',
+                        wrapWithModel(
+                          model: _model.textFieldModel3,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Phone Number',
+                            hint: 'e.g. +91 98765 43210',
+                            variant: 'outlined',
+                            autofillHints: [AutofillHints.telephoneNumber],
+                          ),
                         ),
-                      ),
-                      wrapWithModel(
-                        model: _model.textFieldModel4,
-                        updateCallback: () => safeSetState(() {}),
-                        child: const TextFieldWidget(
-                          label: 'Qualification',
-                          hint: 'e.g. M.Sc., B.Ed.',
-                          variant: 'outlined',
+                        wrapWithModel(
+                          model: _model.textFieldModel4,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Qualification',
+                            hint: 'e.g. M.Sc., B.Ed.',
+                            variant: 'outlined',
+                          ),
                         ),
-                      ),
-                      wrapWithModel(
-                        model: _model.textFieldModel5,
-                        updateCallback: () => safeSetState(() {}),
-                        child: const TextFieldWidget(
-                          label: 'Subject Expertise',
-                          hint: 'e.g. Mathematics, Physics',
-                          variant: 'outlined',
+                        wrapWithModel(
+                          model: _model.textFieldModel5,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Subject Expertise',
+                            hint: 'e.g. Mathematics, Physics',
+                            variant: 'outlined',
+                          ),
                         ),
-                      ),
-                      wrapWithModel(
-                        model: _model.textFieldModel6,
-                        updateCallback: () => safeSetState(() {}),
-                        child: const TextFieldWidget(
-                          label: 'Experience',
-                          hint: 'e.g. 10 Years',
-                          variant: 'outlined',
+                        wrapWithModel(
+                          model: _model.textFieldModel6,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Experience',
+                            hint: 'e.g. 10 Years',
+                            variant: 'outlined',
+                          ),
                         ),
-                      ),
-                      wrapWithModel(
-                        model: _model.textFieldModel7,
-                        updateCallback: () => safeSetState(() {}),
-                        child: const TextFieldWidget(
-                          label: 'Employee ID',
-                          hint: 'e.g. DCI-2024-001',
-                          variant: 'outlined',
+                        wrapWithModel(
+                          model: _model.textFieldModel7,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Employee ID',
+                            hint: 'e.g. DCI-2024-001',
+                            variant: 'outlined',
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      wrapWithModel(
-                        model: _model.buttonModel,
-                        updateCallback: () => safeSetState(() {}),
-                        child: ButtonWidget(
-                          content: 'Save Changes',
-                          variant: 'primary',
-                          size: 'large',
-                          fullWidth: true,
-                          onPressed: _saveProfile,
+                        const SizedBox(height: 24),
+                        wrapWithModel(
+                          model: _model.buttonModel,
+                          updateCallback: () => safeSetState(() {}),
+                          child: ButtonWidget(
+                            content: 'Save Changes',
+                            variant: 'primary',
+                            size: 'large',
+                            fullWidth: true,
+                            onPressed: _saveProfile,
+                          ),
                         ),
-                      ),
-                    ].divide(const SizedBox(height: 16)),
+                      ].divide(const SizedBox(height: 16)),
+                    ),
                   ),
                 ),
               ),

@@ -4,11 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '/auth/base_auth_user_provider.dart';
-
-import '../../backend/models/student.dart';
-import '/pages/edit_student/edit_student_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-
 import '/index.dart';
 
 export 'package:go_router/go_router.dart';
@@ -29,11 +25,6 @@ class AppStateNotifier extends ChangeNotifier {
   bool showSplashImage = true;
   String? _redirectLocation;
 
-  /// Determines whether the app will refresh and build again when a sign
-  /// in or sign out happens. This is useful when the app is launched or
-  /// on an unexpected logout. However, this must be turned off when we
-  /// intend to sign in/out and then navigate or perform any actions after.
-  /// Otherwise, this will trigger a refresh and interrupt the action(s).
   bool notifyOnAuthChange = true;
 
   bool get loading => user == null || showSplashImage;
@@ -46,8 +37,6 @@ class AppStateNotifier extends ChangeNotifier {
   void setRedirectLocationIfUnset(String loc) => _redirectLocation ??= loc;
   void clearRedirectLocation() => _redirectLocation = null;
 
-  /// Mark as not needing to notify on a sign in / out when we intend
-  /// to perform subsequent actions (such as navigation) afterwards.
   void updateNotifyOnAuthChange(bool notify) => notifyOnAuthChange = notify;
 
   void update(BaseAuthUser newUser) {
@@ -55,13 +44,9 @@ class AppStateNotifier extends ChangeNotifier {
         user?.uid == null || newUser.uid == null || user?.uid != newUser.uid;
     initialUser ??= newUser;
     user = newUser;
-    // Refresh the app on auth change unless explicitly marked otherwise.
-    // No need to update unless the user has changed.
     if (notifyOnAuthChange && shouldUpdate) {
       notifyListeners();
     }
-    // Once again mark the notifier as needing to update on auth change
-    // (in order to catch sign in / out events).
     updateNotifyOnAuthChange(true);
   }
 
@@ -88,77 +73,67 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               : const LoginWidget(),
         ),
         FFRoute(
-          name: LoginWidget.routeName,
-          path: LoginWidget.routePath,
+          name: 'Login',
+          path: '/login',
           builder: (context, params) => const LoginWidget(),
         ),
         FFRoute(
-          name: PhoneLoginWidget.routeName,
-          path: PhoneLoginWidget.routePath,
-          builder: (context, params) => const PhoneLoginWidget(),
-        ),
-        FFRoute(
-          name: SignUpWidget.routeName,
-          path: SignUpWidget.routePath,
-          builder: (context, params) => const SignUpWidget(),
-        ),
-        FFRoute(
-          name: HomeDashboardWidget.routeName,
-          path: HomeDashboardWidget.routePath,
+          name: 'HomeDashboard',
+          path: '/homeDashboard',
           requireAuth: true,
           builder: (context, params) => const HomeDashboardWidget(),
         ),
         FFRoute(
-          name: DailyReportFormWidget.routeName,
-          path: DailyReportFormWidget.routePath,
+          name: 'DailyReportForm',
+          path: '/dailyReportForm',
           requireAuth: true,
           builder: (context, params) => const DailyReportFormWidget(),
         ),
         FFRoute(
-          name: ReportsDashboardWidget.routeName,
-          path: ReportsDashboardWidget.routePath,
+          name: 'ReportsDashboard',
+          path: '/reportsDashboard',
           requireAuth: true,
           builder: (context, params) => const ReportsDashboardWidget(),
         ),
         FFRoute(
-          name: ReportHistoryWidget.routeName,
-          path: ReportHistoryWidget.routePath,
+          name: 'ReportHistory',
+          path: '/reportHistory',
           requireAuth: true,
           builder: (context, params) => const ReportHistoryWidget(),
         ),
         FFRoute(
-          name: AttendanceTrackerWidget.routeName,
-          path: AttendanceTrackerWidget.routePath,
+          name: 'AttendanceTracker',
+          path: '/attendanceTracker',
           requireAuth: true,
           builder: (context, params) => const AttendanceTrackerWidget(),
         ),
         FFRoute(
-          name: AttendanceDashboardWidget.routeName,
-          path: AttendanceDashboardWidget.routePath,
+          name: 'AttendanceDashboard',
+          path: '/attendanceDashboard',
           requireAuth: true,
           builder: (context, params) => const AttendanceDashboardWidget(),
         ),
         FFRoute(
-          name: AttendanceHistoryWidget.routeName,
-          path: AttendanceHistoryWidget.routePath,
+          name: 'AttendanceHistory',
+          path: '/attendanceHistory',
           requireAuth: true,
           builder: (context, params) => const AttendanceHistoryWidget(),
         ),
         FFRoute(
-          name: MonthlyReportWidget.routeName,
-          path: MonthlyReportWidget.routePath,
+          name: 'MonthlyReport',
+          path: '/monthlyReport',
           requireAuth: true,
           builder: (context, params) => const MonthlyReportWidget(),
         ),
         FFRoute(
-          name: StudentListWidget.routeName,
-          path: StudentListWidget.routePath,
+          name: 'StudentList',
+          path: '/studentList',
           requireAuth: true,
           builder: (context, params) => const StudentListWidget(),
         ),
         FFRoute(
-          name: EditStudentWidget.routeName,
-          path: EditStudentWidget.routePath,
+          name: 'EditStudent',
+          path: '/editStudent',
           requireAuth: true,
           builder: (context, params) => EditStudentWidget(
             student: params.getParam<Student>(
@@ -168,50 +143,50 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
-          name: HomeworkAssignmentWidget.routeName,
-          path: HomeworkAssignmentWidget.routePath,
+          name: 'HomeworkAssignment',
+          path: '/homeworkAssignment',
           requireAuth: true,
           builder: (context, params) => const HomeworkAssignmentWidget(),
         ),
         FFRoute(
-          name: HomeworkHistoryWidget.routeName,
-          path: HomeworkHistoryWidget.routePath,
+          name: 'HomeworkHistory',
+          path: '/homeworkHistory',
           requireAuth: true,
           builder: (context, params) => const HomeworkHistoryWidget(),
         ),
         FFRoute(
-          name: AnnouncementsFeedWidget.routeName,
-          path: AnnouncementsFeedWidget.routePath,
+          name: 'AnnouncementsFeed',
+          path: '/announcementsFeed',
           requireAuth: true,
           builder: (context, params) => const AnnouncementsFeedWidget(),
         ),
         FFRoute(
-          name: TeacherProfileWidget.routeName,
-          path: TeacherProfileWidget.routePath,
+          name: 'TeacherProfile',
+          path: '/teacherProfile',
           requireAuth: true,
           builder: (context, params) => const TeacherProfileWidget(),
         ),
         FFRoute(
-          name: EditProfileWidget.routeName,
-          path: EditProfileWidget.routePath,
+          name: 'EditProfile',
+          path: '/editProfile',
           requireAuth: true,
           builder: (context, params) => const EditProfileWidget(),
         ),
         FFRoute(
-          name: AboutDeshmukhWidget.routeName,
-          path: AboutDeshmukhWidget.routePath,
+          name: 'AboutDCI',
+          path: '/aboutDCI',
           requireAuth: true,
-          builder: (context, params) => const AboutDeshmukhWidget(),
+          builder: (context, params) => const AboutDCIWidget(),
         ),
         FFRoute(
-          name: SettingsWidget.routeName,
-          path: SettingsWidget.routePath,
+          name: 'Settings',
+          path: '/settings',
           requireAuth: true,
           builder: (context, params) => const SettingsWidget(),
         ),
         FFRoute(
-          name: NotificationsWidget.routeName,
-          path: NotificationsWidget.routePath,
+          name: 'Notifications',
+          path: '/notifications',
           requireAuth: true,
           builder: (context, params) => const NotificationsWidget(),
         )
@@ -262,8 +237,6 @@ extension NavigationExtensions on BuildContext {
             );
 
   void safePop() {
-    // If there is only one route on the stack, navigate to the initial
-    // page instead of popping.
     if (canPop()) {
       pop();
     } else {
@@ -305,8 +278,6 @@ class FFParameters {
 
   Map<String, dynamic> futureParamValues = {};
 
-  // Parameters are empty if the params map is empty or if the only parameter
-  // present is the special extra parameter reserved for the transition info.
   bool get isEmpty =>
       state.allParams.isEmpty ||
       (state.allParams.length == 1 &&
@@ -340,11 +311,9 @@ class FFParameters {
       return null;
     }
     final param = state.allParams[paramName];
-    // Got parameter from `extras`, so just directly return it.
     if (param is! String) {
       return param;
     }
-    // Return serialized value.
     return deserializeParam<T>(
       param,
       type,

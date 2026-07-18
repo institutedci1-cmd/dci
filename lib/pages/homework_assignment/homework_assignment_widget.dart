@@ -4,7 +4,7 @@ import '/components/button/button_widget.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import '../../index.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -59,7 +59,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
         final file = File(result.files.single.path!);
         final storageService = ref.read(storageServiceProvider);
         final url = await storageService.uploadHomeworkAttachment(file);
-        
+
         if (url != null && mounted) {
           setState(() {
             _model.attachmentUrls.add(url);

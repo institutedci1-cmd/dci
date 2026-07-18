@@ -24,19 +24,29 @@ class DailyReportRepository {
     return reports.isNotEmpty ? reports.first : null;
   }
 
+  // FIX: Removed server-side orderBy to bypass missing index errors. 
+  // We now sort locally in Dart.
   Future<List<DailyReport>> getReports({int limit = 20}) async {
     final user = _auth.currentUser;
     if (user == null) return [];
 
     final querySnapshot = await _reportsCollection
         .where('createdBy', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true)
         .limit(limit)
         .get();
 
-    return querySnapshot.docs
+    final list = querySnapshot.docs
         .map((doc) => DailyReport.fromFirestore(doc))
         .toList();
+    
+    // Local Sort: Newest first. Pending records (null createdAt) go to top.
+    list.sort((a, b) {
+      if (a.createdAt == null && b.createdAt == null) return 0;
+      if (a.createdAt == null) return -1;
+      if (b.createdAt == null) return 1;
+      return b.createdAt!.compareTo(a.createdAt!);
+    });
+    return list;
   }
 
   Stream<List<DailyReport>> getRecentReports({int limit = 3}) {
@@ -45,11 +55,21 @@ class DailyReportRepository {
 
     return _reportsCollection
         .where('createdBy', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
+        .limit(50) // Fetch a slightly larger batch to sort locally
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => DailyReport.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          final list = snapshot.docs
+              .map((doc) => DailyReport.fromFirestore(doc))
+              .toList();
+          
+          // Local Sort: Newest first. Pending records (null createdAt) go to top.
+          list.sort((a, b) {
+            if (a.createdAt == null && b.createdAt == null) return 0;
+            if (a.createdAt == null) return -1;
+            if (b.createdAt == null) return 1;
+            return b.createdAt!.compareTo(a.createdAt!);
+          });
+          return list.take(limit).toList();
+        });
   }
 }

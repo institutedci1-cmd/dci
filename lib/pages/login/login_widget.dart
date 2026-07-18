@@ -123,35 +123,19 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
         borderRadius: BorderRadius.circular(24.0),
       ),
       padding: const EdgeInsets.all(32.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            _buildLoginTitle(context),
-            const SizedBox(height: 24.0),
-            _buildInputFields(context),
-            const SizedBox(height: 24.0),
-            _buildLoginButton(context),
-            const SizedBox(height: 16.0),
-            _buildPhoneLoginButton(context),
-          ],
+      child: AutofillGroup(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildLoginTitle(context),
+              const SizedBox(height: 24.0),
+              _buildInputFields(context),
+              const SizedBox(height: 24.0),
+              _buildLoginButton(context),
+            ],
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPhoneLoginButton(BuildContext context) {
-    return wrapWithModel(
-      model: _model.buttonModel3,
-      updateCallback: () => safeSetState(() {}),
-      child: ButtonWidget(
-        icon: const Icon(Icons.phone_android_rounded, size: 20),
-        iconPresent: true,
-        content: 'Sign in with Phone',
-        variant: 'outline',
-        size: 'large',
-        fullWidth: true,
-        onPressed: () => context.pushNamed(PhoneLoginWidget.routeName),
       ),
     );
   }
@@ -186,11 +170,12 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
           updateCallback: () => safeSetState(() {}),
           child: const TextFieldWidget(
             label: 'Email Address',
-            hint: 'teacher@deshmukhcoaching.com',
+            hint: 'teacher@dciteachers.com',
             leadingIcon: Icon(Icons.email_outlined, size: 20),
             leadingIconPresent: true,
             keyboardType: TextInputType.emailAddress,
             validator: ValidationService.validateEmail,
+            autofillHints: [AutofillHints.email],
           ),
         ),
         const SizedBox(height: 16.0),
@@ -204,6 +189,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
             leadingIconPresent: true,
             obscureText: true,
             validator: (val) => ValidationService.validateRequired(val, 'Password'),
+            autofillHints: const [AutofillHints.password],
           ),
         ),
         Align(
@@ -241,45 +227,8 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
   Widget _buildFooterLinks(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Need help?', style: FlutterFlowTheme.of(context).bodySmall),
-            const SizedBox(width: 4),
-            InkWell(
-              onTap: () => launchURL('mailto:admin@deshmukhcoaching.com'),
-              child: Text(
-                'Contact Admin',
-                style: FlutterFlowTheme.of(context).bodySmall.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                  color: FlutterFlowTheme.of(context).primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Don\'t have an account?', style: FlutterFlowTheme.of(context).bodySmall),
-            const SizedBox(width: 4),
-            InkWell(
-              onTap: () => context.pushNamed(SignUpWidget.routeName),
-              child: Text(
-                'Sign Up',
-                style: FlutterFlowTheme.of(context).bodySmall.override(
-                  font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                  color: FlutterFlowTheme.of(context).primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
         const SizedBox(height: 20),
-        Text('Version 1.0.5 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
+        Text('Version 1.0.2 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
       ],
     );
   }

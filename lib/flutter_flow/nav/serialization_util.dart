@@ -79,7 +79,7 @@ String? serializeParam(
     }
     return data;
   } catch (e) {
-    print('Error serializing parameter: $e');
+    debugPrint('Error serializing parameter: $e');
     return null;
   }
 }
@@ -233,7 +233,7 @@ dynamic deserializeParam<T>(
         return param;
     }
   } catch (e) {
-    print('Error deserializing parameter: $e');
+    debugPrint('Error deserializing parameter: $e');
     return null;
   }
 }

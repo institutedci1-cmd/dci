@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../flutter_flow/flutter_flow_theme.dart';
 import '../../shared/app_style.dart';
 import '../../shared/app_colors.dart';
-import 'app_card.dart';
 
 class AttendanceStudentCard extends StatelessWidget {
   final String name;
@@ -22,64 +22,82 @@ class AttendanceStudentCard extends StatelessWidget {
     final isPresent = status == 'Present';
     final statusColor = isPresent ? AppColors.success : AppColors.error;
     
-    return AppCard(
-      onTap: onTap,
-      padding: EdgeInsets.zero,
-      border: BorderSide(
-        color: statusColor.withAlpha((0.3 * 255).toInt()),
-        width: 1.5,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 6,
-            height: 72,
-            color: statusColor,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: FlutterFlowTheme.of(context).secondaryBackground,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: statusColor.withAlpha(isPresent ? 40 : 80),
+              width: isPresent ? 1 : 1.5,
+            ),
           ),
-          const SizedBox(width: AppSpacing.md),
-          Checkbox(
-            value: isPresent,
-            activeColor: AppColors.success,
-            onChanged: (_) => onTap(),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  name,
-                  style: AppTypography.body.copyWith(
-                    fontWeight: FontWeight.bold,
+          child: Row(
+            children: [
+              Container(
+                width: 6,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
                   ),
                 ),
-                Text(
-                  'Roll No: $rollNo',
-                  style: AppTypography.caption,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: AppSpacing.md),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: isPresent ? AppColors.successLight : AppColors.errorLight,
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Text(
-              status.toUpperCase(),
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 10,
-                letterSpacing: 0.5,
               ),
-            ),
+              const SizedBox(width: 12),
+              // We use a custom checkbox-like icon to avoid event bubbling issues
+              Icon(
+                isPresent ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                color: isPresent ? AppColors.success : FlutterFlowTheme.of(context).secondaryText,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.body.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: isPresent ? null : AppColors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      'Roll No: $rollNo',
+                      style: AppTypography.caption.copyWith(fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withAlpha(isPresent ? 20 : 40),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  status.toUpperCase(),
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

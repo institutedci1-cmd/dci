@@ -5,9 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:printing/printing.dart';
+import 'package:uuid/uuid.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '../../models/student.dart';
-import '../../models/daily_report.dart';
+import '/backend/models/student.dart';
+import '/backend/models/daily_report.dart';
 
 class ExcelService {
   static Future<bool> exportStudents(List<Student> students) async {
@@ -127,10 +128,10 @@ class ExcelService {
       }
 
       if (bytes == null) {
-        print('Excel Import: Bytes are null');
+        debugPrint('Excel Import: Bytes are null');
         return [];
       }
-      print('Excel Import: Read ${bytes.length} bytes');
+      debugPrint('Excel Import: Read ${bytes.length} bytes');
 
       final excel = Excel.decodeBytes(bytes);
       final List<Map<String, String>> studentsData = [];
@@ -162,7 +163,7 @@ class ExcelService {
               if (val is IntCellValue) return val.value.toString().trim();
               if (val is DoubleCellValue) return val.value.toString().trim();
               if (val is BoolCellValue) return val.value.toString().trim();
-              
+
               return val.toString().trim();
             } catch (e) {
               return '';
@@ -170,9 +171,9 @@ class ExcelService {
           }
 
           final name = getVal(0);
-          final studentId = getVal(1);
+          String studentId = getVal(1);
           final rollNo = getVal(2);
-          final className = normalizeClassName(getVal(3));
+          String className = normalizeClassName(getVal(3));
           final section = getVal(4);
           final gender = getVal(5);
           final dob = getVal(6);
@@ -189,16 +190,21 @@ class ExcelService {
           final notes = getVal(17);
           final subjects = getVal(18);
 
-          if (name.isEmpty && studentId.isEmpty) continue;
+          if (name.isEmpty) continue;
 
-          if (name.isEmpty || studentId.isEmpty || className.isEmpty) {
-            print(
-                'Excel Import: Skipping row $i due to missing required fields (Name: $name, ID: $studentId, Class: $className)');
-            continue;
+          // Auto-generate ID if missing
+          if (studentId.isEmpty) {
+            studentId = 'STU-${const Uuid().v4().substring(0, 8).toUpperCase()}';
+          }
+
+          // Fallback class if missing
+          if (className.isEmpty) {
+            className = 'Unassigned';
           }
 
           if (studentsData.any((s) => s['student_id'] == studentId)) {
-            continue;
+            // If duplicate ID, generate a new one to ensure import succeeds
+            studentId = 'STU-${const Uuid().v4().substring(0, 8).toUpperCase()}';
           }
 
           studentsData.add({
@@ -226,7 +232,7 @@ class ExcelService {
       }
       return studentsData;
     } catch (e) {
-      print('Excel import error: $e');
+      debugPrint('Excel import error: $e');
       return [];
     }
   }
@@ -243,14 +249,14 @@ class ExcelService {
         final path = '${directory.path}/$fileName';
         final file = File(path);
         await file.writeAsBytes(bytes);
-        await Share.shareXFiles(
+        await SharePlus.shareXFiles(
           [XFile(path)],
           text: 'Exported Excel File',
         );
       }
       return true;
     } catch (e) {
-      print('Excel export error: $e');
+      debugPrint('Excel export error: $e');
       return false;
     }
   }

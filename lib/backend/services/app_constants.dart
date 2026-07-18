@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String instituteName = 'Deshmukh Coaching Institute';
+  static const String instituteName = 'DCI Teachers';
   
   static const List<String> classOptions = [
     'Class 4',

@@ -3,9 +3,10 @@ import '/backend/providers/repository_providers.dart';
 import '/components/button/button_widget.dart';
 import '/components/profile_header/profile_header_widget.dart';
 import '/components/profile_info_tile/profile_info_tile_widget.dart';
+import '/components/shared/app_bottom_nav_bar.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import '../../index.dart';
 import '/backend/services/pdf_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,11 +49,8 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: StreamBuilder<Map<String, dynamic>?>(
-          stream: ref.watch(userRepositoryProvider).getUserStream(),
-          builder: (context, snapshot) {
-            final userData = snapshot.data;
-
+        body: ref.watch(userStreamProvider).when(
+          data: (userData) {
             return SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -66,7 +64,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                       name: currentUserDisplayName != ''
                           ? currentUserDisplayName
                           : (userData?['display_name'] ??
-                              'Prof. Rajesh Deshmukh'),
+                              'DCI Faculty'),
                       photoUrl: currentUserPhoto != ''
                           ? currentUserPhoto
                           : userData?['photo_url'],
@@ -84,6 +82,10 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                         const SizedBox(height: 20.0),
                         _buildEducationExpertise(context, userData),
                         const SizedBox(height: 20.0),
+                        if (userData?['role'] == 'Admin') ...[
+                          _buildAdminToolsSection(context),
+                          const SizedBox(height: 20.0),
+                        ],
                         _buildAppLinksSection(context),
                         const SizedBox(height: 20.0),
                         _buildSettingsSection(context, userData),
@@ -98,6 +100,22 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                 ],
               ),
             );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(child: Text('Error: $err')),
+        ),
+        bottomNavigationBar: AppBottomNavBar(
+          currentIndex: 3,
+          onTap: (index) {
+            final routes = [
+              HomeDashboardWidget.routeName,
+              ReportsDashboardWidget.routeName,
+              AttendanceDashboardWidget.routeName,
+              TeacherProfileWidget.routeName,
+            ];
+            if (index != 3) {
+              context.goNamed(routes[index]);
+            }
           },
         ),
       ),
@@ -159,7 +177,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           child: ProfileInfoTileWidget(
             icon: Icon(Icons.email_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Email Address',
-            value: currentUserEmail != '' ? currentUserEmail : (userData?['email'] ?? 'rajesh.d@deshmukhcoaching.com'),
+            value: currentUserEmail != '' ? currentUserEmail : (userData?['email'] ?? 'admin@dciteachers.com'),
           ),
         ),
         wrapWithModel(
@@ -177,7 +195,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           child: ProfileInfoTileWidget(
             icon: Icon(Icons.badge_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Employee ID',
-            value: userData?['employee_id'] ?? 'Deshmukh-T-2024-089',
+            value: userData?['employee_id'] ?? 'DCI-T-2024-001',
           ),
         ),
         wrapWithModel(
@@ -275,7 +293,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'About Deshmukh Teacher Portal',
+                  'About DCI Teacher Portal',
                   style: FlutterFlowTheme.of(context).labelLarge.override(
                     font: GoogleFonts.inter(fontWeight: FontWeight.bold),
                     fontWeight: FontWeight.bold,
@@ -283,7 +301,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                 ),
                 const SizedBox(height: 4.0),
                 Text(
-                  'This profile is managed by the Deshmukh HR department.',
+                  'This profile is managed by the DCI HR department.',
                   style: FlutterFlowTheme.of(context).bodySmall,
                 ),
               ],
@@ -313,6 +331,21 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAdminToolsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(context, 'Administrative Tools'),
+        _buildListTile(
+          context,
+          icon: Icons.person_add_rounded,
+          title: 'Add New User',
+          onTap: () => context.pushNamed(AddUserWidget.routeName),
+        ),
+      ],
     );
   }
 

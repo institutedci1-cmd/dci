@@ -247,7 +247,9 @@ class FirebaseAuthManager extends AuthManager
           phoneAuthManager.triggerOnCodeSent = false;
           phoneAuthManager.phoneAuthError = e;
         });
-        completer.complete(false);
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
       },
       codeSent: (verificationId, _) {
         phoneAuthManager.update(() {
@@ -255,7 +257,9 @@ class FirebaseAuthManager extends AuthManager
           phoneAuthManager.triggerOnCodeSent = true;
           phoneAuthManager.phoneAuthError = null;
         });
-        completer.complete(true);
+        if (!completer.isCompleted) {
+          completer.complete(true);
+        }
       },
       codeAutoRetrievalTimeout: (_) {},
     );
@@ -298,7 +302,7 @@ class FirebaseAuthManager extends AuthManager
       final userCredential = await signInFunc();
       return userCredential == null
           ? null
-          : DeshmukhTeacherAppFirebaseUser.fromUserCredential(userCredential);
+          : DCITeacherAppFirebaseUser.fromUserCredential(userCredential);
     } on FirebaseAuthException catch (e) {
       final errorMsg = switch (e.code) {
         'email-already-in-use' =>

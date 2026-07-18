@@ -77,13 +77,9 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<DailyReport>>(
-              stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 50),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final reports = snapshot.data!;
+            child: ref.watch(recentReportsProvider(50)).when(
+              data: (reportsData) {
+                final reports = (reportsData as List).cast<DailyReport>();
                 if (reports.isEmpty) {
                   return Center(
                     child: Text(
@@ -138,14 +134,8 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
                                 icon: const Icon(Icons.share_rounded, color: Colors.green),
                                 onPressed: () async {
                                   final whatsappService = ref.read(whatsappServiceProvider);
-                                  // For simplicity, sharing to a fixed admin number or a chosen contact
-                                  // In production, this could prompt for a number or use a class group ID
-                                  await whatsappService.sendTextMessage(
-                                    to: 'YOUR_ADMIN_PHONE_NUMBER',
-                                    message: 'Daily Report Summary: ${report.className} - ${report.subject}. Chapter: ${report.chapter}. Present: ${report.presentCount}, Absent: ${report.absentCount}.',
-                                  );
-                                  if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Summary shared via WhatsApp.')));
+                                  final message = 'Daily Report Summary: ${report.className} - ${report.subject}. Chapter: ${report.chapter}. Present: ${report.presentCount}, Absent: ${report.absentCount}.';
+                                  await whatsappService.launchWhatsapp(message: message);
                                 },
                               ),
                               IconButton(
@@ -164,6 +154,8 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
                   },
                 );
               },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: $err')),
             ),
           ),
         ],

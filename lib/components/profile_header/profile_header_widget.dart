@@ -1,3 +1,4 @@
+import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -12,11 +13,15 @@ class ProfileHeaderWidget extends StatefulWidget {
     this.designation,
     this.name,
     this.photoUrl,
+    this.onBackPressed,
+    this.showBackButton = true,
   });
 
   final String? designation;
   final String? name;
   final String? photoUrl;
+  final Future Function()? onBackPressed;
+  final bool showBackButton;
 
   @override
   State<ProfileHeaderWidget> createState() => _ProfileHeaderWidgetState();
@@ -72,6 +77,28 @@ class _ProfileHeaderWidgetState extends State<ProfileHeaderWidget> {
               shape: BoxShape.rectangle,
             ),
           ),
+          if (widget.showBackButton)
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16.0, 44.0, 0.0, 0.0),
+              child: FlutterFlowIconButton(
+                borderColor: Colors.transparent,
+                borderRadius: 12.0,
+                buttonSize: 40.0,
+                fillColor: FlutterFlowTheme.of(context).onPrimary15,
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  color: FlutterFlowTheme.of(context).onPrimary,
+                  size: 24.0,
+                ),
+                onPressed: () async {
+                  if (widget.onBackPressed != null) {
+                    await widget.onBackPressed!();
+                  } else {
+                    context.safePop();
+                  }
+                },
+              ),
+            ),
           Align(
             alignment: const AlignmentDirectional(0.0, 1.0),
             child: Column(
@@ -112,7 +139,7 @@ class _ProfileHeaderWidgetState extends State<ProfileHeaderWidget> {
                     Text(
                       valueOrDefault<String>(
                         widget.name,
-                        'Prof. Rajesh Deshmukh',
+                        'DCI Faculty',
                       ),
                       style:
                           FlutterFlowTheme.of(context).headlineMedium.override(

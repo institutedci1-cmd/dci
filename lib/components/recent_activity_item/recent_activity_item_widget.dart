@@ -1,5 +1,4 @@
 import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -64,7 +63,7 @@ class RecentActivityItemWidget extends StatelessWidget {
                         ),
                         Text(
                           subtitle,
-                          maxLines: 1,
+                          maxLines: 2,
                           style: FlutterFlowTheme.of(context).labelSmall.override(
                                 font: GoogleFonts.inter(),
                                 fontSize: 11,

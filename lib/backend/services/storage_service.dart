@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
@@ -20,7 +21,7 @@ class StorageService {
       final uploadTask = await storageRef.putFile(file);
       return await uploadTask.ref.getDownloadURL();
     } catch (e) {
-      print('Error uploading homework attachment: $e');
+      debugPrint('Error uploading homework attachment: $e');
       return null;
     }
   }
@@ -30,7 +31,7 @@ class StorageService {
       final ref = _storage.refFromURL(url);
       await ref.delete();
     } catch (e) {
-      print('Error deleting attachment: $e');
+      debugPrint('Error deleting attachment: $e');
     }
   }
 }

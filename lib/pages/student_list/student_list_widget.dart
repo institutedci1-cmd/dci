@@ -1,5 +1,5 @@
 import '/components/shared/app_search_bar.dart';
-import '/components/shared/student_card.dart';
+import '/components/shared/compact_student_card.dart';
 import '/components/shared/app_primary_button.dart';
 import '/components/shared/app_empty_state.dart';
 import '/shared/app_style.dart';
@@ -7,15 +7,15 @@ import '/shared/app_colors.dart';
 import '/backend/models/student.dart';
 import '/backend/providers/repository_providers.dart';
 import '/backend/services/excel_service/excel_service.dart';
-import '/components/button/button_widget.dart';
+import '/backend/services/error_handler.dart';
 import '/components/header_section/header_section_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '../../index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../edit_student/edit_student_widget.dart';
 import 'student_list_model.dart';
-export 'student_list_model.dart';
 
 class StudentListWidget extends ConsumerStatefulWidget {
   const StudentListWidget({super.key});
@@ -32,7 +32,6 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   String _searchQuery = '';
   bool _isImporting = false;
-  int _refreshKey = 0;
 
   @override
   void initState() {
@@ -68,18 +67,17 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final studentsAsync = ref.watch(studentsStreamProvider);
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: StreamBuilder<List<Student>>(
-          stream: ref.watch(studentRepositoryProvider).getAllStudentsStream(),
-          builder: (context, snapshot) {
-            final allStudents = snapshot.data ?? [];
+        body: studentsAsync.when(
+          data: (allStudents) {
             final filteredStudents = _applyFilters(allStudents);
             
-            // Get unique classes for dropdown
             final dynamicClassOptions = allStudents
                 .map((s) => s.className)
                 .where((c) => c.isNotEmpty)
@@ -87,9 +85,13 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                 .toList()
               ..sort();
             
-            // Safety check: if selected class no longer exists, reset to All Classes
             if (_model.dropdownValue != 'All Classes' && !dynamicClassOptions.contains(_model.dropdownValue)) {
               _model.dropdownValue = 'All Classes';
+            }
+
+            final Map<String, int> classCounts = {};
+            for (final s in allStudents) {
+              classCounts[s.className] = (classCounts[s.className] ?? 0) + 1;
             }
 
             return Column(
@@ -110,29 +112,58 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                     },
                   ),
                 ),
-                _buildSearchAndFilter(context, dynamicClassOptions),
+                _buildSearchAndFilter(context, dynamicClassOptions, classCounts, allStudents.length),
                 _buildImportExportRow(context, filteredStudents),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      // Stream will refresh automatically, but this gives visual feedback
-                      safeSetState(() {});
+                      ref.invalidate(studentsStreamProvider);
                       await Future.delayed(const Duration(milliseconds: 500));
                     },
-                    child: _buildStudentList(context, snapshot, filteredStudents, allStudents.isEmpty),
+                    child: _buildStudentList(context, filteredStudents, allStudents.isEmpty),
                   ),
                 ),
               ],
             );
           },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => _buildErrorState(context, error),
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, dynamic error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: AppSize.iconXl),
+          const SizedBox(height: 16),
+          Text('Data Error', style: AppTypography.section),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              'Something went wrong: $error',
+              style: AppTypography.caption,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          AppPrimaryButton(
+            text: 'Try Refreshing',
+            width: 160,
+            onPressed: () => safeSetState(() {}),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildImportExportRow(BuildContext context, List<Student> filteredStudents) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
       child: Row(
         children: [
           Expanded(
@@ -140,6 +171,7 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
               text: 'Export Excel',
               color: AppColors.secondary,
               icon: Icons.file_download_outlined,
+              height: 44,
               onPressed: () async {
                 if (filteredStudents.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -147,7 +179,6 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                   );
                   return;
                 }
-
                 await ExcelService.exportStudents(filteredStudents);
               },
             ),
@@ -158,6 +189,7 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
               text: 'Bulk Import',
               isLoading: _isImporting,
               icon: Icons.file_upload_outlined,
+              height: 44,
               onPressed: () async {
                 safeSetState(() => _isImporting = true);
                 try {
@@ -167,18 +199,12 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                     await repository.bulkAddStudents(data);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                'Imported ${data.length} students successfully!')),
+                        SnackBar(content: Text('Imported ${data.length} students successfully!')),
                       );
                     }
                   }
                 } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Import failed: $e')),
-                    );
-                  }
+                  if (context.mounted) ErrorHandler.show(context, e);
                 } finally {
                   safeSetState(() => _isImporting = false);
                 }
@@ -190,9 +216,9 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     );
   }
 
-  Widget _buildSearchAndFilter(BuildContext context, List<String> classOptions) {
+  Widget _buildSearchAndFilter(BuildContext context, List<String> classOptions, Map<String, int> classCounts, int totalCount) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.xs),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,10 +238,12 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
             child: Row(
               children: ['All Classes', ...classOptions].map((className) {
                 final isSelected = (_model.dropdownValue ?? 'All Classes') == className;
+                final count = className == 'All Classes' ? totalCount : (classCounts[className] ?? 0);
+                
                 return Padding(
                   padding: const EdgeInsets.only(right: AppSpacing.sm),
                   child: FilterChip(
-                    label: Text(className),
+                    label: Text('$className ($count)'),
                     selected: isSelected,
                     onSelected: (selected) {
                       safeSetState(() {
@@ -226,18 +254,14 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                     backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
                     selectedColor: AppColors.primary,
                     labelStyle: AppTypography.caption.copyWith(
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.textPrimary,
+                      color: isSelected ? Colors.white : AppColors.textPrimary,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                     checkmarkColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.xl),
                       side: BorderSide(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.outline,
+                        color: isSelected ? AppColors.primary : AppColors.outline,
                       ),
                     ),
                   ),
@@ -250,39 +274,7 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     );
   }
 
-  Widget _buildStudentList(BuildContext context, AsyncSnapshot<List<Student>> snapshot, List<Student> students, bool isDatabaseEmpty) {
-    if (snapshot.hasError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline_rounded, color: Colors.red, size: 64),
-            const SizedBox(height: 16),
-            Text('Data Error', style: FlutterFlowTheme.of(context).titleMedium),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Something went wrong: ${snapshot.error}',
-                style: FlutterFlowTheme.of(context).bodySmall,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 24),
-            ButtonWidget(
-              content: 'Try Refreshing',
-              variant: 'outline',
-              onPressed: () => safeSetState(() {}),
-            ),
-          ],
-        ),
-      );
-    }
-    
-    if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
+  Widget _buildStudentList(BuildContext context, List<Student> students, bool isDatabaseEmpty) {
     if (isDatabaseEmpty) {
       return AppEmptyState(
         icon: Icons.people_outline_rounded,
@@ -310,10 +302,10 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.xl),
       itemCount: students.length,
-      separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (context, index) => const SizedBox(height: 6),
       itemBuilder: (context, index) {
         final student = students[index];
-        return StudentCard(
+        return CompactStudentCard(
           student: student,
           onTap: () async {
             context.pushNamed(
@@ -325,5 +317,4 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
       },
     );
   }
-
 }

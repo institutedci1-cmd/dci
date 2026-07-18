@@ -1,4 +1,5 @@
 import '/components/dashboard_card/dashboard_card_widget.dart';
+import '/flutter_flow/flutter_flow_model.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'home_dashboard_widget.dart' show HomeDashboardWidget;

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Brand Colors
-  static const Color primary = Color(0xFF1E88E5);
-  static const Color primaryDark = Color(0xFF1565C0);
-  static const Color primaryLight = Color(0xFFBBDEFB);
+  // Brand Colors - Royal Purple & Slate (Sophisticated & Modern)
+  static const Color primary = Color(0xFF312E81); // Deep Royal Indigo/Purple
+  static const Color primaryDark = Color(0xFF1E1B4B);
+  static const Color primaryLight = Color(0xFF4338CA);
   
-  static const Color secondary = Color(0xFFFF9800);
-  static const Color secondaryDark = Color(0xFFF57C00);
-  static const Color secondaryLight = Color(0xFFFFE0B2);
+  static const Color secondary = Color(0xFF64748B); // Professional Slate
+  static const Color secondaryDark = Color(0xFF334155);
+  static const Color secondaryLight = Color(0xFF94A3B8);
 
-  static const Color tertiary = Color(0xFF00ACC1);
+  static const Color tertiary = Color(0xFF8B5CF6); // Modern Violet Accent
 
   // Status Colors
   static const Color success = Color(0xFF34A853);

@@ -1,6 +1,6 @@
 import '/components/shared/app_section_header.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '/shared/app_style.dart';
-import '/shared/app_colors.dart';
 import '/backend/models/student.dart';
 import '/backend/providers/repository_providers.dart';
 import '/backend/services/app_constants.dart';
@@ -11,6 +11,7 @@ import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
+import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -65,12 +66,19 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
   }
 
   Future<void> _saveStudent() async {
-    final docId = widget.student?.id ?? _model.studentIdModel.inputTextController?.text.trim() ?? '';
+    String studentId = _model.studentIdModel.inputTextController?.text.trim() ?? '';
     final name = _model.nameModel.inputTextController?.text.trim() ?? '';
+    
+    // Auto-generate ID if it's a new student and ID is empty
+    if (widget.student == null && studentId.isEmpty) {
+      studentId = 'STU-${const Uuid().v4().substring(0, 8).toUpperCase()}';
+    }
+
+    final docId = widget.student?.id ?? studentId;
     
     if (docId.isEmpty || name.isEmpty || _model.selectedClass == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Student ID, Name, and Class are required.')),
+        const SnackBar(content: Text('Name and Class are required.')),
       );
       return;
     }
@@ -312,7 +320,12 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: _model.photoUrl != null && _model.photoUrl!.isNotEmpty
-                      ? Image.network(_model.photoUrl!, fit: BoxFit.cover)
+                      ? CachedNetworkImage(
+                          imageUrl: _model.photoUrl!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => const Icon(Icons.person, size: 60),
+                        )
                       : Icon(Icons.person_rounded, size: 60, color: FlutterFlowTheme.of(context).secondaryText),
                 ),
               ),

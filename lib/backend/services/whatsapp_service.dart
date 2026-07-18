@@ -1,11 +1,40 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class WhatsappService {
   // These should be moved to a secure configuration or environment variables in production
   static const String _baseUrl = 'https://graph.facebook.com/v17.0';
   static const String _phoneNumberId = 'YOUR_PHONE_NUMBER_ID';
   static const String _accessToken = 'YOUR_ACCESS_TOKEN';
+
+  /// Opens the WhatsApp app on the device with a pre-filled message.
+  /// If [phone] is provided, it opens a direct chat with that number.
+  /// If [phone] is null, it opens the WhatsApp contact/group picker.
+  Future<bool> launchWhatsapp({String? phone, required String message}) async {
+    String url;
+    if (phone != null && phone.isNotEmpty) {
+      // Format phone number: remove non-digits
+      final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
+      url = "https://wa.me/$cleanPhone/?text=${Uri.encodeComponent(message)}";
+    } else {
+      // This protocol often triggers the contact picker in the app
+      url = "whatsapp://send?text=${Uri.encodeComponent(message)}";
+    }
+
+    final uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        return await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        // Fallback to wa.me if whatsapp:// protocol is not supported
+        final webUrl = Uri.parse("https://wa.me/?text=${Uri.encodeComponent(message)}");
+        return await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      return false;
+    }
+  }
 
   Future<bool> sendTemplateMessage({
     required String to,

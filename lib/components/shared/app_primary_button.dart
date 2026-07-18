@@ -11,7 +11,9 @@ class AppPrimaryButton extends StatelessWidget {
     this.icon,
     this.fullWidth = true,
     this.width,
+    this.height,
     this.color,
+    this.variant = 'primary',
   });
 
   final String text;
@@ -20,52 +22,84 @@ class AppPrimaryButton extends StatelessWidget {
   final IconData? icon;
   final bool fullWidth;
   final double? width;
+  final double? height;
   final Color? color;
+  final String variant; // 'primary' or 'outline'
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = color ?? (variant == 'primary' ? AppColors.primary : Colors.transparent);
+    final effectiveHeight = height ?? AppSize.buttonHeight;
+
     return SizedBox(
       width: width ?? (fullWidth ? double.infinity : null),
-      height: 52,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color ?? AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: (color ?? AppColors.primary).withAlpha((0.6 * 255).toInt()),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.button,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 20),
-                    const SizedBox(width: AppSpacing.sm),
-                  ],
-                  Text(
-                    text,
-                    style: AppTypography.body.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+      height: effectiveHeight,
+      child: variant == 'primary' 
+          ? ElevatedButton(
+              onPressed: isLoading ? null : onPressed,
+              style: _getButtonStyle(effectiveColor),
+              child: _buildContent(),
+            )
+          : OutlinedButton(
+              onPressed: isLoading ? null : onPressed,
+              style: _getOutlineStyle(color ?? AppColors.primary),
+              child: _buildContent(textColor: color ?? AppColors.primary),
+            ),
+    );
+  }
+
+  ButtonStyle _getButtonStyle(Color baseColor) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: baseColor,
+      foregroundColor: Colors.white,
+      disabledBackgroundColor: baseColor.withAlpha(150),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      padding: EdgeInsets.symmetric(
+        horizontal: width != null ? AppSpacing.sm : AppSpacing.lg,
       ),
+    );
+  }
+
+  ButtonStyle _getOutlineStyle(Color baseColor) {
+    return OutlinedButton.styleFrom(
+      foregroundColor: baseColor,
+      side: BorderSide(color: baseColor, width: 1.5),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      padding: EdgeInsets.symmetric(
+        horizontal: width != null ? AppSpacing.sm : AppSpacing.lg,
+      ),
+    );
+  }
+
+  Widget _buildContent({Color textColor = Colors.white}) {
+    if (isLoading) {
+      return SizedBox(
+        height: 20,
+        width: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(textColor),
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) Icon(icon, size: 20),
+        if (icon != null && text.isNotEmpty) const SizedBox(width: AppSpacing.sm),
+        if (text.isNotEmpty)
+          Flexible(
+            child: Text(
+              text,
+              style: AppTypography.button.copyWith(color: textColor),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+      ],
     );
   }
 }

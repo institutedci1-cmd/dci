@@ -36,6 +36,26 @@ class UserRepository {
     return doc.data();
   }
 
+  Future<String> getUserRole() async {
+    final data = await getUserData();
+    return data?['role'] ?? 'Teacher';
+  }
+
+  Future<bool> isAdmin() async {
+    final role = await getUserRole();
+    return role == 'Admin';
+  }
+
+  Future<bool> isDirector() async {
+    final role = await getUserRole();
+    return role == 'Director';
+  }
+
+  Future<bool> isStaff() async {
+    final role = await getUserRole();
+    return ['Admin', 'Director', 'Teacher'].contains(role);
+  }
+
   Future<void> updateProfile({
     required String displayName,
     required String designation,
@@ -119,5 +139,58 @@ class UserRepository {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<void> createNewUser({
+    required String email,
+    required String displayName,
+    required String role,
+    required String designation,
+    required String phoneNumber,
+    required String employeeId,
+    required String subjectExpertise,
+  }) async {
+    // Search if a user with this email already exists in Firestore
+    final query = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email.trim())
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      throw Exception('A user with this email already exists.');
+    }
+
+    // We create a document with a temporary ID that can be found by email later
+    await _firestore.collection('users').add({
+      'email': email.trim().toLowerCase(),
+      'display_name': displayName,
+      'role': role,
+      'designation': designation,
+      'phone_number': phoneNumber,
+      'employee_id': employeeId,
+      'subject_expertise': subjectExpertise,
+      'created_time': FieldValue.serverTimestamp(),
+      'notifications_enabled': true,
+      'is_pre_provisioned': true,
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getTeachers() async {
+    final query = await _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'Teacher')
+        .get();
+
+    return query.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<List<String>> getAllUserSubjects() async {
+    final query = await _firestore.collection('users').get();
+    return query.docs
+        .map((doc) => doc.data()['subject_expertise'] as String?)
+        .where((s) => s != null && s.isNotEmpty)
+        .expand((s) => s!.split(',').map((e) => e.trim()))
+        .toSet()
+        .toList();
   }
 }

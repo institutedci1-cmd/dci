@@ -14,6 +14,7 @@ class AnnouncementCardWidget extends StatefulWidget {
     this.description,
     this.title,
     this.onTap,
+    this.onShare,
   });
 
   final String? category;
@@ -21,6 +22,7 @@ class AnnouncementCardWidget extends StatefulWidget {
   final String? description;
   final String? title;
   final Future Function()? onTap;
+  final VoidCallback? onShare;
 
   @override
   State<AnnouncementCardWidget> createState() => _AnnouncementCardWidgetState();
@@ -218,6 +220,11 @@ class _AnnouncementCardWidgetState extends State<AnnouncementCardWidget> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      if (widget.onShare != null)
+                        IconButton(
+                          icon: const Icon(Icons.share_rounded, color: Colors.green, size: 20),
+                          onPressed: widget.onShare,
+                        ),
                       wrapWithModel(
                         model: _model.buttonModel,
                         updateCallback: () => safeSetState(() {}),

@@ -29,6 +29,12 @@
 
 # Add any other project-specific rules here
 
+# Play Core library rules to fix R8 errors
+-keep class com.google.android.play.core.splitcompat.** { *; }
+-keep class com.google.android.play.core.splitinstall.** { *; }
+-keep class com.google.android.play.core.tasks.** { *; }
+-dontwarn com.google.android.play.core.**
+
 
 
 

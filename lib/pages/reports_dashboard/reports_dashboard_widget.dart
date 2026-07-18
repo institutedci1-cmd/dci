@@ -1,9 +1,12 @@
 import '/backend/models/daily_report.dart';
 import '/backend/providers/repository_providers.dart';
 import '/components/header_section/header_section_widget.dart';
+import '/components/shared/app_bottom_nav_bar.dart';
+import '/components/shared/app_stat_card.dart';
+import '/components/shared/app_quick_action_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import '../../index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,6 +40,9 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
 
   @override
   Widget build(BuildContext context) {
+    final reportsStream = ref.read(dailyReportRepositoryProvider).getRecentReports(limit: 100);
+    final recentReportsStream = ref.read(dailyReportRepositoryProvider).getRecentReports(limit: 5);
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -67,12 +73,26 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   StreamBuilder<List<DailyReport>>(
-                    stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 100),
+                    stream: reportsStream,
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(child: CircularProgressIndicator());
+                      if (snapshot.hasError) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Text(
+                            'Error loading stats: ${snapshot.error}',
+                            style: TextStyle(color: FlutterFlowTheme.of(context).error, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
                       }
-                      final reports = snapshot.data!;
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      
+                      final reports = snapshot.data ?? [];
                       final totalReports = reports.length;
                       
                       final now = DateTime.now();
@@ -84,22 +104,20 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
                       return Row(
                         children: [
                           Expanded(
-                            child: _buildStatCard(
-                              context,
-                              'Total Reports',
-                              totalReports.toString(),
-                              Icons.description_rounded,
-                              FlutterFlowTheme.of(context).primary,
+                            child: AppStatCard(
+                              title: 'Total Reports',
+                              value: totalReports.toString(),
+                              icon: Icons.description_rounded,
+                              color: FlutterFlowTheme.of(context).primary,
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: _buildStatCard(
-                              context,
-                              'This Week',
-                              reportsThisWeek.toString(),
-                              Icons.calendar_view_week_rounded,
-                              FlutterFlowTheme.of(context).secondary,
+                            child: AppStatCard(
+                              title: 'This Week',
+                              value: reportsThisWeek.toString(),
+                              icon: Icons.calendar_view_week_rounded,
+                              color: FlutterFlowTheme.of(context).secondary,
                             ),
                           ),
                         ],
@@ -112,20 +130,18 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
                   Row(
                     children: [
                       Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'New Report',
-                          Icons.add_circle_outline_rounded,
-                          () => context.pushNamed(DailyReportFormWidget.routeName),
+                        child: AppQuickActionButton(
+                          title: 'New Report',
+                          icon: Icons.add_circle_outline_rounded,
+                          onTap: () => context.pushNamed(DailyReportFormWidget.routeName),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'History',
-                          Icons.history_rounded,
-                          () => context.pushNamed(ReportHistoryWidget.routeName),
+                        child: AppQuickActionButton(
+                          title: 'History',
+                          icon: Icons.history_rounded,
+                          onTap: () => context.pushNamed(ReportHistoryWidget.routeName),
                         ),
                       ),
                     ],
@@ -148,10 +164,18 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
                     ],
                   ),
                   StreamBuilder<List<DailyReport>>(
-                    stream: ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: 5),
+                    stream: recentReportsStream,
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) return const SizedBox();
-                      final reports = snapshot.data!;
+                      if (snapshot.hasError) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final reports = snapshot.data ?? [];
                       if (reports.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.all(16.0),
@@ -188,6 +212,20 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
           ),
         ],
       ),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 1,
+        onTap: (index) {
+          final routes = [
+            HomeDashboardWidget.routeName,
+            ReportsDashboardWidget.routeName,
+            AttendanceDashboardWidget.routeName,
+            TeacherProfileWidget.routeName,
+          ];
+          if (index != 1) {
+            context.goNamed(routes[index]);
+          }
+        },
+      ),
     );
   }
 
@@ -197,51 +235,6 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
       style: FlutterFlowTheme.of(context).titleMedium.override(
             font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
           ),
-    );
-  }
-
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 12),
-          Text(value, style: FlutterFlowTheme.of(context).headlineSmall.override(
-            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-          )),
-          Text(title, style: FlutterFlowTheme.of(context).labelSmall),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(BuildContext context, String title, IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).primary10,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: FlutterFlowTheme.of(context).primary, size: 28),
-            const SizedBox(height: 8),
-            Text(title, style: FlutterFlowTheme.of(context).bodyMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-              color: FlutterFlowTheme.of(context).primary,
-            )),
-          ],
-        ),
-      ),
     );
   }
 }

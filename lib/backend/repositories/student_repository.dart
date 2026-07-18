@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '../models/student.dart';
 
@@ -10,10 +11,17 @@ class StudentRepository {
 
   CollectionReference get _studentsCollection => _firestore.collection('students');
 
-  Future<List<Student>> getStudentsByClass(String className) async {
-    // Normalize input to match internal "Class X" format
-    final normalizedClass = normalizeClassName(className);
+  void _sortStudents(List<Student> students) {
+    students.sort((a, b) {
+      final rollA = int.tryParse(a.rollNo) ?? 0;
+      final rollB = int.tryParse(b.rollNo) ?? 0;
+      if (rollA != 0 && rollB != 0 && rollA != rollB) return rollA.compareTo(rollB);
+      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
+  }
 
+  Future<List<Student>> getStudentsByClass(String className) async {
+    final normalizedClass = normalizeClassName(className);
     final querySnapshot = await _studentsCollection
         .where('class', isEqualTo: normalizedClass)
         .get();
@@ -22,12 +30,7 @@ class StudentRepository {
         .map((doc) => Student.fromFirestore(doc))
         .toList();
     
-    students.sort((a, b) {
-      final rollA = int.tryParse(a.rollNo) ?? 0;
-      final rollB = int.tryParse(b.rollNo) ?? 0;
-      if (rollA != 0 && rollB != 0 && rollA != rollB) return rollA.compareTo(rollB);
-      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-    });
+    _sortStudents(students);
     return students;
   }
 
@@ -36,24 +39,14 @@ class StudentRepository {
     final students = querySnapshot.docs
         .map((doc) => Student.fromFirestore(doc))
         .toList();
-    students.sort((a, b) {
-      final rollA = int.tryParse(a.rollNo) ?? 0;
-      final rollB = int.tryParse(b.rollNo) ?? 0;
-      if (rollA != 0 && rollB != 0 && rollA != rollB) return rollA.compareTo(rollB);
-      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-    });
+    _sortStudents(students);
     return students;
   }
 
   Stream<List<Student>> getAllStudentsStream() {
     return _studentsCollection.snapshots().map((snapshot) {
       final students = snapshot.docs.map((doc) => Student.fromFirestore(doc)).toList();
-      students.sort((a, b) {
-        final rollA = int.tryParse(a.rollNo) ?? 0;
-        final rollB = int.tryParse(b.rollNo) ?? 0;
-        if (rollA != 0 && rollB != 0 && rollA != rollB) return rollA.compareTo(rollB);
-        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-      });
+      _sortStudents(students);
       return students;
     });
   }
@@ -67,13 +60,11 @@ class StudentRepository {
   }
 
   Future<void> bulkAddStudents(List<Map<String, String>> studentsData) async {
-    print('StudentRepository: Starting bulk add for ${studentsData.length} students');
+    debugPrint('StudentRepository: Starting bulk add for ${studentsData.length} students');
     
-    // Validation: Collect errors for a report
     final List<String> errors = [];
     final Set<String> seenIds = {};
     
-    // Process in batches of 500 (Firestore limit)
     for (var i = 0; i < studentsData.length; i += 500) {
       final chunk = studentsData.sublist(
         i, i + 500 > studentsData.length ? studentsData.length : i + 500
@@ -89,7 +80,6 @@ class StudentRepository {
         final name = data['name']?.toString().trim();
         final rollNo = data['roll_no']?.toString().trim();
         
-        // Basic Validation
         if (studentId == null || studentId.isEmpty) {
           errors.add('Row $rowIndex: Missing Student ID');
           continue;
@@ -104,9 +94,7 @@ class StudentRepository {
         }
         seenIds.add(studentId);
 
-        // Normalize class name (e.g. "10" or "10th" -> "Class 10")
         String className = normalizeClassName(data['class']?.toString());
-
         final docRef = _studentsCollection.doc(studentId);
         
         final studentData = {
@@ -141,13 +129,12 @@ class StudentRepository {
       
       try {
         if (errors.isNotEmpty) {
-          print('StudentRepository: Validation failed for some rows: ${errors.join(", ")}');
-          // For now we just log, but in a real app we might want to return these to UI
+          debugPrint('StudentRepository: Validation failed for some rows: ${errors.join(", ")}');
         }
         await currentBatch.commit();
-        print('StudentRepository: Committed batch of ${chunk.length} students');
+        debugPrint('StudentRepository: Committed batch of ${chunk.length} students');
       } catch (e) {
-        print('StudentRepository: Error committing batch: $e');
+        debugPrint('StudentRepository: Error committing batch: $e');
         rethrow;
       }
     }

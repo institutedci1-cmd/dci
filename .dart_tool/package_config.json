@@ -26,6 +26,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "ansicolor",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/ansicolor-2.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "antlr4",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/antlr4-4.13.2",
       "packageUri": "lib/",
@@ -224,6 +230,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "csslib",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/csslib-1.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/cupertino_icons-1.0.9",
       "packageUri": "lib/",
@@ -310,24 +322,6 @@
     {
       "name": "file_picker",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-11.0.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "firebase_analytics",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_analytics-11.5.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
-      "name": "firebase_analytics_platform_interface",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_analytics_platform_interface-4.4.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
-      "name": "firebase_analytics_web",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_analytics_web-0.5.10+13",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -476,6 +470,12 @@
       "languageVersion": "3.10"
     },
     {
+      "name": "flutter_native_splash",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_native_splash-2.4.4",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "flutter_plugin_android_lifecycle",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.35",
       "packageUri": "lib/",
@@ -560,6 +560,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "html",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/html-0.15.6",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "http",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/http-1.4.0",
       "packageUri": "lib/",
@@ -579,7 +585,7 @@
     },
     {
       "name": "image",
-      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.2.0",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.3.0",
       "packageUri": "lib/",
       "languageVersion": "2.15"
     },
@@ -1082,6 +1088,12 @@
       "languageVersion": "3.5"
     },
     {
+      "name": "universal_io",
+      "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/universal_io-2.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
       "name": "url_launcher",
       "rootUri": "file:///C:/Users/siddi/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher-6.3.1",
       "packageUri": "lib/",
@@ -1205,6 +1217,6 @@
   "generator": "pub",
   "generatorVersion": "3.12.2",
   "flutterRoot": "file:///C:/Users/siddi/flutter",
-  "flutterVersion": "3.44.4",
+  "flutterVersion": "3.44.6",
   "pubCache": "file:///C:/Users/siddi/AppData/Local/Pub/Cache"
 }
