@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../shared/app_style.dart';
-import '../../shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppSearchBar extends StatelessWidget {
   final String hintText;
@@ -19,44 +19,38 @@ class AppSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     return Container(
-      height: 52,
+      height: 44,
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
-          color: FlutterFlowTheme.of(context).alternate,
-          width: 1.5,
+          color: theme.alternate,
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha((0.05 * 255).toInt()),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           Icon(
             Icons.search_rounded,
-            color: AppColors.primary,
-            size: 22,
+            color: theme.primary,
+            size: 20,
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
               controller: controller,
               onChanged: onChanged,
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: AppTypography.label,
+                hintStyle: AppTypography.caption.copyWith(color: theme.secondaryText),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
-              style: AppTypography.body,
+              style: AppTypography.body.copyWith(fontSize: 14),
             ),
           ),
           if (controller != null && controller!.text.isNotEmpty)

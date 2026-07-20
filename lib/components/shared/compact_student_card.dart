@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../backend/models/student.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../shared/app_style.dart';
-import '../../shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/backend/models/student.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class CompactStudentCard extends StatelessWidget {
   final Student student;
@@ -19,20 +19,20 @@ class CompactStudentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: FlutterFlowTheme.of(context).secondaryBackground,
-      borderRadius: BorderRadius.circular(8),
-      elevation: 0,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             border: Border.all(
-              color: FlutterFlowTheme.of(context).alternate.withAlpha(80),
+              color: FlutterFlowTheme.of(context).alternate.withAlpha(100),
               width: 1,
             ),
+            boxShadow: AppShadows.low,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -55,9 +55,13 @@ class CompactStudentCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Text(
-                          'Roll: ${student.rollNo}',
-                          style: AppTypography.caption.copyWith(fontSize: 11),
+                        Flexible(
+                          child: Text(
+                            'Roll: ${student.rollNo}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.caption.copyWith(fontSize: 11),
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Container(
@@ -69,9 +73,13 @@ class CompactStudentCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          student.className,
-                          style: AppTypography.caption.copyWith(fontSize: 11),
+                        Expanded(
+                          child: Text(
+                            student.className,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.caption.copyWith(fontSize: 11),
+                          ),
                         ),
                       ],
                     ),
@@ -87,7 +95,6 @@ class CompactStudentCard extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context) {
-    final initials = student.name.trim().isEmpty ? '?' : student.name.trim()[0].toUpperCase();
     return Container(
       width: 36,
       height: 36,
@@ -108,13 +115,10 @@ class CompactStudentCard extends StatelessWidget {
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               )
-            : Text(
-                initials,
-                style: TextStyle(
-                  color: FlutterFlowTheme.of(context).primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
+            : const Icon(
+                Icons.person_rounded,
+                color: AppColors.primary,
+                size: 20,
               ),
       ),
     );
@@ -123,16 +127,16 @@ class CompactStudentCard extends StatelessWidget {
   Widget _buildAttendanceBadge(BuildContext context) {
     // Placeholder logic for attendance percentage
     const percentage = 94;
-    final color = percentage >= 75 ? AppColors.success : AppColors.error;
+    const color = percentage >= 75 ? AppColors.success : AppColors.error;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withAlpha(20),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
       child: Text(
-        '$percentage%',
+        '94%',
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.bold,

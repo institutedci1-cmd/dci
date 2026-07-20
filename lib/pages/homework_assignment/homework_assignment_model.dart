@@ -1,10 +1,10 @@
-import '/components/button/button_widget.dart';
-import '/components/form_label/form_label_widget.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
-import 'homework_assignment_widget.dart' show HomeworkAssignmentWidget;
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/form_label/form_label_widget.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/form_field_controller.dart';
+import 'package:d_c_i_teacher_app/pages/homework_assignment/homework_assignment_widget.dart' show HomeworkAssignmentWidget;
 import 'package:flutter/material.dart';
 
 class HomeworkAssignmentModel
@@ -49,6 +49,11 @@ class HomeworkAssignmentModel
   @override
   void initState(BuildContext context) {
     headerSectionModel = createModel(context, () => HeaderSectionModel());
+    
+    dropdownValueController1 = FormFieldController<String>(null);
+    dropdownValueController2 = FormFieldController<String>(null);
+    dropdownValueController3 = FormFieldController<String>(null);
+
     formLabelModel1 = createModel(context, () => FormLabelModel());
     formLabelModel2 = createModel(context, () => FormLabelModel());
     formLabelModel3 = createModel(context, () => FormLabelModel());

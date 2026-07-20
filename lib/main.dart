@@ -6,14 +6,14 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'auth/firebase_auth/auth_util.dart';
-import 'auth/firebase_auth/firebase_user_provider.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/auth_util.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/firebase_user_provider.dart';
 
-import 'backend/firebase/firebase_config.dart';
-import 'backend/services/app_router.dart';
-import 'backend/services/notification_service.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import 'flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/firebase/firebase_config.dart';
+import 'package:d_c_i_teacher_app/backend/services/app_router.dart';
+import 'package:d_c_i_teacher_app/backend/services/notification_service.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +55,8 @@ class MyAppScrollBehavior extends MaterialScrollBehavior {
 
 class MyAppState extends ConsumerState<MyApp> {
   ThemeMode _themeMode = FlutterFlowTheme.themeMode;
+
+  ThemeMode get themeMode => _themeMode;
 
   late Stream<BaseAuthUser> userStream;
 

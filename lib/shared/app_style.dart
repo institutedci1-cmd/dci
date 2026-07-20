@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'app_colors.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppSpacing {
   static const double zero = 0.0;
@@ -12,7 +12,7 @@ class AppSpacing {
   static const double xxl = 48.0;
   static const double xxxl = 64.0;
 
-  static const EdgeInsets pagePadding = EdgeInsets.all(md);
+  static const EdgeInsets pagePadding = EdgeInsets.all(lg);
   static const EdgeInsets cardPadding = EdgeInsets.all(md);
 }
 
@@ -48,7 +48,7 @@ class AppRadius {
 class AppShadows {
   static List<BoxShadow> get low => [
     BoxShadow(
-      color: Colors.black.withAlpha(15),
+      color: const Color(0xFF0F172A).withAlpha(10), // Slate 900
       blurRadius: 10,
       offset: const Offset(0, 4),
     ),
@@ -56,9 +56,17 @@ class AppShadows {
 
   static List<BoxShadow> get medium => [
     BoxShadow(
-      color: Colors.black.withAlpha(20),
+      color: const Color(0xFF0F172A).withAlpha(15),
       blurRadius: 20,
       offset: const Offset(0, 8),
+    ),
+  ];
+  
+  static List<BoxShadow> get high => [
+    BoxShadow(
+      color: const Color(0xFF0F172A).withAlpha(20),
+      blurRadius: 30,
+      offset: const Offset(0, 12),
     ),
   ];
 }
@@ -69,6 +77,7 @@ class AppTypography {
     fontSize: 24.0,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
+    letterSpacing: -0.5,
   );
 
   // Section Header / Medium Headings
@@ -76,6 +85,7 @@ class AppTypography {
     fontSize: 18.0,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
+    letterSpacing: -0.2,
   );
 
   // Body / Normal Text
@@ -83,18 +93,19 @@ class AppTypography {
     fontSize: 16.0,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
+    height: 1.5,
   );
 
   // Label / Semi-bold Small
   static TextStyle label = GoogleFonts.inter(
-    fontSize: 14.0,
+    fontSize: 15.0,
     fontWeight: FontWeight.w600,
     color: AppColors.textSecondary,
   );
 
   // Caption / Smallest Text
   static TextStyle caption = GoogleFonts.inter(
-    fontSize: 12.0,
+    fontSize: 13.0,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
@@ -102,7 +113,7 @@ class AppTypography {
   // Button Text
   static TextStyle button = GoogleFonts.inter(
     fontSize: 16.0,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w600,
     color: Colors.white,
   );
 }

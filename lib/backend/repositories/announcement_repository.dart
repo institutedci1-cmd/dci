@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/announcement.dart';
+import 'package:d_c_i_teacher_app/backend/models/announcement.dart';
 
 class AnnouncementRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

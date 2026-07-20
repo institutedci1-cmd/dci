@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'firebase_auth_manager.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/firebase_auth_manager.dart';
 
-export 'firebase_auth_manager.dart';
+export 'package:d_c_i_teacher_app/auth/firebase_auth/firebase_auth_manager.dart';
 
 final _authManager = FirebaseAuthManager();
 FirebaseAuthManager get authManager => _authManager;

@@ -1,18 +1,17 @@
-import '/backend/models/student_attendance.dart';
-import '/backend/providers/repository_providers.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/components/shared/app_stat_card.dart';
-import '/components/shared/app_quick_action_button.dart';
-import '/components/shared/app_bottom_nav_bar.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '../../index.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_bottom_nav_bar.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Direct imports for the page and its model
-import 'attendance_dashboard_model.dart';
+import 'package:d_c_i_teacher_app/pages/attendance_dashboard/attendance_dashboard_model.dart';
 
 
 class AttendanceDashboardWidget extends ConsumerStatefulWidget {
@@ -44,93 +43,74 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     final attendanceLogsAsync = ref.watch(studentAttendanceLogsProvider);
 
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      backgroundColor: theme.primaryBackground,
       body: Column(
         children: [
-          wrapWithModel(
-            model: createModel(context, () => HeaderSectionModel()),
-            updateCallback: () => safeSetState(() {}),
-            child: HeaderSectionWidget(
-              title: 'Attendance Dashboard',
-              subtitle: 'Student Presence Tracking',
-              description: 'Manage and review student attendance across your classes.',
-              onBackPressed: () async => context.safePop(),
-              actionIcon: Icon(
-                Icons.how_to_reg_rounded,
-                color: FlutterFlowTheme.of(context).onPrimary,
-                size: 24.0,
-              ),
-              onActionPressed: () async {
-                context.pushNamed(AttendanceTrackerWidget.routeName);
-              },
-            ),
+          HeaderSectionWidget(
+            title: 'Attendance Dashboard',
+            subtitle: 'Student Presence Tracking',
+            onBackPressed: () async => context.safePop(),
+            showActionIcon: false,
           ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildStatsRow(context, attendanceLogsAsync),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Quick Actions',
-                    style: FlutterFlowTheme.of(context).titleMedium.override(
-                          font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                        ),
+                  // Statistics Section
+                  Text('STATISTICS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
+                  const SizedBox(height: 4),
+                  attendanceLogsAsync.when(
+                    data: (records) {
+                      final totalMarked = records.length;
+                      final presentCount = records.where((doc) => doc.status == 'Present').length;
+                      final attendanceRate = totalMarked == 0 ? 0 : ((presentCount / totalMarked) * 100).toInt();
+
+                      return Row(
+                        children: [
+                          _buildMicroStat(context, 'Marked', totalMarked.toString(), Icons.people_rounded, theme.primary),
+                          const SizedBox(width: 8),
+                          _buildMicroStat(context, 'Rate', '$attendanceRate%', Icons.trending_up_rounded, AppColors.success),
+                          const SizedBox(width: 8),
+                          _buildMicroStat(context, 'Absent', (totalMarked - presentCount).toString(), Icons.person_off_rounded, AppColors.error),
+                        ],
+                      );
+                    },
+                    loading: () => const LinearProgressIndicator(),
+                    error: (err, stack) => Text('Error: $err', style: const TextStyle(fontSize: 10)),
                   ),
                   const SizedBox(height: 12),
+
+                  // Quick Actions Grid
+                  Text('QUICK ACTIONS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
-                      Expanded(
-                        child: AppQuickActionButton(
-                          title: 'Mark Attendance',
-                          icon: Icons.check_box_rounded,
-                          color: FlutterFlowTheme.of(context).secondary,
-                          onTap: () => context.pushNamed(AttendanceTrackerWidget.routeName),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: AppQuickActionButton(
-                          title: 'History',
-                          icon: Icons.history_toggle_off_rounded,
-                          color: FlutterFlowTheme.of(context).secondary,
-                          onTap: () => context.pushNamed(AttendanceHistoryWidget.routeName),
-                        ),
-                      ),
+                      _buildActionBtn(context, 'Mark Now', Icons.check_box_rounded, theme.primary, () => context.pushNamed(AttendanceTrackerWidget.routeName)),
+                      const SizedBox(width: 8),
+                      _buildActionBtn(context, 'History', Icons.history_toggle_off_rounded, AppColors.info, () => context.pushNamed(AttendanceHistoryWidget.routeName)),
+                      const SizedBox(width: 8),
+                      _buildActionBtn(context, 'Reports', Icons.assessment_outlined, AppColors.success, () => context.pushNamed(AttendanceReportWidget.routeName)),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  AppQuickActionButton(
-                    title: 'Attendance Reports',
-                    icon: Icons.assessment_outlined,
-                    color: FlutterFlowTheme.of(context).secondary,
-                    onTap: () => context.pushNamed(AttendanceReportWidget.routeName),
-                  ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
+
+                  // Recent Logs
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Recent Student Logs',
-                        style: FlutterFlowTheme.of(context).titleMedium.override(
-                              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                            ),
-                      ),
+                      Text('RECENT LOGS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
                       TextButton(
                         onPressed: () => context.pushNamed(AttendanceHistoryWidget.routeName),
-                        child: Text(
-                          'View All',
-                          style: FlutterFlowTheme.of(context).bodySmall.override(
-                                font: GoogleFonts.inter(),
-                                color: FlutterFlowTheme.of(context).primary,
-                              ),
-                        ),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 20), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                        child: const Text('View All', style: TextStyle(fontSize: 10)),
                       ),
                     ],
                   ),
@@ -138,40 +118,17 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                     data: (records) {
                       if (records.isEmpty) {
                         return const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text('No student logs found.', textAlign: TextAlign.center),
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text('No student logs found.', style: TextStyle(fontSize: 10), textAlign: TextAlign.center),
                         );
                       }
+                      final recentRecords = records.take(2).toList();
                       return Column(
-                        children: records.take(10).map((record) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: Material(
-                              color: FlutterFlowTheme.of(context).secondaryBackground,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
-                              ),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  radius: 14,
-                                  backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
-                                  child: Icon(_getStatusIcon(record.status), color: _getStatusColor(record.status), size: 16),
-                                ),
-                                title: Text(record.studentName),
-                                subtitle: Text('${record.className} • ${dateTimeFormat('yMMMd', record.date)}'),
-                                trailing: Text(record.status, style: TextStyle(color: _getStatusColor(record.status), fontWeight: FontWeight.bold, fontSize: 12)),
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                        children: recentRecords.map((record) => _buildMiniLogCard(context, record, theme)).toList(),
                       );
                     },
-                    loading: () => const Center(child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(),
-                    )),
-                    error: (err, stack) => Text('Error: $err'),
+                    loading: () => const SizedBox(),
+                    error: (err, stack) => const SizedBox(),
                   ),
                 ],
               ),
@@ -196,53 +153,124 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
     );
   }
 
-  Widget _buildStatsRow(BuildContext context, AsyncValue<List<StudentAttendance>> logsAsync) {
-    return logsAsync.when(
-      data: (records) {
-        final totalMarked = records.length;
-        final presentCount = records.where((doc) => doc.status == 'Present').length;
-        final attendanceRate = totalMarked == 0 ? 0 : ((presentCount / totalMarked) * 100).toInt();
-
-        return Row(
+  Widget _buildMicroStat(BuildContext context, String label, String value, IconData icon, Color color) {
+    final theme = FlutterFlowTheme.of(context);
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: theme.secondaryBackground,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: theme.alternate),
+          boxShadow: AppShadows.low,
+        ),
+        child: Column(
           children: [
-            Expanded(
-              child: AppStatCard(
-                title: 'Total Marks',
-                value: totalMarked.toString(),
-                icon: Icons.people_rounded,
-                color: FlutterFlowTheme.of(context).primary,
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: color.withAlpha(20),
+                shape: BoxShape.circle,
               ),
+              child: Icon(icon, size: 12, color: color),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: AppStatCard(
-                title: 'Avg. Present',
-                value: '$attendanceRate%',
-                icon: Icons.trending_up_rounded,
-                color: FlutterFlowTheme.of(context).success,
-              ),
-            ),
+            const SizedBox(height: 6),
+            Text(value, style: AppTypography.title.copyWith(fontSize: 18, height: 1.1)),
+            Text(label, style: AppTypography.caption.copyWith(fontSize: 11, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
           ],
-        );
-      },
-      loading: () => Row(
-        children: [
-          Expanded(child: Container(height: 100, decoration: BoxDecoration(color: FlutterFlowTheme.of(context).secondaryBackground, borderRadius: BorderRadius.circular(12)))),
-          const SizedBox(width: 16),
-          Expanded(child: Container(height: 100, decoration: BoxDecoration(color: FlutterFlowTheme.of(context).secondaryBackground, borderRadius: BorderRadius.circular(12)))),
-        ],
+        ),
       ),
-      error: (err, stack) => const SizedBox(),
     );
   }
 
+  Widget _buildActionBtn(BuildContext context, String label, IconData icon, Color color, VoidCallback onTap) {
+    final theme = FlutterFlowTheme.of(context);
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: theme.secondaryBackground,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: color.withAlpha(40)),
+            boxShadow: AppShadows.low,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withAlpha(20),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 20, color: color),
+              ),
+              const SizedBox(height: 6),
+              Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 11, color: AppColors.textPrimary)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniLogCard(BuildContext context, StudentAttendance record, FlutterFlowTheme theme) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: theme.alternate),
+        boxShadow: AppShadows.low,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          dense: true,
+          visualDensity: VisualDensity.compact,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          leading: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: _getStatusColor(record.status).withAlpha(20),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(_getStatusIcon(record.status), color: _getStatusColor(record.status), size: 14),
+          ),
+          title: Text(record.studentName, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
+          subtitle: Text('${record.className} • ${dateTimeFormat('yMMMd', record.date)}', style: AppTypography.caption.copyWith(fontSize: 11)),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: _getStatusColor(record.status).withAlpha(25),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _getStatusColor(record.status).withAlpha(40)),
+            ),
+            child: Text(
+              record.status.toUpperCase(), 
+              style: TextStyle(color: _getStatusColor(record.status), fontWeight: FontWeight.bold, fontSize: 9),
+            ),
+          ),
+          onTap: () {
+            // Log detail
+          },
+        ),
+      ),
+    );
+  }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Present': return Colors.green;
-      case 'Absent': return Colors.red;
-      case 'Leave': return Colors.orange;
-      default: return Colors.grey;
+      case 'Present': return AppColors.success;
+      case 'Absent': return AppColors.error;
+      case 'Leave': return AppColors.warning;
+      default: return AppColors.textSecondary;
     }
   }
 

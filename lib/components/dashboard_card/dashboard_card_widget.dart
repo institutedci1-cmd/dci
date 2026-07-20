@@ -1,28 +1,21 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/shared/app_style.dart';
-import '/shared/app_colors.dart';
-import '/index.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
-import 'dashboard_card_model.dart';
-export 'dashboard_card_model.dart';
+import 'package:d_c_i_teacher_app/components/dashboard_card/dashboard_card_model.dart';
+export 'package:d_c_i_teacher_app/components/dashboard_card/dashboard_card_model.dart';
 
 class DashboardCardWidget extends StatefulWidget {
   const DashboardCardWidget({
     super.key,
-    Color? bgColor,
     this.icon,
-    Color? iconColor,
-    String? target,
-    String? title,
-  })  : bgColor = bgColor ?? const Color(0x00000000),
-        iconColor = iconColor ?? const Color(0x00000000),
-        target = target ?? 'DailyReport',
-        title = title ?? 'Daily Report';
+    required this.target,
+    required this.title,
+  });
 
-  final Color bgColor;
   final Widget? icon;
-  final Color iconColor;
   final String target;
   final String title;
 
@@ -32,6 +25,7 @@ class DashboardCardWidget extends StatefulWidget {
 
 class _DashboardCardWidgetState extends State<DashboardCardWidget> {
   late DashboardCardModel _model;
+  bool _isHovered = false;
 
   @override
   void setState(VoidCallback callback) {
@@ -43,101 +37,97 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => DashboardCardModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
   void dispose() {
     _model.maybeDispose();
-
     super.dispose();
   }
 
   String _routeNameForTarget(String target) {
-    final routeName = switch (target) {
-      'DailyReport' => ReportsDashboardWidget.routeName,
-      'Attendance' => AttendanceDashboardWidget.routeName,
+    return switch (target) {
+      'DailyReport' => DailyReportFormWidget.routeName,
+      'Attendance' => AttendanceTrackerWidget.routeName,
       'Homework' => HomeworkAssignmentWidget.routeName,
       'TeacherProfile' => TeacherProfileWidget.routeName,
       'Announcements' => AnnouncementsFeedWidget.routeName,
       'AboutDCI' => AboutDCIWidget.routeName,
       'Students' => StudentListWidget.routeName,
-      _ => ReportsDashboardWidget.routeName,
+      'Exams' => ExamsDashboardWidget.routeName,
+      'Results' => ExamsDashboardWidget.routeName,
+      _ => HomeDashboardWidget.routeName,
     };
-    return routeName;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
     
-    return InkWell(
-      onTap: () async {
-        try {
-          final routeName = _routeNameForTarget(widget.target);
-          context.pushNamed(routeName);
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Navigation error: $e'),
-            ),
-          );
-        }
-      },
-      borderRadius: AppRadius.card,
-      child: Container(
-        decoration: BoxDecoration(
-          color: theme.secondaryBackground,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 200),
+        scale: _isHovered ? 1.02 : 1.0,
+        child: InkWell(
+          onTap: () {
+            final routeName = _routeNameForTarget(widget.target);
+            context.pushNamed(routeName);
+          },
           borderRadius: AppRadius.card,
-          border: Border.all(
-            color: theme.alternate,
-            width: 1.0,
-          ),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 10,
-              color: Colors.black.withAlpha(10),
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: AppSize.iconXl,
-                height: AppSize.iconXl,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(25),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                alignment: const AlignmentDirectional(0, 0),
-                child: IconTheme(
-                  data: const IconThemeData(
-                    color: AppColors.primary,
-                    size: AppSize.iconMd,
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.secondaryBackground,
+              borderRadius: AppRadius.card,
+              border: Border.all(
+                color: _isHovered ? AppColors.primary : theme.alternate,
+                width: _isHovered ? 2.0 : 1.5,
+              ),
+              boxShadow: _isHovered ? AppShadows.medium : AppShadows.low,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(25),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: IconTheme(
+                        data: const IconThemeData(
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        child: widget.icon ?? const Icon(Icons.apps_rounded),
+                      ),
+                    ),
                   ),
-                  child: widget.icon!,
-                ),
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.title,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.label.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.primaryText,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                widget.title,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.label.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.primaryText,
-                  fontSize: 13,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../shared/app_style.dart';
-import '../../../shared/app_colors.dart';
-import '../../../flutter_flow/flutter_flow_theme.dart';
-import '../../../components/shared/app_primary_button.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 
 class AttendanceSummaryFooter extends StatelessWidget {
   final int presentCount;
@@ -79,14 +79,14 @@ class AttendanceSummaryFooter extends StatelessWidget {
 
   Widget _buildSummary(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(child: _buildSummaryItem('Present', '$presentCount', AppColors.success)),
           Expanded(child: _buildSummaryItem('Absent', '$absentCount', AppColors.error)),
           Expanded(child: _buildSummaryItem('Rate', '${percentage.toStringAsFixed(0)}%', AppColors.secondary)),
-          Expanded(child: _buildSummaryItem('Total', '${presentCount + absentCount}', AppColors.primary)),
+          Expanded(child: _buildSummaryItem('Total', '${presentCount + absentCount}', FlutterFlowTheme.of(context).primary)),
         ],
       ),
     );

@@ -1,8 +1,8 @@
-import '/components/header_section/header_section_widget.dart';
-import '/components/button/button_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import 'edit_profile_widget.dart' show EditProfileWidget;
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/pages/edit_profile/edit_profile_widget.dart' show EditProfileWidget;
 import 'package:flutter/material.dart';
 
 class EditProfileModel extends FlutterFlowModel<EditProfileWidget> {

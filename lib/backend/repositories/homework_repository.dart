@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/homework_assignment.dart';
+import 'package:d_c_i_teacher_app/backend/models/homework_assignment.dart';
 
 class HomeworkRepository {
   HomeworkRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})

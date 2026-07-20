@@ -1,15 +1,19 @@
-import '/backend/models/announcement.dart';
-import '/backend/providers/repository_providers.dart';
-import '/components/announcement_card/announcement_card_widget.dart';
-import '/components/shared/app_bottom_nav_bar.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/components/announcement_card/announcement_card_widget.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_bottom_nav_bar.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-export 'announcements_feed_model.dart';
+export 'package:d_c_i_teacher_app/pages/announcements_feed/announcements_feed_model.dart';
 
 class AnnouncementsFeedWidget extends ConsumerStatefulWidget {
   const AnnouncementsFeedWidget({super.key});
@@ -85,11 +89,16 @@ Read more in the DCI Teacher App.
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showCreateAnnouncementBottomSheet(context),
           backgroundColor: FlutterFlowTheme.of(context).primary,
-          child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
+          child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
         ),
         body: Column(
           children: [
-            _buildHeader(context),
+            HeaderSectionWidget(
+              title: 'Notice Board',
+              subtitle: 'Latest updates & alerts',
+              onBackPressed: () async => context.goNamed(HomeDashboardWidget.routeName),
+              showActionIcon: false,
+            ),
             Expanded(
               child: _buildAnnouncementsList(context),
             ),
@@ -111,83 +120,34 @@ Read more in the DCI Teacher App.
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).primary,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24.0),
-          bottomRight: Radius.circular(24.0),
-        ),
-      ),
-      padding: const EdgeInsetsDirectional.fromSTEB(24.0, 48.0, 24.0, 24.0),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              FlutterFlowIconButton(
-                borderRadius: 8.0,
-                buttonSize: 40.0,
-                fillColor: Colors.transparent,
-                icon: Icon(
-                  Icons.arrow_back_rounded,
-                  color: FlutterFlowTheme.of(context).onPrimary,
-                  size: 24.0,
-                ),
-                onPressed: () async => context.goNamed(HomeDashboardWidget.routeName),
-              ),
-              const SizedBox(width: 40),
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Column(
-            children: [
-              Text(
-                'Announcements',
-                style: FlutterFlowTheme.of(context).headlineMedium.override(
-                  font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                  color: FlutterFlowTheme.of(context).onPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Latest updates from DCI Teachers',
-                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                  font: GoogleFonts.inter(),
-                  color: FlutterFlowTheme.of(context).onPrimary80,
-                ),
-              ),
-            ].divide(const SizedBox(height: 4.0)),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAnnouncementsList(BuildContext context) {
     return ref.watch(announcementsStreamProvider).when(
       data: (announcements) {
         if (announcements.isEmpty) {
-          return Center(
-            child: Text(
-              'No announcements found.',
-              style: FlutterFlowTheme.of(context).bodyMedium,
-            ),
+          return AppEmptyState(
+            icon: Icons.campaign_rounded,
+            title: 'No notices posted',
+            description: 'Important updates will appear here.',
+            actionLabel: 'Post Now',
+            onActionPressed: () => _showCreateAnnouncementBottomSheet(context),
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           itemCount: announcements.length,
           itemBuilder: (context, index) {
             final announcement = announcements[index];
-            return AnnouncementCardWidget(
-              category: announcement.category,
-              date: dateTimeFormat('yMMMd', announcement.createdAt),
-              description: announcement.description,
-              title: announcement.title,
-              onTap: () async => _showAnnouncementDialog(context, announcement),
-              onShare: () => _shareAnnouncement(announcement),
+            return wrapWithModel(
+              model: createModel(context, () => AnnouncementCardModel()),
+              updateCallback: () => safeSetState(() {}),
+              child: AnnouncementCardWidget(
+                category: announcement.category,
+                date: dateTimeFormat('yMMMd', announcement.createdAt),
+                description: announcement.description,
+                title: announcement.title,
+                onTap: () async => _showAnnouncementDialog(context, announcement),
+                onShare: () => _shareAnnouncement(announcement),
+              ),
             );
           },
         );
@@ -202,6 +162,7 @@ Read more in the DCI Teacher App.
     final descriptionController = TextEditingController();
     String selectedCategory = 'GENERAL';
     final categories = ['GENERAL', 'EXAM', 'EVENT', 'HOLIDAY', 'URGENT', 'PARENT_MEETING'];
+    final theme = FlutterFlowTheme.of(context);
 
     showModalBottomSheet(
       context: context,
@@ -210,14 +171,14 @@ Read more in the DCI Teacher App.
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).secondaryBackground,
+            color: theme.secondaryBackground,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24.0),
               topRight: Radius.circular(24.0),
             ),
           ),
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
             top: 24,
             left: 24,
             right: 24,
@@ -227,46 +188,67 @@ Read more in the DCI Teacher App.
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Post New Announcement',
-                  style: FlutterFlowTheme.of(context).titleLarge.override(
-                        font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                        fontWeight: FontWeight.bold,
-                      ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Post New Notice',
+                      style: AppTypography.title.copyWith(fontSize: 20),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                TextField(
+                const SizedBox(height: AppSpacing.lg),
+                TextFieldWidget(
                   controller: titleController,
-                  decoration: InputDecoration(
-                    labelText: 'Title',
-                    hintText: 'e.g. Weekly Test Schedule',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                  label: 'Title',
+                  hint: 'e.g. Weekly Test Schedule',
+                  variant: 'outlined',
                 ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  initialValue: selectedCategory,
-                  items: categories
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                      .toList(),
-                  onChanged: (val) => setModalState(() => selectedCategory = val!),
-                  decoration: InputDecoration(
-                    labelText: 'Category',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                const SizedBox(height: AppSpacing.md),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Category', style: AppTypography.label.copyWith(color: AppColors.textSecondary)),
+                    const SizedBox(height: 6),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      items: categories
+                          .map((c) => DropdownMenuItem(value: c, child: Text(c, style: AppTypography.body)))
+                          .toList(),
+                      onChanged: (val) => setModalState(() => selectedCategory = val!),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          borderSide: BorderSide(color: theme.alternate),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          borderSide: BorderSide(color: theme.alternate),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextField(
+                const SizedBox(height: AppSpacing.md),
+                TextFieldWidget(
                   controller: descriptionController,
+                  label: 'Description',
+                  hint: 'Provide details about the announcement...',
+                  variant: 'outlined',
                   maxLines: 4,
-                  decoration: InputDecoration(
-                    labelText: 'Description',
-                    hintText: 'Provide details about the announcement...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
                 ),
-                const SizedBox(height: 32),
-                ElevatedButton(
+                const SizedBox(height: AppSpacing.xl),
+                AppPrimaryButton(
+                  text: 'Post Announcement',
                   onPressed: () async {
                     if (titleController.text.isEmpty || descriptionController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -287,14 +269,7 @@ Read more in the DCI Teacher App.
                       const SnackBar(content: Text('Announcement posted successfully')),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: FlutterFlowTheme.of(context).primary,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Post Announcement', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
-                const SizedBox(height: 32),
               ],
             ),
           ),

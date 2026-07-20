@@ -1,8 +1,8 @@
-import '/components/header_section/header_section_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
-import 'student_list_widget.dart' show StudentListWidget;
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/form_field_controller.dart';
+import 'package:d_c_i_teacher_app/pages/student_list/student_list_widget.dart' show StudentListWidget;
 import 'package:flutter/material.dart';
 
 class StudentListModel extends FlutterFlowModel<StudentListWidget> {

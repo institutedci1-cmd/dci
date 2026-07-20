@@ -39,4 +39,23 @@ class ConfigRepository {
           }
         });
   }
+
+  Future<String> getNextEmployeeId() async {
+    final counterRef = _firestore.collection('config').doc('user_counters');
+    
+    return _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(counterRef);
+      
+      int nextIndex = 1;
+      if (snapshot.exists) {
+        nextIndex = (snapshot.data()?['last_index'] as int? ?? 0) + 1;
+      }
+      
+      transaction.set(counterRef, {'last_index': nextIndex}, SetOptions(merge: true));
+      
+      final year = DateTime.now().year;
+      final formattedIndex = nextIndex.toString().padLeft(3, '0');
+      return 'DCI-$year-$formattedIndex';
+    });
+  }
 }

@@ -1,9 +1,11 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:d_c_i_teacher_app/backend/models/teacher.dart';
+import 'package:d_c_i_teacher_app/backend/models/daily_report.dart';
 
 class PdfService {
-  static Future<void> generateTeacherCV(Map<String, dynamic> userData) async {
+  static Future<void> generateTeacherCV(Teacher userData) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -18,26 +20,26 @@ class PdfService {
                 pw.Header(
                   level: 0,
                   child: pw.Text(
-                    userData['display_name'] ?? 'Teacher Profile',
+                    userData.displayName,
                     style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
                   ),
                 ),
                 pw.SizedBox(height: 20),
                 _buildSection('Professional Details', [
-                  'Designation: ${userData['designation'] ?? 'N/A'}',
-                  'Employee ID: ${userData['employee_id'] ?? 'N/A'}',
-                  'Joined: ${userData['joined_date'] ?? 'N/A'}',
+                  'Designation: ${userData.designation}',
+                  'Employee ID: ${userData.employeeId ?? 'N/A'}',
+                  'Role: ${userData.role}',
                 ]),
                 pw.SizedBox(height: 20),
                 _buildSection('Contact Information', [
-                  'Email: ${userData['email'] ?? 'N/A'}',
-                  'Phone: ${userData['phone_number'] ?? 'N/A'}',
+                  'Email: ${userData.email}',
+                  'Phone: ${userData.phoneNumber}',
                 ]),
                 pw.SizedBox(height: 20),
                 _buildSection('Expertise & Education', [
-                  'Qualification: ${userData['qualification'] ?? 'N/A'}',
-                  'Subject Expertise: ${userData['subject_expertise'] ?? 'N/A'}',
-                  'Experience: ${userData['experience'] ?? 'N/A'}',
+                  'Qualification: ${userData.qualification ?? 'N/A'}',
+                  'Subject Expertise: ${userData.subjectExpertise ?? 'N/A'}',
+                  'Experience: ${userData.experience ?? 'N/A'}',
                 ]),
                 pw.Footer(
                   margin: const pw.EdgeInsets.only(top: 20),
@@ -52,8 +54,48 @@ class PdfService {
 
     await Printing.sharePdf(
       bytes: await pdf.save(),
-      filename: '${userData['display_name'] ?? 'Teacher'}_CV.pdf',
+      filename: '${userData.displayName}_CV.pdf',
     );
+  }
+
+  static Future<void> exportDailyReport(DailyReport report) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Header(
+                level: 0,
+                child: pw.Text('DCI Teachers - Daily Report',
+                    style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              ),
+              pw.SizedBox(height: 20),
+              _buildRow('Class:', report.className),
+              _buildRow('Subject:', report.subject),
+              _buildRow('Teacher:', report.teacher),
+              _buildRow('Date:', report.createdAt?.toString() ?? 'N/A'),
+              pw.Divider(),
+              pw.Text('Content Covered', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              _buildRow('Chapter:', report.chapter),
+              _buildRow('Topics:', report.topics),
+              pw.SizedBox(height: 10),
+              pw.Text('Attendance Summary', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              _buildRow('Present:', report.presentCount.toString()),
+              _buildRow('Absent:', report.absentCount.toString()),
+              pw.SizedBox(height: 10),
+              pw.Text('Additional Info', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              _buildRow('Homework:', report.homeworkAssigned),
+              _buildRow('Remarks:', report.remarks),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
   static pw.Widget _buildSection(String title, List<String> items) {
@@ -64,6 +106,21 @@ class PdfService {
         pw.Divider(),
         ...items.map((item) => pw.Bullet(text: item)),
       ],
+    );
+  }
+
+  static pw.Widget _buildRow(String label, String value) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 4),
+      child: pw.Row(
+        children: [
+          pw.SizedBox(
+            width: 120,
+            child: pw.Text(label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          ),
+          pw.Expanded(child: pw.Text(value)),
+        ],
+      ),
     );
   }
 }

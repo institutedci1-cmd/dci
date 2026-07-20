@@ -1,10 +1,10 @@
-import '/backend/models/student.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/components/button/button_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
-import 'edit_student_widget.dart' show EditStudentWidget;
+import 'package:d_c_i_teacher_app/backend/models/student.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/form_field_controller.dart';
+import 'package:d_c_i_teacher_app/pages/edit_student/edit_student_widget.dart' show EditStudentWidget;
 import 'package:flutter/material.dart';
 
 class EditStudentModel extends FlutterFlowModel<EditStudentWidget> {
@@ -58,6 +58,8 @@ class EditStudentModel extends FlutterFlowModel<EditStudentWidget> {
     
     studentIdModel = createModel(context, () => TextFieldModel());
     studentIdModel.inputTextController ??= TextEditingController();
+    
+    classDropdownController = FormFieldController<String>(null);
     
     rollNoModel = createModel(context, () => TextFieldModel());
     rollNoModel.inputTextController ??= TextEditingController();

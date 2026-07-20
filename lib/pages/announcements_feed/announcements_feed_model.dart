@@ -1,7 +1,7 @@
-import '/components/announcement_card/announcement_card_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
-import 'announcements_feed_widget.dart' show AnnouncementsFeedWidget;
+import 'package:d_c_i_teacher_app/components/announcement_card/announcement_card_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
+import 'package:d_c_i_teacher_app/pages/announcements_feed/announcements_feed_widget.dart' show AnnouncementsFeedWidget;
 import 'package:flutter/material.dart';
 
 class AnnouncementsFeedModel extends FlutterFlowModel<AnnouncementsFeedWidget> {

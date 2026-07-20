@@ -1,10 +1,10 @@
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_icon_button.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:flutter/material.dart';
-import 'student_counter_model.dart';
-export 'student_counter_model.dart';
+import 'package:d_c_i_teacher_app/components/student_counter/student_counter_model.dart';
+export 'package:d_c_i_teacher_app/components/student_counter/student_counter_model.dart';
 
 class StudentCounterWidget extends StatefulWidget {
   const StudentCounterWidget({

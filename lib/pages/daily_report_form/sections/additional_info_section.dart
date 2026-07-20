@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/components/form_section_header/form_section_header_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '../daily_report_form_model.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/pages/daily_report_form/daily_report_form_model.dart';
 
 class AdditionalInfoSection extends StatelessWidget {
   const AdditionalInfoSection({

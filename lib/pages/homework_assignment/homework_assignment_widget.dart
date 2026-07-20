@@ -1,21 +1,22 @@
-import '/backend/models/homework_assignment.dart';
-import '/backend/providers/repository_providers.dart';
-import '/components/button/button_widget.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '../../index.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'sections/homework_class_details_section.dart';
-import 'sections/assignment_details_section.dart';
-import 'sections/due_date_section.dart';
+import 'package:d_c_i_teacher_app/pages/homework_assignment/sections/homework_class_details_section.dart';
+import 'package:d_c_i_teacher_app/pages/homework_assignment/sections/assignment_details_section.dart';
+import 'package:d_c_i_teacher_app/pages/homework_assignment/sections/due_date_section.dart';
 
-export 'homework_assignment_model.dart';
+export 'package:d_c_i_teacher_app/pages/homework_assignment/homework_assignment_model.dart';
 
 class HomeworkAssignmentWidget extends ConsumerStatefulWidget {
   const HomeworkAssignmentWidget({super.key});
@@ -142,20 +143,45 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
   }
 
   Widget _buildForm(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    final studentsAsync = ref.watch(studentsStreamProvider);
+    final subjectsAsync = ref.watch(subjectsStreamProvider);
+    final allUsersAsync = ref.watch(allUsersStreamProvider);
+
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Column(
           children: [
-            HomeworkClassDetailsSection(
-                model: _model, onChanged: () => safeSetState(() {})),
+            Builder(builder: (context) {
+              final classOptions = studentsAsync.maybeWhen(
+                data: (students) => students.map((s) => s.className).where((c) => c.isNotEmpty).toSet().toList()..sort(),
+                orElse: () => <String>[],
+              );
+              final subjectOptions = subjectsAsync.maybeWhen(
+                data: (subjects) => {'English', 'Marathi', 'Math', 'Science', ...subjects}.toList()..sort(),
+                orElse: () => ['English', 'Marathi', 'Math', 'Science'],
+              );
+              final teacherOptions = allUsersAsync.maybeWhen(
+                data: (users) => users.map((u) => u.displayName).toSet().toList()..sort(),
+                orElse: () => <String>[],
+              );
+
+              return HomeworkClassDetailsSection(
+                model: _model,
+                onChanged: () => safeSetState(() {}),
+                classOptions: classOptions,
+                subjectOptions: subjectOptions,
+                teacherOptions: teacherOptions,
+              );
+            }),
             AssignmentDetailsSection(
                 model: _model, onChanged: () => safeSetState(() {})),
             _buildAttachmentsSection(context),
             DueDateSection(model: _model, onChanged: () => safeSetState(() {})),
             _buildInfoNote(context),
-          ].divide(const SizedBox(height: 24.0)),
+          ].divide(const SizedBox(height: 12.0)),
         ),
       ),
     );
@@ -163,14 +189,23 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
 
   Widget _buildInfoNote(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0), border: Border.all(color: FlutterFlowTheme.of(context).info)),
-      padding: const EdgeInsets.all(24.0),
-      child: const Row(
+      decoration: BoxDecoration(
+        color: AppColors.info.withAlpha(15),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.info.withAlpha(30)),
+      ),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_rounded, size: 20.0),
-          SizedBox(width: 16),
-          Expanded(child: Text('This assignment will be visible to all students in the selected class immediately after submission.')),
+          const Icon(Icons.info_rounded, color: AppColors.info, size: 20.0),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Text(
+              'This assignment will be visible to all students in the selected class immediately after submission.',
+              style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
         ],
       ),
     );
@@ -267,24 +302,32 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
   }
 
   Widget _buildHomeworkFooter(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     return Container(
-      decoration: BoxDecoration(color: FlutterFlowTheme.of(context).secondaryBackground, border: Border(top: BorderSide(color: FlutterFlowTheme.of(context).alternate))),
-      padding: const EdgeInsets.all(24.0),
+      decoration: BoxDecoration(
+        color: theme.secondaryBackground,
+        border: Border(top: BorderSide(color: theme.alternate)),
+        boxShadow: AppShadows.low,
+      ),
+      padding: AppSpacing.pagePadding,
       child: Row(
         children: [
-          Expanded(child: _buildFooterButton('Save Draft', 'outline', () => _saveHomework('draft'), _model.buttonModel2)),
-          const SizedBox(width: 16),
-          Expanded(child: _buildFooterButton('Publish', 'primary', () => _saveHomework('published'), _model.buttonModel3)),
+          Expanded(
+            child: AppPrimaryButton(
+              text: 'Save Draft',
+              variant: 'outline',
+              onPressed: () => _saveHomework('draft'),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: AppPrimaryButton(
+              text: 'Publish',
+              onPressed: () => _saveHomework('published'),
+            ),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFooterButton(String text, String variant, VoidCallback onPressed, FlutterFlowModel model) {
-    return wrapWithModel(
-      model: model,
-      updateCallback: () => safeSetState(() {}),
-      child: ButtonWidget(content: text, variant: variant, size: 'medium', onPressed: onPressed),
     );
   }
 }

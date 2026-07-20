@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import '/backend/repositories/audit_repository.dart';
+import 'package:d_c_i_teacher_app/backend/repositories/audit_repository.dart';
 
 class ErrorHandler {
   static void show(BuildContext context, dynamic error, {AuditRepository? auditRepo, String? errorContext}) {

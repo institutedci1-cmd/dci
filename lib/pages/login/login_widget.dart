@@ -1,16 +1,20 @@
-import '/backend/services/error_handler.dart';
-import '/backend/providers/repository_providers.dart';
-import '/backend/services/validation_service.dart';
-import '/components/auth_header/auth_header_widget.dart';
-import '/components/button/button_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import 'package:d_c_i_teacher_app/backend/services/error_handler.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/backend/services/validation_service.dart';
+import 'package:d_c_i_teacher_app/components/auth_header/auth_header_widget.dart';
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-export 'login_model.dart';
+export 'package:d_c_i_teacher_app/pages/login/login_model.dart';
 
 class LoginWidget extends ConsumerStatefulWidget {
   const LoginWidget({super.key});
@@ -120,7 +124,8 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
     return Container(
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(24.0),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        boxShadow: AppShadows.medium,
       ),
       padding: const EdgeInsets.all(32.0),
       child: AutofillGroup(
@@ -129,9 +134,9 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
           child: Column(
             children: [
               _buildLoginTitle(context),
-              const SizedBox(height: 24.0),
+              const SizedBox(height: 32.0),
               _buildInputFields(context),
-              const SizedBox(height: 24.0),
+              const SizedBox(height: 32.0),
               _buildLoginButton(context),
             ],
           ),
@@ -145,17 +150,13 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
       children: [
         Text(
           'Welcome Back',
-          style: FlutterFlowTheme.of(context).titleLarge.override(
-            font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTypography.title.copyWith(fontSize: 26),
         ),
-        const SizedBox(height: 4.0),
+        const SizedBox(height: 8.0),
         Text(
           'Sign in to manage your classes',
-          style: FlutterFlowTheme.of(context).bodyMedium.override(
-            font: GoogleFonts.inter(),
-            color: FlutterFlowTheme.of(context).secondaryText,
+          style: AppTypography.body.copyWith(
+            color: AppColors.textSecondary,
           ),
         ),
       ],
@@ -188,6 +189,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
             leadingIcon: const Icon(Icons.lock_outlined, size: 20),
             leadingIconPresent: true,
             obscureText: true,
+            onSubmit: (_) => _handleLogin(),
             validator: (val) => ValidationService.validateRequired(val, 'Password'),
             autofillHints: const [AutofillHints.password],
           ),
@@ -198,9 +200,9 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
             onPressed: _handleResetPassword,
             child: Text(
               'Forgot Password?',
-              style: FlutterFlowTheme.of(context).bodySmall.override(
-                font: GoogleFonts.inter(),
-                color: FlutterFlowTheme.of(context).primary,
+              style: AppTypography.caption.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppBottomNavBar extends StatelessWidget {
@@ -50,11 +50,17 @@ class AppBottomNavBar extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: () => onTap(index),
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 26),
-            const SizedBox(height: 4),
+            Icon(
+              isSelected ? icon : _getOutlineIcon(icon),
+              color: color,
+              size: 24,
+            ),
+            const SizedBox(height: 2),
             Text(
               label,
               style: FlutterFlowTheme.of(context).labelSmall.override(
@@ -69,5 +75,13 @@ class AppBottomNavBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _getOutlineIcon(IconData icon) {
+    if (icon == Icons.home_rounded) return Icons.home_outlined;
+    if (icon == Icons.description_outlined) return Icons.description_outlined;
+    if (icon == Icons.event_note_outlined) return Icons.event_note_outlined;
+    if (icon == Icons.account_circle_outlined) return Icons.account_circle_outlined;
+    return icon;
   }
 }

@@ -1,17 +1,21 @@
-import '/backend/providers/repository_providers.dart';
-import '/backend/services/validation_service.dart';
-import '/components/button/button_widget.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_drop_down.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/backend/services/validation_service.dart';
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'add_user_model.dart';
-export 'add_user_model.dart';
+import 'dart:async';
+import 'package:d_c_i_teacher_app/pages/add_user/add_user_model.dart';
+export 'package:d_c_i_teacher_app/pages/add_user/add_user_model.dart';
 
 class AddUserWidget extends ConsumerStatefulWidget {
   const AddUserWidget({super.key});
@@ -28,6 +32,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
   bool _isSaving = false;
   bool _isAdmin = false;
   bool _checkingRole = true;
+  Timer? _debounceTimer;
 
   final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -37,13 +42,54 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
     super.initState();
     _model = createModel(context, () => AddUserModel());
     _checkAdminStatus();
+    
+    // Add listener for email field to check for existing user
+    _model.emailModel.inputTextController?.addListener(_onEmailChanged);
+  }
+
+  void _onEmailChanged() {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+      final email = _model.emailModel.inputTextController!.text.trim();
+      if (RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+        _fetchExistingUserData(email);
+      }
+    });
+  }
+
+  Future<void> _fetchExistingUserData(String email) async {
+    try {
+      final repository = ref.read(userRepositoryProvider);
+      final teacher = await repository.findUserByEmail(email);
+
+      if (teacher != null && mounted) {
+        setState(() {
+          _model.nameModel.inputTextController?.text = teacher.displayName;
+          _model.designationModel.inputTextController?.text = teacher.designation;
+          _model.phoneModel.inputTextController?.text = teacher.phoneNumber;
+          _model.employeeIdModel.inputTextController?.text = teacher.employeeId ?? '';
+          _model.subjectExpertiseModel.inputTextController?.text = teacher.subjectExpertise ?? '';
+          _model.roleValue = teacher.role;
+          _model.roleValueController?.value = teacher.role;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Found existing user profile. Form populated.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error fetching user: $e');
+    }
   }
 
   Future<void> _checkAdminStatus() async {
     final userData = await ref.read(userRepositoryProvider).getUserData();
     if (mounted) {
       setState(() {
-        _isAdmin = userData?['role'] == 'Admin';
+        _isAdmin = userData?.role == 'Admin';
         _checkingRole = false;
       });
       if (!_isAdmin) {
@@ -56,6 +102,8 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _model.emailModel.inputTextController?.removeListener(_onEmailChanged);
     _model.dispose();
     super.dispose();
   }
@@ -74,6 +122,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
     try {
       await ref.read(userRepositoryProvider).createNewUser(
         email: _model.emailModel.inputTextController!.text,
+        password: _model.passwordModel.inputTextController!.text,
         displayName: _model.nameModel.inputTextController!.text,
         role: _model.roleValue!,
         designation: _model.designationModel.inputTextController!.text,
@@ -186,13 +235,15 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
   }
 
   Widget _buildFormCard(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: theme.alternate),
+        boxShadow: AppShadows.low,
       ),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           wrapWithModel(
@@ -203,10 +254,11 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               hint: 'e.g. John Doe',
               leadingIcon: const Icon(Icons.person_outline_rounded),
               leadingIconPresent: true,
+              variant: 'outlined',
               validator: (val) => ValidationService.validateRequired(val, 'Full Name'),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           wrapWithModel(
             model: _model.emailModel,
             updateCallback: () => safeSetState(() {}),
@@ -215,34 +267,51 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               hint: 'user@dci.com',
               leadingIcon: Icon(Icons.email_outlined),
               leadingIconPresent: true,
+              variant: 'outlined',
               keyboardType: TextInputType.emailAddress,
               validator: ValidationService.validateEmail,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          wrapWithModel(
+            model: _model.passwordModel,
+            updateCallback: () => safeSetState(() {}),
+            child: const TextFieldWidget(
+              label: 'Initial Password',
+              hint: 'Set a temporary password',
+              leadingIcon: Icon(Icons.lock_outline_rounded),
+              leadingIconPresent: true,
+              variant: 'outlined',
+              obscureText: true,
+              validator: ValidationService.validatePassword,
+            ),
+          ),
+          const SizedBox(height: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('User Role', style: FlutterFlowTheme.of(context).labelMedium),
-              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 6),
+                child: Text('User Role', style: AppTypography.label.copyWith(color: AppColors.textSecondary)),
+              ),
               FlutterFlowDropDown<String>(
-                controller: _model.roleValueController ??= FormFieldController<String>(_model.roleValue),
+                controller: _model.roleValueController!,
                 options: const ['Teacher', 'Admin'],
                 onChanged: (val) => setState(() => _model.roleValue = val),
                 height: 48,
                 hintText: 'Select Role',
-                fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-                borderRadius: 8,
+                fillColor: theme.secondaryBackground,
+                borderRadius: AppRadius.md,
                 borderWidth: 1,
-                borderColor: FlutterFlowTheme.of(context).alternate,
+                borderColor: theme.alternate,
                 hidesUnderline: true,
-                textStyle: FlutterFlowTheme.of(context).bodyMedium,
-                elevation: 2.0,
-                margin: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
+                textStyle: AppTypography.body,
+                elevation: 0,
+                margin: const EdgeInsetsDirectional.fromSTEB(14, 0, 14, 0),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           wrapWithModel(
             model: _model.designationModel,
             updateCallback: () => safeSetState(() {}),
@@ -251,31 +320,22 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               hint: 'e.g. Physics HOD',
               leadingIcon: Icon(Icons.work_outline_rounded),
               leadingIconPresent: true,
+              variant: 'outlined',
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           wrapWithModel(
             model: _model.subjectExpertiseModel,
             updateCallback: () => safeSetState(() {}),
             child: const TextFieldWidget(
               label: 'Subject Expertise',
-              hint: 'e.g. Math, Physics (Comma separated)',
+              hint: 'e.g. Math, Physics',
               leadingIcon: Icon(Icons.psychology_rounded),
               leadingIconPresent: true,
+              variant: 'outlined',
             ),
           ),
-          const SizedBox(height: 20),
-          wrapWithModel(
-            model: _model.employeeIdModel,
-            updateCallback: () => safeSetState(() {}),
-            child: const TextFieldWidget(
-              label: 'Employee ID',
-              hint: 'e.g. DCI-101',
-              leadingIcon: Icon(Icons.badge_outlined),
-              leadingIconPresent: true,
-            ),
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           wrapWithModel(
             model: _model.phoneModel,
             updateCallback: () => safeSetState(() {}),
@@ -284,6 +344,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               hint: 'e.g. +91 9876543210',
               leadingIcon: Icon(Icons.phone_outlined),
               leadingIconPresent: true,
+              variant: 'outlined',
               keyboardType: TextInputType.phone,
             ),
           ),

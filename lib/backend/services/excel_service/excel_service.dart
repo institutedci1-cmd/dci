@@ -6,11 +6,56 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:printing/printing.dart';
 import 'package:uuid/uuid.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/backend/models/student.dart';
-import '/backend/models/daily_report.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/models/student_attendance.dart';
+import 'package:d_c_i_teacher_app/backend/models/student.dart';
+import 'package:d_c_i_teacher_app/backend/models/daily_report.dart';
 
 class ExcelService {
+  static Future<bool> exportAttendanceReport(
+    List<Student> students,
+    List<StudentAttendance> attendance,
+    String className,
+    DateTime date,
+  ) async {
+    if (students.isEmpty) return false;
+
+    final excel = Excel.createExcel();
+    final sheet = excel['Attendance Report'];
+
+    if (excel.tables.containsKey('Sheet1')) {
+      excel.delete('Sheet1');
+    }
+
+    sheet.appendRow([
+      TextCellValue('Class: $className'),
+      TextCellValue('Date: ${dateTimeFormat('yMMMd', date)}'),
+    ]);
+    sheet.appendRow([TextCellValue('')]); // Spacer
+
+    sheet.appendRow([
+      TextCellValue('Roll No'),
+      TextCellValue('Student Name'),
+      TextCellValue('Status'),
+      TextCellValue('Subject'),
+    ]);
+
+    for (final student in students) {
+      final logs = attendance.where((l) => l.studentId == student.studentId).toList();
+      final status = logs.isNotEmpty ? logs.first.status : 'Not Marked';
+      final subject = logs.isNotEmpty ? logs.first.subject : 'N/A';
+
+      sheet.appendRow([
+        TextCellValue(student.rollNo),
+        TextCellValue(student.name),
+        TextCellValue(status),
+        TextCellValue(subject),
+      ]);
+    }
+
+    return await _saveAndShare(excel, 'Attendance_${className}_${dateTimeFormat('yyyyMMdd', date)}.xlsx');
+  }
+
   static Future<bool> exportStudents(List<Student> students) async {
     if (students.isEmpty) return false;
     
@@ -249,9 +294,11 @@ class ExcelService {
         final path = '${directory.path}/$fileName';
         final file = File(path);
         await file.writeAsBytes(bytes);
-        await SharePlus.shareXFiles(
-          [XFile(path)],
-          text: 'Exported Excel File',
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(path)],
+            text: 'Exported Excel File',
+          ),
         );
       }
       return true;

@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../backend/models/student.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import '../../shared/app_style.dart';
-import '../../shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/backend/models/student.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class StudentCard extends StatelessWidget {
   final Student student;
@@ -17,76 +17,62 @@ class StudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(),
-      child: Material(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
+    final theme = FlutterFlowTheme.of(context);
+    return Material(
+      color: theme.secondaryBackground,
+      borderRadius: AppRadius.standard,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: AppRadius.standard,
-        elevation: 2,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: AppRadius.standard,
             border: Border.all(
-              color: FlutterFlowTheme.of(context).alternate,
+              color: theme.alternate,
               width: 1,
             ),
+            boxShadow: AppShadows.low,
           ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: AppRadius.standard,
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildAvatar(context),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          student.name,
-                          style: AppTypography.body.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: FlutterFlowTheme.of(context).primaryText,
-                          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildAvatar(context),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        student.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.body.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryText,
                         ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Wrap(
-                          spacing: AppSpacing.md,
-                          runSpacing: 2,
-                          children: [
-                            _buildInfoChip(context, 'Roll', student.rollNo, Icons.tag_rounded),
-                            _buildInfoChip(context, 'Class', student.className, Icons.class_rounded),
-                          ],
-                        ),
-                        if (student.parentPhone != null && student.parentPhone!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Row(
-                              children: [
-                                Icon(Icons.phone_rounded, size: 14, color: AppColors.textSecondary),
-                                const SizedBox(width: 4),
-                                Text(
-                                  student.parentPhone!,
-                                  style: AppTypography.caption,
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          _buildInfoChip(context, 'Roll', student.rollNo, Icons.tag_rounded),
+                          _buildInfoChip(context, 'Class', student.className, Icons.class_rounded),
+                        ],
+                      ),
+                    ],
                   ),
-                  _buildAttendanceBadge(context),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: FlutterFlowTheme.of(context).secondaryText,
-                    size: 20,
-                  ),
-                ],
-              ),
+                ),
+                _buildAttendanceBadge(context),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: theme.secondaryText,
+                  size: 20,
+                ),
+              ],
             ),
           ),
         ),
@@ -100,9 +86,8 @@ class StudentCard extends StatelessWidget {
       width: 52,
       height: 52,
       decoration: BoxDecoration(
-        color: AppColors.primary.withAlpha((0.1 * 255).toInt()),
+        color: AppColors.primary.withAlpha(25),
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.primary.withAlpha((0.2 * 255).toInt())),
       ),
       child: Center(
         child: student.photoUrl != null && student.photoUrl!.isNotEmpty
@@ -119,10 +104,10 @@ class StudentCard extends StatelessWidget {
               )
             : Text(
                 initials,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontSize: 18,
                 ),
               ),
       ),
@@ -136,10 +121,6 @@ class StudentCard extends StatelessWidget {
         Icon(icon, size: 14, color: AppColors.textSecondary),
         const SizedBox(width: 4),
         Text(
-          '$label: ',
-          style: AppTypography.caption,
-        ),
-        Text(
           value,
           style: AppTypography.caption.copyWith(
             fontWeight: FontWeight.w600,
@@ -151,26 +132,29 @@ class StudentCard extends StatelessWidget {
   }
 
   Widget _buildAttendanceBadge(BuildContext context) {
-    // Placeholder logic for attendance percentage
-    const percentage = 94; 
-    final color = percentage >= 75 ? AppColors.success : AppColors.error;
-    
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '$percentage%',
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.success.withAlpha(20),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '94%',
+            style: TextStyle(
+              color: AppColors.success,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
           ),
-        ),
-        Text(
-          'Attend',
-          style: AppTypography.caption.copyWith(fontSize: 10),
-        ),
-      ],
+          Text(
+            'Attend',
+            style: AppTypography.caption.copyWith(fontSize: 10, color: AppColors.success),
+          ),
+        ],
+      ),
     );
   }
 }

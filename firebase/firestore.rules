@@ -10,43 +10,55 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    function isAdmin() {
+    function hasRole(role) {
       return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isAdmin() {
+      return hasRole('Admin');
+    }
+
+    function isDirector() {
+      return hasRole('Director');
+    }
+
+    function isManager() {
+      return isAdmin() || isDirector();
     }
 
     // User profiles
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) || isAdmin();
     }
 
     // Daily reports
     match /daily_reports/{reportId} {
-      allow read: if isAuthenticated() && (resource.data.createdBy == request.auth.uid);
+      allow read: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isManager());
       allow create: if isAuthenticated() && (request.resource.data.createdBy == request.auth.uid);
-      allow update, delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid);
+      allow update, delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
 
     // Attendance records (Staff)
     match /attendance_records/{recordId} {
-      allow read: if isAuthenticated() && (resource.data.createdBy == request.auth.uid);
+      allow read: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isManager());
       allow create: if isAuthenticated() && (request.resource.data.createdBy == request.auth.uid);
-      allow update, delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid);
+      allow update, delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
 
     // Student attendance (Individual logs)
     match /student_attendance/{logId} {
-      allow read: if isAuthenticated() && (resource.data.markedBy == request.auth.uid);
+      allow read: if isAuthenticated() && (resource.data.markedBy == request.auth.uid || isManager());
       allow create: if isAuthenticated() && (request.resource.data.markedBy == request.auth.uid);
-      allow update, delete: if isAuthenticated() && (resource.data.markedBy == request.auth.uid);
+      allow update, delete: if isAuthenticated() && (resource.data.markedBy == request.auth.uid || isAdmin());
     }
 
     // Homework assignments
     match /homework_assignments/{assignmentId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && (request.resource.data.createdBy == request.auth.uid);
-      allow update, delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid);
+      allow update, delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
 
     // Students list

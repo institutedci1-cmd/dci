@@ -1,8 +1,8 @@
-import '/components/button/button_widget.dart';
-import '/components/profile_header/profile_header_widget.dart';
-import '/components/profile_info_tile/profile_info_tile_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import 'teacher_profile_widget.dart' show TeacherProfileWidget;
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/profile_header/profile_header_widget.dart';
+import 'package:d_c_i_teacher_app/components/profile_info_tile/profile_info_tile_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/pages/teacher_profile/teacher_profile_widget.dart' show TeacherProfileWidget;
 import 'package:flutter/material.dart';
 
 class TeacherProfileModel extends FlutterFlowModel<TeacherProfileWidget> {

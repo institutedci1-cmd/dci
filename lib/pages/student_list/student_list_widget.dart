@@ -1,21 +1,23 @@
-import '/components/shared/app_search_bar.dart';
-import '/components/shared/compact_student_card.dart';
-import '/components/shared/app_primary_button.dart';
-import '/components/shared/app_empty_state.dart';
-import '/shared/app_style.dart';
-import '/shared/app_colors.dart';
-import '/backend/models/student.dart';
-import '/backend/providers/repository_providers.dart';
-import '/backend/services/excel_service/excel_service.dart';
-import '/backend/services/error_handler.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '../../index.dart';
+import 'package:d_c_i_teacher_app/features/student/application/student_list_notifier.dart';
+import 'package:d_c_i_teacher_app/core/services/navigation_service.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_search_bar.dart';
+import 'package:d_c_i_teacher_app/components/shared/compact_student_card.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/backend/services/excel_service/excel_service.dart';
+import 'package:d_c_i_teacher_app/backend/services/error_handler.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/pages/edit_student/edit_student_widget.dart';
+import 'package:d_c_i_teacher_app/pages/student_profile/student_profile_widget.dart';
+import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../edit_student/edit_student_widget.dart';
-import 'student_list_model.dart';
+import 'package:d_c_i_teacher_app/pages/student_list/student_list_model.dart';
 
 class StudentListWidget extends ConsumerStatefulWidget {
   const StudentListWidget({super.key});
@@ -30,7 +32,6 @@ class StudentListWidget extends ConsumerStatefulWidget {
 class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
   late StudentListModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  String _searchQuery = '';
   bool _isImporting = false;
 
   @override
@@ -46,28 +47,12 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     super.dispose();
   }
 
-  List<Student> _applyFilters(List<Student> students) {
-    var filtered = students;
-    if (_model.dropdownValue != null && _model.dropdownValue != 'All Classes') {
-      filtered = filtered.where((s) => s.className == _model.dropdownValue).toList();
-    }
-    if (_searchQuery.trim().isNotEmpty) {
-      final query = _searchQuery.trim().toLowerCase();
-      filtered = filtered.where((s) {
-        return s.name.toLowerCase().contains(query) || 
-               s.studentId.toLowerCase().contains(query) ||
-               s.rollNo.contains(query) ||
-               (s.parentPhone?.contains(query) ?? false) ||
-               (s.parentName?.toLowerCase().contains(query) ?? false) ||
-               s.className.toLowerCase().contains(query);
-      }).toList();
-    }
-    return filtered;
-  }
-
   @override
   Widget build(BuildContext context) {
     final studentsAsync = ref.watch(studentsStreamProvider);
+    final filteredStudentsAsync = ref.watch(filteredStudentsProvider);
+    final selectedClass = ref.watch(studentClassFilterProvider);
+    final notifier = ref.read(studentListNotifierProvider.notifier);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -76,51 +61,52 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         body: studentsAsync.when(
           data: (allStudents) {
-            final filteredStudents = _applyFilters(allStudents);
-            
+            final Map<String, int> classCounts = {};
+            for (final s in allStudents) {
+              classCounts[s.className] = (classCounts[s.className] ?? 0) + 1;
+            }
+
             final dynamicClassOptions = allStudents
                 .map((s) => s.className)
                 .where((c) => c.isNotEmpty)
                 .toSet()
                 .toList()
               ..sort();
-            
-            if (_model.dropdownValue != 'All Classes' && !dynamicClassOptions.contains(_model.dropdownValue)) {
-              _model.dropdownValue = 'All Classes';
-            }
-
-            final Map<String, int> classCounts = {};
-            for (final s in allStudents) {
-              classCounts[s.className] = (classCounts[s.className] ?? 0) + 1;
-            }
 
             return Column(
               children: [
-                wrapWithModel(
-                  model: _model.headerSectionModel,
-                  updateCallback: () => safeSetState(() {}),
-                  child: HeaderSectionWidget(
-                    title: 'Students',
-                    subtitle: allStudents.isEmpty 
-                        ? 'No students found' 
-                        : 'Total: ${allStudents.length} students',
-                    description: 'View and search for student details and progress.',
-                    onBackPressed: () async => context.safePop(),
-                    actionIcon: const Icon(Icons.person_add_rounded),
-                    onActionPressed: () async {
-                      context.pushNamed(EditStudentWidget.routeName);
-                    },
+                HeaderSectionWidget(
+                  title: 'Students List',
+                  subtitle: allStudents.isEmpty 
+                      ? 'No students' 
+                      : '${allStudents.length} Students Total',
+                  onBackPressed: () async => NavigationService.navigateToHome(context),
+                  actionIcon: const Icon(
+                    Icons.person_add_rounded,
+                    size: 20,
+                    color: Colors.white,
                   ),
+                  onActionPressed: () async {
+                    NavigationService.navigateToEditStudent(context);
+                  },
                 ),
-                _buildSearchAndFilter(context, dynamicClassOptions, classCounts, allStudents.length),
-                _buildImportExportRow(context, filteredStudents),
+                _buildSearchAndFilter(context, dynamicClassOptions, classCounts, allStudents.length, selectedClass, notifier),
+                filteredStudentsAsync.when(
+                  data: (filteredStudents) => _buildImportExportRow(context, filteredStudents),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
                       ref.invalidate(studentsStreamProvider);
                       await Future.delayed(const Duration(milliseconds: 500));
                     },
-                    child: _buildStudentList(context, filteredStudents, allStudents.isEmpty),
+                    child: filteredStudentsAsync.when(
+                      data: (filteredStudents) => _buildStudentList(context, filteredStudents, allStudents.isEmpty, notifier),
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (error, stack) => _buildErrorState(context, error),
+                    ),
                   ),
                 ),
               ],
@@ -216,9 +202,10 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     );
   }
 
-  Widget _buildSearchAndFilter(BuildContext context, List<String> classOptions, Map<String, int> classCounts, int totalCount) {
+  Widget _buildSearchAndFilter(BuildContext context, List<String> classOptions, Map<String, int> classCounts, int totalCount, String? selectedClass, StudentListNotifier notifier) {
+    final theme = FlutterFlowTheme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.xs),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,42 +213,43 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
           AppSearchBar(
             controller: _model.searchController,
             hintText: 'Search student name, ID or Roll...',
-            onChanged: (val) => safeSetState(() => _searchQuery = val),
-            onClear: () => safeSetState(() {
+            onChanged: notifier.updateSearchQuery,
+            onClear: () {
               _model.searchController?.clear();
-              _searchQuery = '';
-            }),
+              notifier.updateSearchQuery('');
+            },
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 8),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: ['All Classes', ...classOptions].map((className) {
-                final isSelected = (_model.dropdownValue ?? 'All Classes') == className;
+                final isSelected = (selectedClass ?? 'All Classes') == className;
                 final count = className == 'All Classes' ? totalCount : (classCounts[className] ?? 0);
                 
                 return Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.sm),
+                  padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
-                    label: Text('$className ($count)'),
+                    label: Text('$className ($count)', 
+                      style: TextStyle(
+                        fontSize: 11, 
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected ? Colors.white : theme.primaryText
+                      )
+                    ),
                     selected: isSelected,
                     onSelected: (selected) {
-                      safeSetState(() {
-                        _model.dropdownValue = className;
-                        _model.dropdownValueController?.value = className;
-                      });
+                      notifier.updateClassFilter(className);
                     },
-                    backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    backgroundColor: theme.secondaryBackground,
                     selectedColor: AppColors.primary,
-                    labelStyle: AppTypography.caption.copyWith(
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
                     checkmarkColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.xl),
+                      borderRadius: BorderRadius.circular(20),
                       side: BorderSide(
-                        color: isSelected ? AppColors.primary : AppColors.outline,
+                        color: isSelected ? AppColors.primary : theme.alternate,
                       ),
                     ),
                   ),
@@ -274,14 +262,14 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     );
   }
 
-  Widget _buildStudentList(BuildContext context, List<Student> students, bool isDatabaseEmpty) {
+  Widget _buildStudentList(BuildContext context, List<Student> students, bool isDatabaseEmpty, StudentListNotifier notifier) {
     if (isDatabaseEmpty) {
       return AppEmptyState(
         icon: Icons.people_outline_rounded,
         title: 'No students in database',
         description: 'Add students or use Bulk Import to get started.',
         actionLabel: 'Add First Student',
-        onActionPressed: () => context.pushNamed(EditStudentWidget.routeName),
+        onActionPressed: () => NavigationService.navigateToEditStudent(context),
       );
     }
 
@@ -291,11 +279,12 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
         title: 'No results found',
         description: 'Try changing filters or search terms.',
         actionLabel: 'Clear All Filters',
-        onActionPressed: () => safeSetState(() {
-          _searchQuery = '';
+        onActionPressed: () {
+          notifier.clearFilters();
+          _model.searchController?.clear();
           _model.dropdownValue = 'All Classes';
           _model.dropdownValueController?.value = 'All Classes';
-        }),
+        },
       );
     }
 
@@ -308,10 +297,7 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
         return CompactStudentCard(
           student: student,
           onTap: () async {
-            context.pushNamed(
-              EditStudentWidget.routeName,
-              extra: {'student': student},
-            );
+            NavigationService.navigateToStudentProfile(context, student: student);
           },
         );
       },

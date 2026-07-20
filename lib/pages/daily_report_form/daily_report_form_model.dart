@@ -1,11 +1,11 @@
-import '/components/button/button_widget.dart';
-import '/components/form_section_header/form_section_header_widget.dart';
-import '/components/student_counter/student_counter_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
-import '/index.dart';
-import 'daily_report_form_widget.dart' show DailyReportFormWidget;
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_widget.dart';
+import 'package:d_c_i_teacher_app/components/student_counter/student_counter_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/form_field_controller.dart';
+import 'package:d_c_i_teacher_app/index.dart';
+import 'package:d_c_i_teacher_app/pages/daily_report_form/daily_report_form_widget.dart' show DailyReportFormWidget;
 import 'package:flutter/material.dart';
 
 class DailyReportFormModel extends FlutterFlowModel<DailyReportFormWidget> {

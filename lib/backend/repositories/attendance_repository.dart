@@ -1,9 +1,10 @@
+import 'package:d_c_i_teacher_app/backend/repositories/interfaces/i_attendance_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/attendance_record.dart';
-import '../models/student_attendance.dart';
+import 'package:d_c_i_teacher_app/backend/models/attendance_record.dart';
+import 'package:d_c_i_teacher_app/backend/models/student_attendance.dart';
 
-class AttendanceRepository {
+class AttendanceRepository implements IAttendanceRepository {
   AttendanceRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _auth = auth ?? FirebaseAuth.instance;
@@ -14,6 +15,7 @@ class AttendanceRepository {
   CollectionReference get _attendanceCollection => _firestore.collection('attendance_records');
   CollectionReference get _studentAttendanceCollection => _firestore.collection('student_attendance');
 
+  @override
   Future<void> recordStaffAttendance(AttendanceRecord record) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
@@ -21,6 +23,7 @@ class AttendanceRepository {
     await _attendanceCollection.add(record.toFirestore());
   }
 
+  @override
   Future<bool> checkAttendanceExists(String className, String subject, DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
@@ -37,6 +40,10 @@ class AttendanceRepository {
     return query.docs.isNotEmpty;
   }
 
+  @override
+  @override
+  @override
+  @override
   Future<void> recordStudentAttendance(List<StudentAttendance> attendanceData) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
@@ -60,6 +67,7 @@ class AttendanceRepository {
 
   // FIX: Removed server-side orderBy to bypass missing index errors. 
   // We now sort locally in Dart.
+  @override
   Stream<List<AttendanceRecord>> getUserAttendance({int limit = 20}) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
@@ -81,6 +89,7 @@ class AttendanceRepository {
 
   // FIX: Removed server-side orderBy to bypass missing index errors. 
   // We now sort locally in Dart.
+  @override
   Stream<List<StudentAttendance>> getStudentAttendanceLogs({int limit = 50}) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
@@ -105,6 +114,8 @@ class AttendanceRepository {
         });
   }
 
+  @override
+  @override
   Future<List<StudentAttendance>> getDailyAttendance(
       String className, DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day);
@@ -125,5 +136,39 @@ class AttendanceRepository {
     // Sort locally to ensure consistency
     list.sort((a, b) => (b.createdAt ?? b.date).compareTo(a.createdAt ?? a.date));
     return list;
+  }
+
+  @override
+  Stream<List<StudentAttendance>> getStudentAttendanceHistory(String studentId, {int limit = 100}) {
+    return _studentAttendanceCollection
+        .where('studentId', isEqualTo: studentId)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) {
+          final list = snapshot.docs
+              .map((doc) => StudentAttendance.fromFirestore(doc))
+              .toList();
+          
+          // Local Sort: Newest first
+          list.sort((a, b) => b.date.compareTo(a.date));
+          return list;
+        });
+  }
+
+  @override
+  Future<List<StudentAttendance>> getStudentAttendanceHistoryPaginated(String studentId, int limit, {DocumentSnapshot? lastDocument}) async {
+    var query = _studentAttendanceCollection
+        .where('studentId', isEqualTo: studentId)
+        .orderBy('date', descending: true)
+        .limit(limit);
+    
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    final querySnapshot = await query.get();
+    return querySnapshot.docs
+        .map((doc) => StudentAttendance.fromFirestore(doc))
+        .toList();
   }
 }

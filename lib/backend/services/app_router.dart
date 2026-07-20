@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/repository_providers.dart';
-import '/index.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
@@ -84,6 +84,47 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AttendanceHistoryWidget(),
       ),
       GoRoute(
+        name: ExamsWidget.routeName,
+        path: ExamsWidget.routePath,
+        builder: (context, state) => const ExamsWidget(),
+      ),
+      GoRoute(
+        name: AddExamWidget.routeName,
+        path: AddExamWidget.routePath,
+        builder: (context, state) => const AddExamWidget(),
+      ),
+      GoRoute(
+        name: ExamsDashboardWidget.routeName,
+        path: ExamsDashboardWidget.routePath,
+        builder: (context, state) => const ExamsDashboardWidget(),
+      ),
+      GoRoute(
+        name: EnterMarksWidget.routeName,
+        path: EnterMarksWidget.routePath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return EnterMarksWidget(exam: extra!['exam'] as Exam);
+        },
+      ),
+      GoRoute(
+        name: MeritListWidget.routeName,
+        path: MeritListWidget.routePath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return MeritListWidget(exam: extra!['exam'] as Exam);
+        },
+      ),
+      GoRoute(
+        name: TeacherWiseReportWidget.routeName,
+        path: TeacherWiseReportWidget.routePath,
+        builder: (context, state) => const TeacherWiseReportWidget(),
+      ),
+      GoRoute(
+        name: DateWiseReportWidget.routeName,
+        path: DateWiseReportWidget.routePath,
+        builder: (context, state) => const DateWiseReportWidget(),
+      ),
+      GoRoute(
         name: AttendanceReportWidget.routeName,
         path: AttendanceReportWidget.routePath,
         builder: (context, state) => const AttendanceReportWidget(),
@@ -92,6 +133,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: StudentListWidget.routeName,
         path: StudentListWidget.routePath,
         builder: (context, state) => const StudentListWidget(),
+      ),
+      GoRoute(
+        name: StudentProfileWidget.routeName,
+        path: StudentProfileWidget.routePath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final Student student = extra!['student'];
+          return StudentProfileWidget(student: student);
+        },
       ),
       GoRoute(
         name: EditStudentWidget.routeName,
@@ -120,12 +170,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         name: TeacherProfileWidget.routeName,
         path: TeacherProfileWidget.routePath,
-        builder: (context, state) => const TeacherProfileWidget(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return TeacherProfileWidget(initialUserData: extra?['userData'] as Teacher?);
+        },
       ),
       GoRoute(
         name: EditProfileWidget.routeName,
         path: EditProfileWidget.routePath,
-        builder: (context, state) => const EditProfileWidget(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return EditProfileWidget(userToEdit: extra?['userToEdit'] as Teacher?);
+        },
+      ),
+      GoRoute(
+        name: FacultyListWidget.routeName,
+        path: FacultyListWidget.routePath,
+        builder: (context, state) => const FacultyListWidget(),
       ),
       GoRoute(
         name: AddUserWidget.routeName,

@@ -1,9 +1,9 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'button_model.dart';
-export 'button_model.dart';
+import 'package:d_c_i_teacher_app/components/button/button_model.dart';
+export 'package:d_c_i_teacher_app/components/button/button_model.dart';
 
 class ButtonWidget extends StatefulWidget {
   const ButtonWidget({

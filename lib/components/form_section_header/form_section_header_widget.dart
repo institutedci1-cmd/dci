@@ -1,9 +1,9 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'form_section_header_model.dart';
-export 'form_section_header_model.dart';
+import 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_model.dart';
+export 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_model.dart';
 
 class FormSectionHeaderWidget extends StatefulWidget {
   const FormSectionHeaderWidget({
@@ -48,34 +48,32 @@ class _FormSectionHeaderWidgetState extends State<FormSectionHeaderWidget> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
-      child: Container(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            widget.icon!,
-            Text(
-              valueOrDefault<String>(
-                widget.title,
-                'Class Details',
-              ),
-              style: FlutterFlowTheme.of(context).titleMedium.override(
-                    font: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.bold,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                    ),
-                    color: FlutterFlowTheme.of(context).primaryText,
-                    letterSpacing: 0.0,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          widget.icon!,
+          Text(
+            valueOrDefault<String>(
+              widget.title,
+              'Class Details',
+            ),
+            style: FlutterFlowTheme.of(context).titleMedium.override(
+                  font: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.bold,
                     fontStyle:
                         FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                    lineHeight: 1.35,
                   ),
-            ),
-          ].divide(const SizedBox(width: 8.0)),
-        ),
+                  color: FlutterFlowTheme.of(context).primaryText,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.bold,
+                  fontStyle:
+                      FlutterFlowTheme.of(context).titleMedium.fontStyle,
+                  lineHeight: 1.35,
+                ),
+          ),
+        ].divide(const SizedBox(width: 8.0)),
       ),
     );
   }

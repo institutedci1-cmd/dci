@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
-import '/backend/services/app_constants.dart';
-import '/flutter_flow/flutter_flow_drop_down.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
-import '/components/form_label/form_label_widget.dart';
-import '../homework_assignment_model.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/form_field_controller.dart';
+import 'package:d_c_i_teacher_app/components/form_label/form_label_widget.dart';
+import 'package:d_c_i_teacher_app/pages/homework_assignment/homework_assignment_model.dart';
 
 class HomeworkClassDetailsSection extends StatelessWidget {
   const HomeworkClassDetailsSection({
     super.key,
     required this.model,
     required this.onChanged,
+    required this.classOptions,
+    required this.subjectOptions,
+    required this.teacherOptions,
   });
 
   final HomeworkAssignmentModel model;
   final VoidCallback onChanged;
+  final List<String> classOptions;
+  final List<String> subjectOptions;
+  final List<String> teacherOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +32,8 @@ class HomeworkClassDetailsSection extends StatelessWidget {
           context,
           model: model.formLabelModel1,
           label: 'Select Class',
-          initialValue: model.dropdownValue1 ?? AppConstants.classOptions.last,
-          options: AppConstants.classOptions,
+          initialValue: model.dropdownValue1 ?? (classOptions.isNotEmpty ? classOptions.last : ''),
+          options: classOptions.isEmpty ? ['No Classes'] : classOptions,
           controller: model.dropdownValueController1,
           onChanged: (val) {
             model.dropdownValue1 = val;
@@ -39,8 +44,8 @@ class HomeworkClassDetailsSection extends StatelessWidget {
           context,
           model: model.formLabelModel2,
           label: 'Subject',
-          initialValue: model.dropdownValue2 ?? AppConstants.subjectOptions.first,
-          options: AppConstants.subjectOptions,
+          initialValue: model.dropdownValue2 ?? (subjectOptions.isNotEmpty ? subjectOptions.first : ''),
+          options: subjectOptions.isEmpty ? ['No Subjects'] : subjectOptions,
           controller: model.dropdownValueController2,
           icon: Icons.menu_book_rounded,
           onChanged: (val) {
@@ -50,10 +55,10 @@ class HomeworkClassDetailsSection extends StatelessWidget {
         ),
         _buildLabeledDropDown(
           context,
-          model: null, // Model logic could be improved here
+          model: null,
           label: 'Assigned By (Teacher)',
-          initialValue: model.dropdownValue3 ?? AppConstants.teacherOptions.first,
-          options: AppConstants.teacherOptions,
+          initialValue: model.dropdownValue3 ?? (teacherOptions.isNotEmpty ? teacherOptions.first : ''),
+          options: teacherOptions.isEmpty ? ['No Teachers'] : teacherOptions,
           controller: model.dropdownValueController3,
           icon: Icons.person_rounded,
           onChanged: (val) {
@@ -61,7 +66,7 @@ class HomeworkClassDetailsSection extends StatelessWidget {
             onChanged();
           },
         ),
-      ].divide(const SizedBox(height: 16.0)),
+      ].divide(const SizedBox(height: 12.0)),
     );
   }
 
@@ -88,13 +93,13 @@ class HomeworkClassDetailsSection extends StatelessWidget {
         else
           FormLabelWidget(label: label),
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.only(top: 8.0),
           child: FlutterFlowDropDown<String>(
-            controller: controller ??= FormFieldController<String>(initialValue),
+            controller: controller!,
             options: options,
             onChanged: onChanged,
-            width: 200.0,
-            height: 40.0,
+            width: double.infinity,
+            height: 48.0,
             textStyle: FlutterFlowTheme.of(context).bodyMedium,
             hintText: 'Choose...',
             icon: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText, size: 24.0),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppStatCard extends StatelessWidget {
   const AppStatCard({
@@ -9,52 +10,81 @@ class AppStatCard extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.color,
+    this.trend,
+    this.trendColor,
   });
 
   final String title;
   final String value;
   final IconData icon;
   final Color color;
+  final String? trend;
+  final Color? trendColor;
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: theme.alternate, width: 1.5),
         boxShadow: [
           BoxShadow(
-            blurRadius: 10,
-            color: Colors.black.withAlpha(10),
+            color: theme.primaryText.withOpacity(0.04),
+            blurRadius: 12,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withAlpha(20),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: color.withAlpha(25),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Icon(icon, color: color, size: AppSize.iconMd),
+              ),
+              if (trend != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: (trendColor ?? color).withAlpha(25),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    trend!,
+                    style: AppTypography.caption.copyWith(
+                      color: trendColor ?? color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Text(
             value, 
-            style: FlutterFlowTheme.of(context).headlineSmall.override(
-              font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+            style: AppTypography.title.copyWith(
+              fontSize: 22,
+              color: theme.primaryText,
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             title, 
-            style: FlutterFlowTheme.of(context).labelSmall.override(
-              font: GoogleFonts.inter(),
-              color: FlutterFlowTheme.of(context).secondaryText,
+            style: AppTypography.caption.copyWith(
+              color: theme.secondaryText,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

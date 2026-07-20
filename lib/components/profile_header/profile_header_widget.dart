@@ -1,11 +1,11 @@
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_icon_button.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'profile_header_model.dart';
-export 'profile_header_model.dart';
+import 'package:d_c_i_teacher_app/components/profile_header/profile_header_model.dart';
+export 'package:d_c_i_teacher_app/components/profile_header/profile_header_model.dart';
 
 class ProfileHeaderWidget extends StatefulWidget {
   const ProfileHeaderWidget({
@@ -64,7 +64,7 @@ class _ProfileHeaderWidgetState extends State<ProfileHeaderWidget> {
               gradient: LinearGradient(
                 colors: [
                   FlutterFlowTheme.of(context).primary,
-                  FlutterFlowTheme.of(context).tertiary
+                  FlutterFlowTheme.of(context).primaryDark
                 ],
                 stops: const [0.0, 1.0],
                 begin: const AlignmentDirectional(0.0, -1.0),

@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:from_css_color/from_css_color.dart';
 
-import '../../flutter_flow/lat_lng.dart';
-import '../../flutter_flow/place.dart';
-import '../../flutter_flow/uploaded_file.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/lat_lng.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/place.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/uploaded_file.dart';
 
 /// SERIALIZATION HELPERS
 

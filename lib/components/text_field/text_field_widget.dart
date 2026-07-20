@@ -1,10 +1,10 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/shared/app_style.dart';
-import '/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'text_field_model.dart';
-export 'text_field_model.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_model.dart';
+export 'package:d_c_i_teacher_app/components/text_field/text_field_model.dart';
 
 class TextFieldWidget extends StatefulWidget {
   const TextFieldWidget({

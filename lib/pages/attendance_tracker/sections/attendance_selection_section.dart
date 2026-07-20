@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../shared/app_style.dart';
-import '../../../flutter_flow/flutter_flow_drop_down.dart';
-import '../../../flutter_flow/form_field_controller.dart';
-import '../../../flutter_flow/flutter_flow_theme.dart';
-import '../../../flutter_flow/flutter_flow_util.dart';
-import '../attendance_tracker_model.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/pages/attendance_tracker/attendance_tracker_model.dart';
 
 class AttendanceSelectionSection extends StatelessWidget {
   final AttendanceTrackerModel model;
@@ -49,12 +49,13 @@ class AttendanceSelectionSection extends StatelessWidget {
           Row(
             children: [
               Expanded(
+                flex: 3,
                 child: InkWell(
                   onTap: onDateChanged,
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
-                    height: 44,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       color: FlutterFlowTheme.of(context).secondaryBackground,
                       borderRadius: BorderRadius.circular(8),
@@ -62,12 +63,15 @@ class AttendanceSelectionSection extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today_rounded, size: 16, color: FlutterFlowTheme.of(context).primary),
+                        Icon(Icons.calendar_today_rounded, size: 14, color: FlutterFlowTheme.of(context).primary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             dateTimeFormat('yMMMd', model.selectedDate),
-                            style: FlutterFlowTheme.of(context).bodySmall,
+                            style: FlutterFlowTheme.of(context).bodySmall.override(
+                              font: GoogleFonts.inter(),
+                              fontSize: 12,
+                            ),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
@@ -79,8 +83,9 @@ class AttendanceSelectionSection extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
+                flex: 2,
                 child: FlutterFlowDropDown<String>(
-                  controller: model.classDropdownController ??= FormFieldController<String>(model.selectedClass),
+                  controller: model.classDropdownController!,
                   options: effectiveClassOptions,
                   onChanged: (val) {
                     if (val == 'Loading Classes...') return;
@@ -88,45 +93,53 @@ class AttendanceSelectionSection extends StatelessWidget {
                     onClassChanged();
                   },
                   disabled: isLoadingClasses,
-                  height: 44,
+                  height: 40,
                   hintText: 'Class',
                   fillColor: FlutterFlowTheme.of(context).secondaryBackground,
                   borderRadius: 8,
                   borderWidth: 1,
                   borderColor: FlutterFlowTheme.of(context).alternate,
                   hidesUnderline: true,
-                  textStyle: FlutterFlowTheme.of(context).bodySmall,
+                  textStyle: FlutterFlowTheme.of(context).bodySmall.override(
+                    font: GoogleFonts.inter(),
+                    fontSize: 12,
+                  ),
                   elevation: 2,
-                  margin: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
+                  margin: const EdgeInsetsDirectional.fromSTEB(8, 0, 8, 0),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 4,
+                child: FlutterFlowDropDown<String>(
+                  key: ValueKey('subject_dd_${effectiveSubjectOptions.length}_${model.selectedSubject}'),
+                  controller: model.subjectDropdownController!,
+                  options: effectiveSubjectOptions,
+                  onChanged: (val) {
+                    model.selectedSubject = val;
+                    onSubjectChanged();
+                  },
+                  height: 40,
+                  hintText: 'Subject',
+                  fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: FlutterFlowTheme.of(context).alternate,
+                  hidesUnderline: true,
+                  textStyle: FlutterFlowTheme.of(context).bodySmall.override(
+                    font: GoogleFonts.inter(),
+                    fontSize: 12,
+                  ),
+                  elevation: 2,
+                  margin: const EdgeInsetsDirectional.fromSTEB(8, 0, 8, 0),
+                  icon: Icon(
+                    Icons.menu_book_rounded,
+                    color: FlutterFlowTheme.of(context).primary,
+                    size: 16,
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          FlutterFlowDropDown<String>(
-            key: ValueKey('subject_dd_${effectiveSubjectOptions.length}_${model.selectedSubject}'),
-            controller: model.subjectDropdownController ??= FormFieldController<String>(model.selectedSubject),
-            options: effectiveSubjectOptions,
-            onChanged: (val) {
-              model.selectedSubject = val;
-              onSubjectChanged();
-            },
-            height: 44,
-            width: double.infinity,
-            hintText: 'Select Subject Name',
-            fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: FlutterFlowTheme.of(context).alternate,
-            hidesUnderline: true,
-            textStyle: FlutterFlowTheme.of(context).bodySmall,
-            elevation: 2,
-            margin: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
-            icon: Icon(
-              Icons.menu_book_rounded,
-              color: FlutterFlowTheme.of(context).primary,
-              size: 18,
-            ),
           ),
         ],
       ),

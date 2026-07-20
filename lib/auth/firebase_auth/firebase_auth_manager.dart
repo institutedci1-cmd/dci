@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../auth_manager.dart';
+import 'package:d_c_i_teacher_app/auth/auth_manager.dart';
 
-import 'anonymous_auth.dart';
-import 'apple_auth.dart';
-import 'email_auth.dart';
-import 'firebase_user_provider.dart';
-import 'jwt_token_auth.dart';
-import 'github_auth.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/anonymous_auth.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/apple_auth.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/email_auth.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/firebase_user_provider.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/jwt_token_auth.dart';
+import 'package:d_c_i_teacher_app/auth/firebase_auth/github_auth.dart';
 
-export '../base_auth_user_provider.dart';
+export 'package:d_c_i_teacher_app/auth/base_auth_user_provider.dart';
 
 class FirebasePhoneAuthManager extends ChangeNotifier {
   bool? _triggerOnCodeSent;

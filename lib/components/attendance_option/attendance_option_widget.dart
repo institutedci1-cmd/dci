@@ -1,9 +1,9 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'attendance_option_model.dart';
-export 'attendance_option_model.dart';
+import 'package:d_c_i_teacher_app/components/attendance_option/attendance_option_model.dart';
+export 'package:d_c_i_teacher_app/components/attendance_option/attendance_option_model.dart';
 
 class AttendanceOptionWidget extends StatefulWidget {
   const AttendanceOptionWidget({
@@ -88,43 +88,41 @@ class _AttendanceOptionWidgetState extends State<AttendanceOptionWidget> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                widget.icon!,
-                Text(
-                  valueOrDefault<String>(
-                    widget.label,
-                    'Present',
-                  ),
-                  style: FlutterFlowTheme.of(context).labelMedium.override(
-                        font: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FlutterFlowTheme.of(context)
-                              .labelMedium
-                              .fontStyle,
-                        ),
-                        color: valueOrDefault<Color>(
-                          valueOrDefault<bool>(
-                            widget.selected,
-                            true,
-                          )
-                              ? FlutterFlowTheme.of(context).onPrimary
-                              : FlutterFlowTheme.of(context).primaryText,
-                          FlutterFlowTheme.of(context).onPrimary,
-                        ),
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.bold,
-                        fontStyle:
-                            FlutterFlowTheme.of(context).labelMedium.fontStyle,
-                        lineHeight: 1.38,
-                      ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              widget.icon!,
+              Text(
+                valueOrDefault<String>(
+                  widget.label,
+                  'Present',
                 ),
-              ].divide(const SizedBox(height: 4.0)),
-            ),
+                style: FlutterFlowTheme.of(context).labelMedium.override(
+                      font: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FlutterFlowTheme.of(context)
+                            .labelMedium
+                            .fontStyle,
+                      ),
+                      color: valueOrDefault<Color>(
+                        valueOrDefault<bool>(
+                          widget.selected,
+                          true,
+                        )
+                            ? FlutterFlowTheme.of(context).onPrimary
+                            : FlutterFlowTheme.of(context).primaryText,
+                        FlutterFlowTheme.of(context).onPrimary,
+                      ),
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.bold,
+                      fontStyle:
+                          FlutterFlowTheme.of(context).labelMedium.fontStyle,
+                      lineHeight: 1.38,
+                    ),
+              ),
+            ].divide(const SizedBox(height: 4.0)),
           ),
         ),
       ),

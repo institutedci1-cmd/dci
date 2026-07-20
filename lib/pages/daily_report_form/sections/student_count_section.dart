@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/components/form_section_header/form_section_header_widget.dart';
-import '/components/student_counter/student_counter_widget.dart';
-import '../daily_report_form_model.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_widget.dart';
+import 'package:d_c_i_teacher_app/components/student_counter/student_counter_widget.dart';
+import 'package:d_c_i_teacher_app/pages/daily_report_form/daily_report_form_model.dart';
 
 class StudentCountSection extends StatelessWidget {
   const StudentCountSection({

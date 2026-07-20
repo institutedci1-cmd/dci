@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppQuickActionButton extends StatelessWidget {
   const AppQuickActionButton({
@@ -19,33 +20,33 @@ class AppQuickActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final activeColor = color ?? theme.primary;
+    final activeColor = color ?? AppColors.primary;
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
         decoration: BoxDecoration(
-          color: activeColor.withAlpha(20),
-          borderRadius: BorderRadius.circular(12),
+          color: activeColor.withAlpha(25),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color: activeColor.withAlpha(40),
+            color: activeColor.withAlpha(50),
             width: 1,
           ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: activeColor, size: 28),
-            const SizedBox(height: 8),
+            Icon(icon, color: activeColor, size: AppSize.iconLg),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               title, 
               textAlign: TextAlign.center,
-              style: theme.bodyMedium.override(
-                font: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              style: AppTypography.label.copyWith(
                 color: activeColor,
                 fontSize: 13,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

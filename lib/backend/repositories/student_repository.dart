@@ -1,9 +1,10 @@
+import 'package:d_c_i_teacher_app/backend/repositories/interfaces/i_student_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '../models/student.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/models/student.dart';
 
-class StudentRepository {
+class StudentRepository implements IStudentRepository {
   StudentRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
@@ -20,6 +21,7 @@ class StudentRepository {
     });
   }
 
+  @override
   Future<List<Student>> getStudentsByClass(String className) async {
     final normalizedClass = normalizeClassName(className);
     final querySnapshot = await _studentsCollection
@@ -34,6 +36,7 @@ class StudentRepository {
     return students;
   }
 
+  @override
   Future<List<Student>> getAllStudents() async {
     final querySnapshot = await _studentsCollection.get();
     final students = querySnapshot.docs
@@ -43,6 +46,23 @@ class StudentRepository {
     return students;
   }
 
+  @override
+  Future<List<Student>> getStudentsPaginated(int limit, {DocumentSnapshot? lastDocument}) async {
+    var query = _studentsCollection
+        .orderBy('name')
+        .limit(limit);
+    
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    final querySnapshot = await query.get();
+    return querySnapshot.docs
+        .map((doc) => Student.fromFirestore(doc))
+        .toList();
+  }
+
+  @override
   Stream<List<Student>> getAllStudentsStream() {
     return _studentsCollection.snapshots().map((snapshot) {
       final students = snapshot.docs.map((doc) => Student.fromFirestore(doc)).toList();
@@ -51,14 +71,18 @@ class StudentRepository {
     });
   }
 
+  @override
   Future<void> updateStudent(Student student) async {
     await _studentsCollection.doc(student.id).set(student.toFirestore(), SetOptions(merge: true));
   }
 
+  @override
   Future<void> deleteStudent(String id) async {
     await _studentsCollection.doc(id).delete();
   }
 
+  @override
+  @override
   Future<void> bulkAddStudents(List<Map<String, String>> studentsData) async {
     debugPrint('StudentRepository: Starting bulk add for ${studentsData.length} students');
     

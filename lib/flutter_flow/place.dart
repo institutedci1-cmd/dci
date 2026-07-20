@@ -1,4 +1,4 @@
-import 'lat_lng.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/lat_lng.dart';
 
 class FFPlace {
   const FFPlace({

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../shared/app_style.dart';
-import '../../shared/app_colors.dart';
-import 'app_primary_button.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 
 class AppDialog extends StatelessWidget {
   final String title;

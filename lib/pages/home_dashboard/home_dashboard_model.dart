@@ -1,8 +1,8 @@
-import '/components/dashboard_card/dashboard_card_widget.dart';
-import '/flutter_flow/flutter_flow_model.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
-import 'home_dashboard_widget.dart' show HomeDashboardWidget;
+import 'package:d_c_i_teacher_app/components/dashboard_card/dashboard_card_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_model.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
+import 'package:d_c_i_teacher_app/pages/home_dashboard/home_dashboard_widget.dart' show HomeDashboardWidget;
 import 'package:flutter/material.dart';
 
 class HomeDashboardModel extends FlutterFlowModel<HomeDashboardWidget> {

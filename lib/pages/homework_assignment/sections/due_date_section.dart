@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '/components/button/button_widget.dart';
-import '/components/form_label/form_label_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '../homework_assignment_model.dart';
+import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
+import 'package:d_c_i_teacher_app/components/form_label/form_label_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/pages/homework_assignment/homework_assignment_model.dart';
 
 class DueDateSection extends StatelessWidget {
   const DueDateSection({
@@ -26,20 +26,21 @@ class DueDateSection extends StatelessWidget {
           updateCallback: onChanged,
           child: const FormLabelWidget(label: 'Due Date'),
         ),
+        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: FlutterFlowTheme.of(context).secondaryBackground,
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(12.0),
             border: Border.all(color: FlutterFlowTheme.of(context).alternate),
           ),
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Icon(Icons.calendar_today_rounded, color: FlutterFlowTheme.of(context).primary, size: 20.0),
-                  const SizedBox(width: 16),
+                  Icon(Icons.calendar_today_rounded, color: FlutterFlowTheme.of(context).primary, size: 18.0),
+                  const SizedBox(width: 12),
                   Text(
                     model.dueDate != null ? dateTimeFormat('yMMMd', model.dueDate) : 'Select Due Date',
                     style: FlutterFlowTheme.of(context).bodyMedium,
@@ -70,7 +71,7 @@ class DueDateSection extends StatelessWidget {
             ],
           ),
         ),
-      ].divide(const SizedBox(height: 16.0)),
+      ],
     );
   }
 }

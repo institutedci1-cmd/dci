@@ -1,12 +1,14 @@
-import '/components/header_section/header_section_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/main.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'settings_model.dart';
-export 'settings_model.dart';
+import 'package:d_c_i_teacher_app/pages/settings/settings_model.dart';
+export 'package:d_c_i_teacher_app/pages/settings/settings_model.dart';
 
 class SettingsWidget extends ConsumerStatefulWidget {
   const SettingsWidget({super.key});
@@ -52,11 +54,11 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(24.0),
+              padding: AppSpacing.pagePadding,
               children: [
                 _buildSectionHeader('Appearance'),
                 _buildThemeToggle(),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.lg),
                 _buildSectionHeader('Account & Notifications'),
                 _buildSettingsTile(
                   Icons.notifications_active_outlined,
@@ -65,10 +67,10 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
                   trailing: Switch.adaptive(
                     value: true,
                     onChanged: (val) {},
-                    activeTrackColor: FlutterFlowTheme.of(context).primary,
+                    activeTrackColor: AppColors.primary,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.lg),
                 _buildSectionHeader('Support'),
                 _buildSettingsTile(
                   Icons.help_outline_rounded,
@@ -92,65 +94,136 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Text(
         title,
-        style: FlutterFlowTheme.of(context).labelMedium.override(
-              font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-              color: FlutterFlowTheme.of(context).primary,
-              fontWeight: FontWeight.bold,
-            ),
+        style: AppTypography.label.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
   Widget _buildThemeToggle() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = FlutterFlowTheme.of(context);
+    final themeMode = MyApp.of(context).themeMode;
 
-    return Material(
-      color: FlutterFlowTheme.of(context).secondaryBackground,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-        side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: theme.alternate),
+        boxShadow: AppShadows.low,
       ),
-      child: ListTile(
-        leading: Icon(
-          isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-          color: FlutterFlowTheme.of(context).primary,
-        ),
-        title: Text('Dark Mode', style: FlutterFlowTheme.of(context).bodyLarge),
-        subtitle: Text(
-          isDarkMode ? 'Currently using dark theme' : 'Currently using light theme',
-          style: FlutterFlowTheme.of(context).labelSmall,
-        ),
-        trailing: Switch.adaptive(
-          value: isDarkMode,
-          onChanged: (val) {
-            final newMode = val ? ThemeMode.dark : ThemeMode.light;
-            MyApp.of(context).setThemeMode(newMode);
-          },
-          activeTrackColor: FlutterFlowTheme.of(context).primary,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  themeMode == ThemeMode.dark ? Icons.dark_mode_rounded : (themeMode == ThemeMode.light ? Icons.light_mode_rounded : Icons.settings_suggest_rounded),
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('App Theme', style: AppTypography.body.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    themeMode == ThemeMode.system ? 'Using system settings' : 'Currently in ${themeMode.name} mode',
+                    style: AppTypography.caption,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<ThemeMode>(
+              segments: const [
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  label: Text('Light'),
+                  icon: Icon(Icons.light_mode_rounded, size: 18),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  label: Text('Dark'),
+                  icon: Icon(Icons.dark_mode_rounded, size: 18),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  label: Text('System'),
+                  icon: Icon(Icons.settings_suggest_rounded, size: 18),
+                ),
+              ],
+              selected: {themeMode},
+              onSelectionChanged: (newSelection) {
+                MyApp.of(context).setThemeMode(newSelection.first);
+              },
+              showSelectedIcon: false,
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                side: WidgetStateProperty.all(BorderSide(color: theme.alternate)),
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return AppColors.primary;
+                    }
+                    return theme.secondaryBackground;
+                  },
+                ),
+                foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return Colors.white;
+                    }
+                    return AppColors.textSecondary;
+                  },
+                ),
+                textStyle: WidgetStateProperty.all(AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSettingsTile(IconData icon, String title, String subtitle,
       {Widget? trailing, VoidCallback? onTap}) {
+    final theme = FlutterFlowTheme.of(context);
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: theme.alternate),
+        boxShadow: AppShadows.low,
+      ),
       child: Material(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
-        ),
+        color: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: ListTile(
           onTap: onTap,
-          leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
-          title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
-          subtitle: Text(subtitle, style: FlutterFlowTheme.of(context).labelSmall),
-          trailing: trailing ?? const Icon(Icons.chevron_right_rounded),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          leading: Icon(icon, color: AppColors.textSecondary, size: 24),
+          title: Text(title, style: AppTypography.body.copyWith(fontWeight: FontWeight.bold)),
+          subtitle: Text(subtitle, style: AppTypography.caption),
+          trailing: trailing ?? Icon(Icons.chevron_right_rounded, color: theme.secondaryText),
         ),
       ),
     );

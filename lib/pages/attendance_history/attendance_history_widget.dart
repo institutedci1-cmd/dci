@@ -1,18 +1,20 @@
 
-import '/backend/providers/repository_providers.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/components/shared/app_primary_button.dart';
-import '/shared/app_style.dart';
-import '/shared/app_colors.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Direct imports for the page and its model
-import 'attendance_history_model.dart';
-import '/pages/attendance_dashboard/attendance_dashboard_widget.dart';
+import 'package:d_c_i_teacher_app/pages/attendance_history/attendance_history_model.dart';
+import 'package:d_c_i_teacher_app/pages/attendance_dashboard/attendance_dashboard_widget.dart';
+import 'package:d_c_i_teacher_app/pages/attendance_tracker/attendance_tracker_widget.dart';
 
 class AttendanceHistoryWidget extends ConsumerStatefulWidget {
   const AttendanceHistoryWidget({super.key});
@@ -63,64 +65,83 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
             child: ref.watch(studentAttendanceLogsProvider).when(
               data: (records) {
                 if (records.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No student attendance records found.',
-                      style: FlutterFlowTheme.of(context).bodyMedium,
-                    ),
+                  return AppEmptyState(
+                    icon: Icons.fact_check_rounded,
+                    title: 'No records found',
+                    description: 'Your marked attendance logs will appear here.',
+                    actionLabel: 'Mark Attendance',
+                    onActionPressed: () => context.pushNamed(AttendanceTrackerWidget.routeName),
                   );
                 }
                 return ListView.separated(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: AppSpacing.pagePadding,
                   itemCount: records.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, index) {
                     final record = records[index];
+                    final color = _getStatusColor(record.status);
+                    
                     return Container(
-                      decoration: const BoxDecoration(),
-                      child: Material(
+                      decoration: BoxDecoration(
                         color: FlutterFlowTheme.of(context).secondaryBackground,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                          side: BorderSide(
-                            color: FlutterFlowTheme.of(context).alternate,
-                          ),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(
+                          color: FlutterFlowTheme.of(context).alternate,
                         ),
+                        boxShadow: AppShadows.low,
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        clipBehavior: Clip.antiAlias,
                         child: ListTile(
-                          leading: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: color.withAlpha(20),
+                              shape: BoxShape.circle,
+                            ),
                             child: Icon(
                               _getStatusIcon(record.status),
-                              color: _getStatusColor(record.status),
-                              size: 20,
+                              color: color,
+                              size: 18,
                             ),
                           ),
                           title: Text(
                             record.studentName,
-                            style: FlutterFlowTheme.of(context).bodyLarge.override(
-                                  font: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, fontSize: 15),
                           ),
-                          subtitle: Text(
-                            'Class: ${record.className} • Subject: ${record.subject}\n${dateTimeFormat('yMMMd', record.date)}',
-                            style: FlutterFlowTheme.of(context).bodySmall,
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Class: ${record.className} • Subject: ${record.subject}',
+                                  style: AppTypography.caption.copyWith(fontSize: 12),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  dateTimeFormat('yMMMd', record.date),
+                                  style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
+                                ),
+                              ],
+                            ),
                           ),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(record.status).withAlpha((0.1 * 255).toInt()),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: _getStatusColor(record.status)),
+                              color: color.withAlpha(25),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: color.withAlpha(50)),
                             ),
                             child: Text(
-                              record.status,
+                              record.status.toUpperCase(),
                               style: TextStyle(
-                                color: _getStatusColor(record.status),
-                                fontSize: 12,
+                                color: color,
+                                fontSize: 9,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -166,10 +187,10 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Present': return Colors.green;
-      case 'Absent': return Colors.red;
-      case 'Leave': return Colors.orange;
-      default: return Colors.grey;
+      case 'Present': return AppColors.success;
+      case 'Absent': return AppColors.error;
+      case 'Leave': return AppColors.warning;
+      default: return AppColors.textSecondary;
     }
   }
 

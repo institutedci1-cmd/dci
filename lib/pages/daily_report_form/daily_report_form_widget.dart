@@ -1,26 +1,20 @@
-import '/backend/models/daily_report.dart';
-import '/backend/providers/repository_providers.dart';
-import '/backend/services/error_handler.dart';
-import '../../shared/app_colors.dart';
-import '../../shared/app_style.dart';
-import '/components/shared/app_primary_button.dart';
-import '/components/form_section_header/form_section_header_widget.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '../../index.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:d_c_i_teacher_app/features/daily_report/application/daily_report_notifier.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
+import 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_widget.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'sections/class_details_section.dart';
-import 'sections/student_count_section.dart';
-import 'sections/additional_info_section.dart';
-import '../reports_dashboard/reports_dashboard_widget.dart';
-import '../report_history/report_history_widget.dart';
-import '../home_dashboard/home_dashboard_widget.dart';
+import 'package:d_c_i_teacher_app/pages/daily_report_form/sections/class_details_section.dart';
+import 'package:d_c_i_teacher_app/pages/daily_report_form/sections/student_count_section.dart';
+import 'package:d_c_i_teacher_app/pages/daily_report_form/sections/additional_info_section.dart';
 
-export 'daily_report_form_model.dart';
+export 'package:d_c_i_teacher_app/pages/daily_report_form/daily_report_form_model.dart';
 
 class DailyReportFormWidget extends ConsumerStatefulWidget {
   const DailyReportFormWidget({super.key});
@@ -34,128 +28,13 @@ class DailyReportFormWidget extends ConsumerStatefulWidget {
 
 class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
   late DailyReportFormModel _model;
-
   final _formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  int _presentCount = 0;
-  int _absentCount = 0;
-  DailyReport? _lastReport;
-  bool _isDataLoading = true;
-  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => DailyReportFormModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFormData();
-    });
-  }
-
-  Future<void> _initializeFormData() async {
-    if (!mounted) return;
-    setState(() => _isDataLoading = true);
-    try {
-      final userRepo = ref.read(userRepositoryProvider);
-      final studentRepo = ref.read(studentRepositoryProvider);
-      
-      final teachers = await userRepo.getTeachers();
-      final allStudents = await studentRepo.getAllStudents();
-
-      // Extract teacher names and expertise
-      final teacherNames = teachers.map((t) => t['display_name'] as String).toSet().toList();
-      final subjects = teachers
-          .map((t) => t['subject_expertise'] as String?)
-          .where((s) => s != null && s.isNotEmpty)
-          .expand((s) => s!.split(',').map((e) => e.trim()))
-          .toSet()
-          .toList();
-
-      // Extract unique classes
-      final classNames = allStudents
-          .map((s) => s.className)
-          .where((c) => c.isNotEmpty)
-          .toSet()
-          .toList();
-
-      if (mounted) {
-        setState(() {
-          _model.teacherOptions = teacherNames..sort();
-          _model.subjectOptions = {
-            'English',
-            'Marathi',
-            'Math',
-            'Science',
-            ...subjects,
-          }.toList().where((s) => s.isNotEmpty).toList()..sort();
-          _model.classOptions = classNames..sort();
-        });
-        await _loadLastReport();
-        if (mounted) {
-          setState(() {
-            _isDataLoading = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isDataLoading = false);
-        ErrorHandler.show(context, e);
-      }
-    }
-  }
-
-  void _clearForm() {
-    safeSetState(() {
-      _presentCount = 0;
-      _absentCount = 0;
-      _model.dropdownValue1 = null;
-      _model.dropdownValueController1?.reset();
-      _model.dropdownValue2 = null;
-      _model.dropdownValueController2?.reset();
-      _model.dropdownValue3 = null;
-      _model.dropdownValueController3?.reset();
-      _model.textFieldModel3.inputTextController?.clear();
-      _model.textFieldModel4.inputTextController?.clear();
-      _model.textFieldModel5.inputTextController?.clear();
-      _model.textFieldModel6.inputTextController?.clear();
-    });
-  }
-
-  Future<void> _loadLastReport() async {
-    try {
-      final repository = ref.read(dailyReportRepositoryProvider);
-      final report = await repository.getLastReport();
-      if (report == null) return;
-
-      _lastReport = report;
-      if (!mounted) return;
-      _applyReport(report);
-    } catch (e) {
-      debugPrint('Error loading last report: $e');
-    }
-  }
-
-  void _applyReport(DailyReport report) {
-    safeSetState(() {
-      _presentCount = report.presentCount;
-      _absentCount = report.absentCount;
-      
-      _model.dropdownValue1 = report.className;
-      _model.dropdownValueController1?.value = report.className;
-      
-      _model.dropdownValue2 = report.subject;
-      _model.dropdownValueController2?.value = report.subject;
-      
-      _model.dropdownValue3 = report.teacher;
-      _model.dropdownValueController3?.value = report.teacher;
-      
-      _model.textFieldModel3.inputTextController?.text = report.chapter;
-      _model.textFieldModel4.inputTextController?.text = report.topics;
-      _model.textFieldModel5.inputTextController?.text = report.homeworkAssigned;
-      _model.textFieldModel6.inputTextController?.text = report.remarks;
-    });
   }
 
   @override
@@ -164,57 +43,53 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
     super.dispose();
   }
 
-  Future<void> _handleSubmit() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    
-    if (_model.dropdownValue1 == null || 
-        _model.dropdownValue2 == null || 
-        _model.dropdownValue3 == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select Class, Subject and Teacher.')),
-      );
-      return;
-    }
-
+  Future<void> _handleSubmit(DailyReportFormState state, DailyReportNotifier notifier) async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSaving = true);
-    try {
-      final report = DailyReport(
-        id: '',
-        className: _model.dropdownValue1!,
-        subject: _model.dropdownValue2!,
-        teacher: _model.dropdownValue3!,
-        chapter: _model.textFieldModel3.inputTextController?.text.trim() ?? '',
-        topics: _model.textFieldModel4.inputTextController?.text.trim() ?? '',
-        presentCount: _presentCount,
-        absentCount: _absentCount,
-        homeworkAssigned: _model.textFieldModel5.inputTextController?.text.trim() ?? '',
-        remarks: _model.textFieldModel6.inputTextController?.text.trim() ?? '',
-        createdBy: user.uid,
-        createdByEmail: user.email ?? '',
-      );
+    final success = await notifier.submitReport(
+      chapter: _model.textFieldModel3.inputTextController?.text.trim() ?? '',
+      topics: _model.textFieldModel4.inputTextController?.text.trim() ?? '',
+      homework: _model.textFieldModel5.inputTextController?.text.trim() ?? '',
+      remarks: _model.textFieldModel6.inputTextController?.text.trim() ?? '',
+    );
 
-      await ref.read(dailyReportRepositoryProvider).submitReport(report);
-      
-      if (!mounted) return;
+    if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Daily report saved.')));
       context.goNamed(HomeDashboardWidget.routeName);
-    } catch (e) {
-      if (mounted) ErrorHandler.show(context, e);
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
+    } else if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to submit report. Please check required fields.')));
+    }
+  }
+
+  void _syncModelWithState(DailyReportFormState state) {
+    if (_model.dropdownValue1 != state.selectedClass) {
+       _model.dropdownValue1 = state.selectedClass;
+       _model.dropdownValueController1?.value = state.selectedClass;
+    }
+    if (_model.dropdownValue2 != state.selectedSubject) {
+       _model.dropdownValue2 = state.selectedSubject;
+       _model.dropdownValueController2?.value = state.selectedSubject;
+    }
+    if (_model.dropdownValue3 != state.selectedTeacher) {
+       _model.dropdownValue3 = state.selectedTeacher;
+       _model.dropdownValueController3?.value = state.selectedTeacher;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isDataLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+    final reportStateAsync = ref.watch(dailyReportNotifierProvider);
+    final notifier = ref.read(dailyReportNotifierProvider.notifier);
+
+    return reportStateAsync.when(
+      data: (state) => _buildScaffold(context, state, notifier),
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, DailyReportFormState state, DailyReportNotifier notifier) {
+    _syncModelWithState(state);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -228,27 +103,34 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
               child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
-                  padding: AppSpacing.pagePadding,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Column(
                     children: [
-                      ClassDetailsSection(model: _model, onChanged: () => safeSetState(() {})),
+                      ClassDetailsSection(
+                        model: _model, 
+                        onChanged: () {
+                          notifier.setClass(_model.dropdownValue1);
+                          notifier.setSubject(_model.dropdownValue2);
+                          notifier.setTeacher(_model.dropdownValue3);
+                        },
+                      ),
                       _buildTopicsSection(context),
                       StudentCountSection(
                         model: _model,
-                        presentCount: _presentCount,
-                        absentCount: _absentCount,
-                        onPresentChanged: (val) => safeSetState(() => _presentCount = val),
-                        onAbsentChanged: (val) => safeSetState(() => _absentCount = val),
-                        onChanged: () => safeSetState(() {}),
+                        presentCount: state.presentCount,
+                        absentCount: state.absentCount,
+                        onPresentChanged: notifier.setPresentCount,
+                        onAbsentChanged: notifier.setAbsentCount,
+                        onChanged: () {},
                       ),
-                      AdditionalInfoSection(model: _model, onChanged: () => safeSetState(() {})),
-                      const SizedBox(height: AppSpacing.xl),
-                    ].divide(const SizedBox(height: AppSpacing.lg)),
+                      AdditionalInfoSection(model: _model, onChanged: () {}),
+                      const SizedBox(height: 8),
+                    ].divide(const SizedBox(height: 12)),
                   ),
                 ),
               ),
             ),
-            _buildFormFooter(context),
+            _buildFormFooter(context, state, notifier),
           ],
         ),
       ),
@@ -256,51 +138,44 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return wrapWithModel(
-      model: createModel(context, () => HeaderSectionModel()),
-      updateCallback: () => safeSetState(() {}),
-      child: HeaderSectionWidget(
-        title: 'Daily Report',
-        subtitle: dateTimeFormat('MMMMEEEEd', getCurrentTimestamp),
-        onBackPressed: () async => context.goNamed(ReportsDashboardWidget.routeName),
-        actionIcon: const Icon(Icons.history_rounded, color: Colors.white, size: 24.0),
-        onActionPressed: () async => context.pushNamed(ReportHistoryWidget.routeName),
-      ),
+    return HeaderSectionWidget(
+      title: 'Daily Report',
+      subtitle: dateTimeFormat('yMMMd', getCurrentTimestamp),
+      onBackPressed: () async => context.goNamed(ReportsDashboardWidget.routeName),
+      actionIcon: const Icon(Icons.history_rounded, color: Colors.white, size: 24.0),
+      onActionPressed: () async => context.pushNamed(ReportHistoryWidget.routeName),
     );
   }
 
   Widget _buildTopicsSection(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        wrapWithModel(
-          model: _model.formSectionHeaderModel2,
-          updateCallback: () => safeSetState(() {}),
-          child: FormSectionHeaderWidget(
-            icon: Icon(Icons.list_alt_rounded, color: AppColors.primary, size: 20.0),
-            title: 'Topics Covered',
-          ),
+        Row(
+          children: [
+            Icon(Icons.list_alt_rounded, color: theme.primary, size: 18.0),
+            const SizedBox(width: 8),
+            Text('Topics Covered', style: AppTypography.label.copyWith(fontWeight: FontWeight.bold, color: theme.primaryText)),
+          ],
         ),
-        wrapWithModel(
-          model: _model.textFieldModel4,
-          updateCallback: () => safeSetState(() {}),
-          child: TextFieldWidget(
-            controller: _model.textFieldModel4.inputTextController,
-            focusNode: _model.textFieldModel4.inputFocusNode,
-            label: 'Detailed Topics',
-            labelPresent: true,
-            leadingIcon: const Icon(Icons.topic_rounded, size: 24.0),
-            leadingIconPresent: true,
-            hint: 'List the specific topics taught today...',
-            variant: 'outlined',
-          ),
+        const SizedBox(height: 8),
+        TextFieldWidget(
+          controller: _model.textFieldModel4.inputTextController,
+          focusNode: _model.textFieldModel4.inputFocusNode,
+          label: 'Detailed Topics',
+          labelPresent: false,
+          leadingIcon: Icon(Icons.topic_rounded, size: 20.0, color: theme.secondaryText),
+          leadingIconPresent: true,
+          hint: 'List topics taught today...',
+          variant: 'outlined',
         ),
-      ].divide(const SizedBox(height: 16.0)),
+      ],
     );
   }
 
-  Widget _buildFormFooter(BuildContext context) {
+  Widget _buildFormFooter(BuildContext context, DailyReportFormState state, DailyReportNotifier notifier) {
     return Container(
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
@@ -313,25 +188,30 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
           Expanded(
             child: AppPrimaryButton(
               text: 'Submit Report',
-              isLoading: _isSaving,
-              onPressed: _handleSubmit,
+              isLoading: state.isSaving,
+              onPressed: () => _handleSubmit(state, notifier),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          if (_lastReport != null) ...[
-            _buildRestoreButton(),
+          if (state.lastReport != null) ...[
+            _buildRestoreButton(notifier, state),
             const SizedBox(width: AppSpacing.md),
           ],
-          _buildClearButton(),
+          _buildClearButton(notifier),
         ],
       ),
     );
   }
 
-  Widget _buildRestoreButton() {
+  Widget _buildRestoreButton(DailyReportNotifier notifier, DailyReportFormState state) {
     return InkWell(
       onTap: () {
-        if (_lastReport != null) _applyReport(_lastReport!);
+        notifier.applyLastReport();
+        final report = state.lastReport!;
+        _model.textFieldModel3.inputTextController?.text = report.chapter;
+        _model.textFieldModel4.inputTextController?.text = report.topics;
+        _model.textFieldModel5.inputTextController?.text = report.homeworkAssigned;
+        _model.textFieldModel6.inputTextController?.text = report.remarks;
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -341,7 +221,7 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
           color: AppColors.primary.withAlpha(25),
           borderRadius: BorderRadius.circular(16.0),
         ),
-        child: Icon(
+        child: const Icon(
           Icons.restore_page_rounded,
           color: AppColors.primary,
           size: 24.0,
@@ -350,7 +230,7 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
     );
   }
 
-  Widget _buildClearButton() {
+  Widget _buildClearButton(DailyReportNotifier notifier) {
     return InkWell(
       onTap: () async {
         final confirm = await showDialog<bool>(
@@ -364,13 +244,19 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
             ],
           ),
         ) ?? false;
-        if (confirm) _clearForm();
+        if (confirm) {
+          ref.invalidate(dailyReportNotifierProvider);
+          _model.textFieldModel3.inputTextController?.clear();
+          _model.textFieldModel4.inputTextController?.clear();
+          _model.textFieldModel5.inputTextController?.clear();
+          _model.textFieldModel6.inputTextController?.clear();
+        }
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 56.0, height: 56.0,
         decoration: BoxDecoration(color: AppColors.error.withAlpha(25), borderRadius: BorderRadius.circular(16.0)),
-        child: Icon(Icons.delete_sweep_rounded, color: AppColors.error, size: 24.0),
+        child: const Icon(Icons.delete_sweep_rounded, color: AppColors.error, size: 24.0),
       ),
     );
   }

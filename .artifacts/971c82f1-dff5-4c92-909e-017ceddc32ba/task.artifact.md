@@ -1,0 +1,23 @@
+# Task List - Backend & State Management Optimization
+
+- [x] **Student List Optimization**
+    - [x] Refactor `StudentListNotifier` to `AsyncNotifier` (Riverpod 2.0)
+    - [x] Implement search debounce logic
+    - [x] Simplify `StudentListWidget` (remove manual sync)
+- [x] **Attendance Tracker Modernization**
+    - [x] Refactor `AttendanceTrackerNotifier` to `AsyncNotifier`
+    - [x] Improve class/subject selection loading states
+    - [x] Update `AttendanceTrackerWidget` UI bindings
+- [x] **Backend Efficiency**
+    - [x] Add paginated fetch capability to `StudentRepository`
+    - [x] Optimize Attendance queries
+    - [x] Refactor `DailyReportNotifier` to `AsyncNotifier`
+- [x] **Bug Fixes & Audit**
+    - [x] Resolve compile errors in `AttendanceTrackerWidget`, `LoginWidget`, `AddUserWidget`, etc.
+    - [x] Fix duplicated methods and syntax errors in Attendance Tracker.
+    - [x] Correct `BorderRadius` type mismatches in Exam module.
+    - [x] Add missing imports for design tokens and third-party widgets.
+- [x] **Verification**
+    - [x] Verify student search responsiveness (Debounce)
+    - [x] Confirm attendance saving works with new logic
+    - [x] Audit Firestore usage for redundant reads

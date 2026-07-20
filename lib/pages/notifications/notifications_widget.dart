@@ -1,13 +1,16 @@
-import '/backend/models/notification_model.dart';
-import '/backend/providers/repository_providers.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/models/notification_model.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'notifications_model.dart';
-export 'notifications_model.dart';
+import 'package:d_c_i_teacher_app/pages/notifications/notifications_model.dart';
+export 'package:d_c_i_teacher_app/pages/notifications/notifications_model.dart';
 
 class NotificationsWidget extends ConsumerStatefulWidget {
   const NotificationsWidget({super.key});
@@ -68,22 +71,19 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
         }
         final notifications = snapshot.data ?? [];
         if (notifications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.notifications_none_rounded, size: 64, color: FlutterFlowTheme.of(context).alternate),
-                const SizedBox(height: 16),
-                Text('No notifications yet', style: FlutterFlowTheme.of(context).labelLarge),
-              ],
-            ),
+          return AppEmptyState(
+            icon: Icons.notifications_none_rounded,
+            title: 'No notifications',
+            description: 'We\'ll notify you when something important happens.',
+            actionLabel: 'Refresh',
+            onActionPressed: () => setState(() {}),
           );
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(24.0),
+          padding: AppSpacing.pagePadding,
           itemCount: notifications.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
           itemBuilder: (context, index) {
             final item = notifications[index];
             return Dismissible(
@@ -96,60 +96,103 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
                 decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).error,
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppColors.error,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: const Icon(Icons.delete_outline, color: Colors.white),
               ),
               child: Material(
                 color: item.isRead 
                     ? FlutterFlowTheme.of(context).secondaryBackground 
-                    : FlutterFlowTheme.of(context).primary10.applyAlpha(0.05),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                  side: BorderSide(
-                    color: item.isRead 
-                        ? FlutterFlowTheme.of(context).alternate 
-                        : FlutterFlowTheme.of(context).primary,
-                    width: item.isRead ? 1.0 : 1.5,
-                  ),
-                ),
-                child: ListTile(
+                    : AppColors.primary.withAlpha(15),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
                   onTap: () {
                     if (!item.isRead) {
                       ref.read(notificationRepositoryProvider).markAsRead(item.id);
                     }
                   },
-                  leading: CircleAvatar(
-                    backgroundColor: item.isRead 
-                        ? FlutterFlowTheme.of(context).primary10 
-                        : FlutterFlowTheme.of(context).primary,
-                    child: Icon(
-                      _getIcon(item.type), 
-                      color: item.isRead 
-                          ? FlutterFlowTheme.of(context).primary 
-                          : Colors.white, 
-                      size: 20
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: item.isRead 
+                            ? FlutterFlowTheme.of(context).alternate 
+                            : AppColors.primary.withAlpha(50),
+                        width: 1.0,
+                      ),
+                      boxShadow: item.isRead ? null : AppShadows.low,
+                    ),
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: item.isRead 
+                                ? AppColors.primary.withAlpha(25)
+                                : AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            _getIcon(item.type), 
+                            color: item.isRead 
+                                ? AppColors.primary 
+                                : Colors.white, 
+                            size: 20
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.title, 
+                                style: AppTypography.body.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                item.body, 
+                                style: AppTypography.caption.copyWith(
+                                  color: FlutterFlowTheme.of(context).secondaryText,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                item.createdAt != null 
+                                    ? dateTimeFormat('relative', item.createdAt)
+                                    : 'Just now', 
+                                style: AppTypography.caption.copyWith(
+                                  fontSize: 11,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!item.isRead)
+                          Container(
+                            margin: const EdgeInsets.only(top: 4),
+                            width: 10,
+                            height: 10,
+                            decoration: const BoxDecoration(
+                              color: AppColors.secondary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  title: Text(item.title, style: FlutterFlowTheme.of(context).bodyLarge.override(
-                    font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-                    fontWeight: FontWeight.bold,
-                  )),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.body, style: FlutterFlowTheme.of(context).bodyMedium),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.createdAt != null 
-                            ? dateTimeFormat('relative', item.createdAt)
-                            : 'Just now', 
-                        style: FlutterFlowTheme.of(context).labelSmall
-                      ),
-                    ],
-                  ),
-                  isThreeLine: true,
                 ),
               ),
             );

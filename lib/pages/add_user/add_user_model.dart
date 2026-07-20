@@ -1,7 +1,7 @@
-import '/components/header_section/header_section_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/form_field_controller.dart';
 import 'package:flutter/material.dart';
 
 class AddUserModel extends FlutterFlowModel {
@@ -14,6 +14,8 @@ class AddUserModel extends FlutterFlowModel {
   late TextFieldModel nameModel;
   // State field(s) for email widget.
   late TextFieldModel emailModel;
+  // State field(s) for password widget.
+  late TextFieldModel passwordModel;
   // State field(s) for designation widget.
   late TextFieldModel designationModel;
   // State field(s) for employeeId widget.
@@ -32,11 +34,27 @@ class AddUserModel extends FlutterFlowModel {
   void initState(BuildContext context) {
     headerSectionModel = createModel(context, () => HeaderSectionModel());
     nameModel = createModel(context, () => TextFieldModel());
+    nameModel.inputTextController ??= TextEditingController();
+    
     emailModel = createModel(context, () => TextFieldModel());
+    emailModel.inputTextController ??= TextEditingController();
+    
+    passwordModel = createModel(context, () => TextFieldModel());
+    passwordModel.inputTextController ??= TextEditingController();
+    
     designationModel = createModel(context, () => TextFieldModel());
+    designationModel.inputTextController ??= TextEditingController();
+    
     employeeIdModel = createModel(context, () => TextFieldModel());
+    employeeIdModel.inputTextController ??= TextEditingController();
+    
     phoneModel = createModel(context, () => TextFieldModel());
+    phoneModel.inputTextController ??= TextEditingController();
+    
     subjectExpertiseModel = createModel(context, () => TextFieldModel());
+    subjectExpertiseModel.inputTextController ??= TextEditingController();
+    
+    roleValueController = FormFieldController<String>(null);
   }
 
   @override
@@ -45,6 +63,7 @@ class AddUserModel extends FlutterFlowModel {
     headerSectionModel.dispose();
     nameModel.dispose();
     emailModel.dispose();
+    passwordModel.dispose();
     designationModel.dispose();
     employeeIdModel.dispose();
     phoneModel.dispose();

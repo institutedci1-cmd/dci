@@ -1,9 +1,9 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'contact_item_model.dart';
-export 'contact_item_model.dart';
+import 'package:d_c_i_teacher_app/components/contact_item/contact_item_model.dart';
+export 'package:d_c_i_teacher_app/components/contact_item/contact_item_model.dart';
 
 class ContactItemWidget extends StatefulWidget {
   const ContactItemWidget({

@@ -1,9 +1,9 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'profile_info_tile_model.dart';
-export 'profile_info_tile_model.dart';
+import 'package:d_c_i_teacher_app/components/profile_info_tile/profile_info_tile_model.dart';
+export 'package:d_c_i_teacher_app/components/profile_info_tile/profile_info_tile_model.dart';
 
 class ProfileInfoTileWidget extends StatefulWidget {
   const ProfileInfoTileWidget({

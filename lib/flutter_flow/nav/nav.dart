@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '/auth/base_auth_user_provider.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import 'package:d_c_i_teacher_app/auth/base_auth_user_provider.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/index.dart';
 
 export 'package:go_router/go_router.dart';
-export 'serialization_util.dart';
+export 'package:d_c_i_teacher_app/flutter_flow/nav/serialization_util.dart';
 
 const kTransitionInfoKey = '__transition_info__';
 
@@ -123,7 +123,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'MonthlyReport',
           path: '/monthlyReport',
           requireAuth: true,
-          builder: (context, params) => const MonthlyReportWidget(),
+          builder: (context, params) => const AttendanceReportWidget(),
         ),
         FFRoute(
           name: 'StudentList',
@@ -164,13 +164,23 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'TeacherProfile',
           path: '/teacherProfile',
           requireAuth: true,
-          builder: (context, params) => const TeacherProfileWidget(),
+          builder: (context, params) => TeacherProfileWidget(
+            initialUserData: params.getParam<Teacher>(
+              'userData',
+              ParamType.JSON,
+            ),
+          ),
         ),
         FFRoute(
           name: 'EditProfile',
           path: '/editProfile',
           requireAuth: true,
-          builder: (context, params) => const EditProfileWidget(),
+          builder: (context, params) => EditProfileWidget(
+            userToEdit: params.getParam<Teacher>(
+              'userToEdit',
+              ParamType.JSON,
+            ),
+          ),
         ),
         FFRoute(
           name: 'AboutDCI',
@@ -189,6 +199,24 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: '/notifications',
           requireAuth: true,
           builder: (context, params) => const NotificationsWidget(),
+        ),
+        FFRoute(
+          name: 'ExamsDashboard',
+          path: '/examsDashboard',
+          requireAuth: true,
+          builder: (context, params) => const ExamsDashboardWidget(),
+        ),
+        FFRoute(
+          name: 'Exams',
+          path: '/exams',
+          requireAuth: true,
+          builder: (context, params) => const ExamsWidget(),
+        ),
+        FFRoute(
+          name: 'AddExam',
+          path: '/addExam',
+          requireAuth: true,
+          builder: (context, params) => const AddExamWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

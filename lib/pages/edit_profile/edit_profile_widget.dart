@@ -1,19 +1,27 @@
+import 'package:d_c_i_teacher_app/backend/models/teacher.dart';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
-import '/backend/providers/repository_providers.dart';
-import '/components/button/button_widget.dart';
-import '/components/header_section/header_section_widget.dart';
-import '/components/text_field/text_field_widget.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'edit_profile_model.dart';
-export 'edit_profile_model.dart';
+import 'package:d_c_i_teacher_app/pages/edit_profile/edit_profile_model.dart';
+export 'package:d_c_i_teacher_app/pages/edit_profile/edit_profile_model.dart';
 
 class EditProfileWidget extends ConsumerStatefulWidget {
-  const EditProfileWidget({super.key});
+  const EditProfileWidget({
+    super.key,
+    this.userToEdit,
+  });
+
+  final Teacher? userToEdit;
 
   static String routeName = 'EditProfile';
   static String routePath = '/editProfile';
@@ -39,25 +47,40 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
 
   Future<void> _loadUserData() async {
     try {
-      final repository = ref.read(userRepositoryProvider);
-      final userData = await repository.getUserData();
+      final currentUser = await ref.read(userRepositoryProvider).getUserData();
+      final isAdmin = currentUser?.role == 'Admin' || currentUser?.role == 'Director';
+
+      if (!isAdmin && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Access Denied: Only Admins can edit profiles.')),
+        );
+        context.safePop();
+        return;
+      }
+
+      Teacher? userData = widget.userToEdit;
+      
+      if (userData == null) {
+        userData = currentUser;
+      }
+
       if (userData != null && mounted) {
         setState(() {
-          _currentPhotoUrl = userData['photo_url'];
+          _currentPhotoUrl = userData!.photoUrl;
           _model.textFieldModel1.inputTextController?.text =
-              userData['display_name'] ?? '';
+              userData!.displayName;
           _model.textFieldModel2.inputTextController?.text =
-              userData['designation'] ?? '';
+              userData!.designation;
           _model.textFieldModel3.inputTextController?.text =
-              userData['phone_number'] ?? '';
+              userData!.phoneNumber;
           _model.textFieldModel4.inputTextController?.text =
-              userData['qualification'] ?? '';
+              userData!.qualification ?? '';
           _model.textFieldModel5.inputTextController?.text =
-              userData['subject_expertise'] ?? '';
+              userData!.subjectExpertise ?? '';
           _model.textFieldModel6.inputTextController?.text =
-              userData['experience'] ?? '';
+              userData!.experience ?? '';
           _model.textFieldModel7.inputTextController?.text =
-              userData['employee_id'] ?? '';
+              userData!.employeeId ?? '';
         });
       }
     } catch (e) {
@@ -76,9 +99,13 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
       try {
         final repository = ref.read(userRepositoryProvider);
         final file = File(result.files.single.path!);
-        final newUrl = await repository.uploadProfilePicture(file);
+        
+        final newUrl = await repository.uploadProfilePicture(
+          file, 
+          targetUid: widget.userToEdit?.uid,
+        );
 
-        if (newUrl != null && mounted) {
+        if (mounted) {
           setState(() {
             _currentPhotoUrl = newUrl;
             _isUploading = false;
@@ -101,25 +128,37 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
   Future<void> _saveProfile() async {
     try {
       final repository = ref.read(userRepositoryProvider);
-      await repository.updateProfile(
+      
+      Teacher? currentData = widget.userToEdit;
+      if (currentData == null) {
+        currentData = await repository.getUserData();
+      }
+      
+      if (currentData == null) throw Exception('User data not found');
+
+      final updatedTeacher = currentData.copyWith(
         displayName: _model.textFieldModel1.inputTextController?.text ?? '',
+        photoUrl: _currentPhotoUrl ?? currentData.photoUrl,
         designation: _model.textFieldModel2.inputTextController?.text ?? '',
         phoneNumber: _model.textFieldModel3.inputTextController?.text ?? '',
-        qualification: _model.textFieldModel4.inputTextController?.text ?? '',
-        subjectExpertise: _model.textFieldModel5.inputTextController?.text ?? '',
-        experience: _model.textFieldModel6.inputTextController?.text ?? '',
-        employeeId: _model.textFieldModel7.inputTextController?.text ?? '',
+        qualification: _model.textFieldModel4.inputTextController?.text,
+        subjectExpertise: _model.textFieldModel5.inputTextController?.text,
+        experience: _model.textFieldModel6.inputTextController?.text,
+        employeeId: _model.textFieldModel7.inputTextController?.text,
       );
+
+      await repository.updateProfile(updatedTeacher);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully!')),
       );
       context.safePop();
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -209,92 +248,83 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: AutofillGroup(
-                    child: Column(
-                      children: [
-                        _buildPhotoUploadSection(context),
-                        const SizedBox(height: 24),
-                        wrapWithModel(
-                          model: _model.textFieldModel1,
-                          updateCallback: () => safeSetState(() {}),
-                          child: const TextFieldWidget(
-                            label: 'Full Name',
-                            hint: 'Enter your name',
-                            variant: 'outlined',
-                            autofillHints: [AutofillHints.name],
-                          ),
+                padding: AppSpacing.pagePadding,
+                child: AutofillGroup(
+                  child: Column(
+                    children: [
+                      _buildPhotoUploadSection(context),
+                      const SizedBox(height: AppSpacing.xl),
+                      wrapWithModel(
+                        model: _model.textFieldModel1,
+                        updateCallback: () => safeSetState(() {}),
+                        child: const TextFieldWidget(
+                          label: 'Full Name',
+                          hint: 'Enter your name',
+                          variant: 'outlined',
+                          autofillHints: [AutofillHints.name],
                         ),
-                        wrapWithModel(
-                          model: _model.textFieldModel2,
-                          updateCallback: () => safeSetState(() {}),
-                          child: const TextFieldWidget(
-                            label: 'Designation',
-                            hint: 'e.g. Senior Physics Faculty',
-                            variant: 'outlined',
-                          ),
+                      ),
+                      wrapWithModel(
+                        model: _model.textFieldModel2,
+                        updateCallback: () => safeSetState(() {}),
+                        child: const TextFieldWidget(
+                          label: 'Designation',
+                          hint: 'e.g. Senior Physics Faculty',
+                          variant: 'outlined',
                         ),
-                        wrapWithModel(
-                          model: _model.textFieldModel3,
-                          updateCallback: () => safeSetState(() {}),
-                          child: const TextFieldWidget(
-                            label: 'Phone Number',
-                            hint: 'e.g. +91 98765 43210',
-                            variant: 'outlined',
-                            autofillHints: [AutofillHints.telephoneNumber],
-                          ),
+                      ),
+                      wrapWithModel(
+                        model: _model.textFieldModel3,
+                        updateCallback: () => safeSetState(() {}),
+                        child: const TextFieldWidget(
+                          label: 'Phone Number',
+                          hint: 'e.g. +91 98765 43210',
+                          variant: 'outlined',
+                          autofillHints: [AutofillHints.telephoneNumber],
                         ),
-                        wrapWithModel(
-                          model: _model.textFieldModel4,
-                          updateCallback: () => safeSetState(() {}),
-                          child: const TextFieldWidget(
-                            label: 'Qualification',
-                            hint: 'e.g. M.Sc., B.Ed.',
-                            variant: 'outlined',
-                          ),
+                      ),
+                      wrapWithModel(
+                        model: _model.textFieldModel4,
+                        updateCallback: () => safeSetState(() {}),
+                        child: const TextFieldWidget(
+                          label: 'Qualification',
+                          hint: 'e.g. M.Sc., B.Ed.',
+                          variant: 'outlined',
                         ),
-                        wrapWithModel(
-                          model: _model.textFieldModel5,
-                          updateCallback: () => safeSetState(() {}),
-                          child: const TextFieldWidget(
-                            label: 'Subject Expertise',
-                            hint: 'e.g. Mathematics, Physics',
-                            variant: 'outlined',
-                          ),
+                      ),
+                      wrapWithModel(
+                        model: _model.textFieldModel5,
+                        updateCallback: () => safeSetState(() {}),
+                        child: const TextFieldWidget(
+                          label: 'Subject Expertise',
+                          hint: 'e.g. Mathematics, Physics',
+                          variant: 'outlined',
                         ),
-                        wrapWithModel(
-                          model: _model.textFieldModel6,
-                          updateCallback: () => safeSetState(() {}),
-                          child: const TextFieldWidget(
-                            label: 'Experience',
-                            hint: 'e.g. 10 Years',
-                            variant: 'outlined',
-                          ),
+                      ),
+                      wrapWithModel(
+                        model: _model.textFieldModel6,
+                        updateCallback: () => safeSetState(() {}),
+                        child: const TextFieldWidget(
+                          label: 'Experience',
+                          hint: 'e.g. 10 Years',
+                          variant: 'outlined',
                         ),
-                        wrapWithModel(
-                          model: _model.textFieldModel7,
-                          updateCallback: () => safeSetState(() {}),
-                          child: const TextFieldWidget(
-                            label: 'Employee ID',
-                            hint: 'e.g. DCI-2024-001',
-                            variant: 'outlined',
-                          ),
+                      ),
+                      wrapWithModel(
+                        model: _model.textFieldModel7,
+                        updateCallback: () => safeSetState(() {}),
+                        child: const TextFieldWidget(
+                          label: 'Employee ID',
+                          hint: 'e.g. DCI-2024-001',
+                          variant: 'outlined',
                         ),
-                        const SizedBox(height: 24),
-                        wrapWithModel(
-                          model: _model.buttonModel,
-                          updateCallback: () => safeSetState(() {}),
-                          child: ButtonWidget(
-                            content: 'Save Changes',
-                            variant: 'primary',
-                            size: 'large',
-                            fullWidth: true,
-                            onPressed: _saveProfile,
-                          ),
-                        ),
-                      ].divide(const SizedBox(height: 16)),
-                    ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      AppPrimaryButton(
+                        text: 'Save Changes',
+                        onPressed: _saveProfile,
+                      ),
+                    ].divide(const SizedBox(height: AppSpacing.lg)),
                   ),
                 ),
               ),

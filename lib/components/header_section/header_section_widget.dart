@@ -1,14 +1,14 @@
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/backend/providers/repository_providers.dart';
-import '/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_icon_button.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-export 'header_section_model.dart';
+export 'package:d_c_i_teacher_app/components/header_section/header_section_model.dart';
 
 class HeaderSectionWidget extends ConsumerWidget {
   const HeaderSectionWidget({
@@ -46,7 +46,7 @@ class HeaderSectionWidget extends ConsumerWidget {
             gradient: LinearGradient(
               colors: [
                 FlutterFlowTheme.of(context).primary,
-                FlutterFlowTheme.of(context).tertiary
+                FlutterFlowTheme.of(context).primaryDark
               ],
               begin: const AlignmentDirectional(0, -1),
               end: const AlignmentDirectional(0, 1),

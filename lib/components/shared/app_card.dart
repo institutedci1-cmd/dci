@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../shared/app_style.dart';
-import '../../flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -35,13 +35,13 @@ class AppCard extends StatelessWidget {
               color: FlutterFlowTheme.of(context).alternate,
               width: 1,
             ),
-            boxShadow: elevation != 0 ? [
+            boxShadow: (elevation != 0) ? (elevation != null ? [
               BoxShadow(
-                blurRadius: elevation ?? 12,
-                color: Colors.black.withAlpha((0.05 * 255).toInt()),
+                blurRadius: elevation!,
+                color: Colors.black.withAlpha(15),
                 offset: const Offset(0, 4),
               )
-            ] : null,
+            ] : AppShadows.low) : null,
           ),
           child: InkWell(
             onTap: onTap,

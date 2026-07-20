@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../shared/app_style.dart';
-import '../../shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppPrimaryButton extends StatelessWidget {
   const AppPrimaryButton({

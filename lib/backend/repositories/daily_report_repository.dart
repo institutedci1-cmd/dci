@@ -1,8 +1,9 @@
+import 'package:d_c_i_teacher_app/backend/repositories/interfaces/i_daily_report_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/daily_report.dart';
+import 'package:d_c_i_teacher_app/backend/models/daily_report.dart';
 
-class DailyReportRepository {
+class DailyReportRepository implements IDailyReportRepository {
   DailyReportRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _auth = auth ?? FirebaseAuth.instance;
@@ -12,6 +13,7 @@ class DailyReportRepository {
 
   CollectionReference get _reportsCollection => _firestore.collection('daily_reports');
 
+  @override
   Future<void> submitReport(DailyReport report) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
@@ -19,13 +21,12 @@ class DailyReportRepository {
     await _reportsCollection.add(report.toFirestore());
   }
 
+  @override
   Future<DailyReport?> getLastReport() async {
     final reports = await getReports(limit: 1);
     return reports.isNotEmpty ? reports.first : null;
   }
 
-  // FIX: Removed server-side orderBy to bypass missing index errors. 
-  // We now sort locally in Dart.
   Future<List<DailyReport>> getReports({int limit = 20}) async {
     final user = _auth.currentUser;
     if (user == null) return [];
@@ -39,7 +40,6 @@ class DailyReportRepository {
         .map((doc) => DailyReport.fromFirestore(doc))
         .toList();
     
-    // Local Sort: Newest first. Pending records (null createdAt) go to top.
     list.sort((a, b) {
       if (a.createdAt == null && b.createdAt == null) return 0;
       if (a.createdAt == null) return -1;
@@ -49,20 +49,20 @@ class DailyReportRepository {
     return list;
   }
 
+  @override
   Stream<List<DailyReport>> getRecentReports({int limit = 3}) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
     return _reportsCollection
         .where('createdBy', isEqualTo: user.uid)
-        .limit(50) // Fetch a slightly larger batch to sort locally
+        .limit(50) 
         .snapshots()
         .map((snapshot) {
           final list = snapshot.docs
               .map((doc) => DailyReport.fromFirestore(doc))
               .toList();
           
-          // Local Sort: Newest first. Pending records (null createdAt) go to top.
           list.sort((a, b) {
             if (a.createdAt == null && b.createdAt == null) return 0;
             if (a.createdAt == null) return -1;
@@ -71,5 +71,19 @@ class DailyReportRepository {
           });
           return list.take(limit).toList();
         });
+  }
+
+  @override
+  Future<List<DailyReport>> getReportsByDateRange(DateTime start, DateTime end) async {
+    final user = _auth.currentUser;
+    if (user == null) return [];
+
+    final querySnapshot = await _reportsCollection
+        .where('createdBy', isEqualTo: user.uid)
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+        .where('createdAt', isLessThan: Timestamp.fromDate(end))
+        .get();
+
+    return querySnapshot.docs.map((doc) => DailyReport.fromFirestore(doc)).toList();
   }
 }

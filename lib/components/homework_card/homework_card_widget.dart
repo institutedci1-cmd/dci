@@ -1,10 +1,11 @@
-import '/backend/models/homework_assignment.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/models/homework_assignment.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'homework_card_model.dart';
-export 'homework_card_model.dart';
+import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/components/homework_card/homework_card_model.dart';
+export 'package:d_c_i_teacher_app/components/homework_card/homework_card_model.dart';
 
 class HomeworkCardWidget extends StatefulWidget {
   const HomeworkCardWidget({
@@ -118,16 +119,16 @@ class _HomeworkCardWidgetState extends State<HomeworkCardWidget> {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: status == 'published'
-                          ? FlutterFlowTheme.of(context).success
-                          : FlutterFlowTheme.of(context).warning,
+                          ? FlutterFlowTheme.of(context).primary
+                          : FlutterFlowTheme.of(context).secondaryText,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         status.toUpperCase(),
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded),
+                    Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
                   ],
                 ),
               ],

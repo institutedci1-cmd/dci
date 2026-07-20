@@ -1,27 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'auth_header_model.dart';
-export 'auth_header_model.dart';
+import 'package:d_c_i_teacher_app/components/auth_header/auth_header_model.dart';
+export 'package:d_c_i_teacher_app/components/auth_header/auth_header_model.dart';
 
-class AuthHeaderWidget extends StatefulWidget {
+class AuthHeaderWidget extends ConsumerStatefulWidget {
   const AuthHeaderWidget({super.key});
 
   @override
-  State<AuthHeaderWidget> createState() => _AuthHeaderWidgetState();
+  ConsumerState<AuthHeaderWidget> createState() => _AuthHeaderWidgetState();
 }
 
-class _AuthHeaderWidgetState extends State<AuthHeaderWidget> {
+class _AuthHeaderWidgetState extends ConsumerState<AuthHeaderWidget> {
   late AuthHeaderModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
 
   @override
   void initState() {
@@ -34,19 +29,15 @@ class _AuthHeaderWidgetState extends State<AuthHeaderWidget> {
   @override
   void dispose() {
     _model.maybeDispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('config')
-          .doc('institute_info')
-          .get(),
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: ref.read(configRepositoryProvider).getInstituteInfo(),
       builder: (context, snapshot) {
-        final info = snapshot.data?.data() as Map<String, dynamic>?;
+        final info = snapshot.data;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -54,35 +45,35 @@ class _AuthHeaderWidgetState extends State<AuthHeaderWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 100.0,
-              height: 100.0,
+              width: 180.0,
+              height: 180.0,
               decoration: BoxDecoration(
                 color: FlutterFlowTheme.of(context).secondaryBackground,
-                borderRadius: BorderRadius.circular(24.0),
+                borderRadius: BorderRadius.circular(36.0),
                 shape: BoxShape.rectangle,
               ),
               alignment: const AlignmentDirectional(0.0, 0.0),
               child: info?['logo_url'] != null
                   ? CachedNetworkImage(
                       imageUrl: info!['logo_url'],
-                      width: 60,
-                      height: 60,
+                      width: 140,
+                      height: 140,
                       fit: BoxFit.contain,
                       placeholder: (context, url) => const SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: 30,
+                        height: 30,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                       errorWidget: (context, url, error) => Icon(
                         Icons.school_rounded,
                         color: FlutterFlowTheme.of(context).primary,
-                        size: 48.0,
+                        size: 110.0,
                       ),
                     )
                   : Icon(
                       Icons.school_rounded,
                       color: FlutterFlowTheme.of(context).primary,
-                      size: 48.0,
+                      size: 110.0,
                     ),
             ),
             Column(
