@@ -226,7 +226,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
     return Column(
       children: [
         const SizedBox(height: 20),
-        Text('Version 1.0.2 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
+        Text('Version 1.0.3 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
       ],
     );
   }
