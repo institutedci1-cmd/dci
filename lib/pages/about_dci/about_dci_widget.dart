@@ -285,7 +285,7 @@ class _AboutDCIWidgetState extends ConsumerState<AboutDCIWidget> {
     return Column(
       children: [
         Text(
-          'Deshmukh Teachers App ${info?['version'] ?? 'v1.0.3'}',
+          'Deshmukh Teachers App ${info?['version'] ?? 'v1.0.4'}',
           style: FlutterFlowTheme.of(context).labelSmall.override(
                 font: GoogleFonts.inter(fontWeight: FontWeight.w600),
               ),

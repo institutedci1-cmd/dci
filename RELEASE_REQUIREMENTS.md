@@ -7,8 +7,8 @@ This document contains all the metadata and asset requirements needed for the **
 ## 1. Technical Details
 * **App Name**: DCI Teachers App
 * **Package Name**: `com.dciteacherapp`
-* **Version Name**: `1.0.3`
-* **Version Code**: `5`
+* **Version Name**: `1.0.4`
+* **Version Code**: `6`
 * **Build Format**: `.aab` (Android App Bundle) for Play Store, `.apk` for App Center.
 
 ---

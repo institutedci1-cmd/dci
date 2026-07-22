@@ -99,7 +99,7 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
                 _buildSettingsTile(
                   Icons.info_outline_rounded,
                   'About App',
-                  'Version 1.0.3',
+                  'Version 1.0.4',
                   onTap: () {},
                 ),
               ],
