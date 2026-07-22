@@ -2,17 +2,14 @@ import 'package:d_c_i_teacher_app/backend/models/student_attendance.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/excel_service/excel_service.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_search_bar.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
-import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
+import 'package:d_c_i_teacher_app/components/drop_down/drop_down_widget.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:d_c_i_teacher_app/pages/attendance_report/attendance_report_model.dart';
 
 class AttendanceReportWidget extends ConsumerStatefulWidget {
@@ -27,6 +24,7 @@ class AttendanceReportWidget extends ConsumerStatefulWidget {
 
 class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget> {
   late AttendanceReportModel _model;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -104,36 +102,6 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
     );
   }
 
-  Widget _buildReportContent(BuildContext context) {
-    if (_model.selectedClass == null) {
-      return Expanded(
-        child: Center(
-          child: Text('Select Class & Date to view report', style: FlutterFlowTheme.of(context).bodyMedium),
-        ),
-      );
-    }
-
-    final reportAsync = ref.watch(dailyAttendanceReportProvider((
-      className: _model.selectedClass!,
-      date: _model.selectedDate ?? DateTime.now(),
-    )));
-
-    return reportAsync.when(
-      data: (data) {
-        if (data.students.isEmpty) {
-          return Expanded(
-            child: Center(
-              child: Text('No records found for this class.', style: FlutterFlowTheme.of(context).bodyMedium),
-            ),
-          );
-        }
-        return _buildReportList(context, data.students, data.attendance);
-      },
-      loading: () => const Expanded(child: Center(child: CircularProgressIndicator())),
-      error: (err, stack) => Expanded(child: Center(child: Text('Error: $err'))),
-    );
-  }
-
   Widget _buildFilters(BuildContext context, List<String> classOptions) {
     final theme = FlutterFlowTheme.of(context);
     return Padding(
@@ -142,7 +110,9 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
         children: [
           Expanded(
             flex: 4,
-            child: FlutterFlowDropDown<String>(
+            child: DropDownWidget(
+              label: 'Class',
+              labelPresent: false,
               controller: _model.classDropdownController!,
               options: classOptions.isEmpty ? ['No Classes'] : classOptions,
               onChanged: (val) {
@@ -150,15 +120,7 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
                 setState(() => _model.selectedClass = val);
               },
               height: 48,
-              hintText: 'Class',
-              fillColor: theme.secondaryBackground,
-              borderRadius: AppRadius.md,
-              borderWidth: 1,
-              borderColor: theme.alternate,
-              hidesUnderline: true,
-              textStyle: AppTypography.body,
-              elevation: 0,
-              margin: const EdgeInsetsDirectional.fromSTEB(14, 0, 14, 0),
+              hint: 'Class',
             ),
           ),
           const SizedBox(width: 12),
@@ -186,7 +148,7 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
+                    Icon(Icons.calendar_today_rounded, size: 16, color: theme.primary),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -206,6 +168,63 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
     );
   }
 
+  Widget _buildReportContent(BuildContext context) {
+    if (_model.selectedClass == null) {
+      return Expanded(
+        child: Center(
+          child: Text('Select Class & Date to view report', style: FlutterFlowTheme.of(context).bodyMedium),
+        ),
+      );
+    }
+
+    final reportAsync = ref.watch(dailyAttendanceReportProvider((
+      className: _model.selectedClass!,
+      date: _model.selectedDate ?? DateTime.now(),
+    )));
+
+    return reportAsync.when(
+      data: (data) {
+        if (data.students.isEmpty) {
+          return Expanded(
+            child: Center(
+              child: Text('No records found for this class.', style: FlutterFlowTheme.of(context).bodyMedium),
+            ),
+          );
+        }
+
+        final filteredStudents = data.students.where((s) {
+          final query = _searchQuery.toLowerCase();
+          return s.name.toLowerCase().contains(query) || s.rollNo.toLowerCase().contains(query);
+        }).toList();
+
+        return Expanded(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: AppSearchBar(
+                  controller: _model.searchController,
+                  hintText: 'Search student...',
+                  onChanged: (val) => setState(() => _searchQuery = val),
+                  onClear: () => setState(() {
+                    _model.searchController?.clear();
+                    _searchQuery = '';
+                  }),
+                ),
+              ),
+              if (filteredStudents.isEmpty)
+                const Expanded(child: Center(child: Text('No matching students found.')))
+              else
+                _buildReportList(context, filteredStudents, data.attendance),
+            ],
+          ),
+        );
+      },
+      loading: () => const Expanded(child: Center(child: CircularProgressIndicator())),
+      error: (err, stack) => Expanded(child: Center(child: Text('Error: $err'))),
+    );
+  }
+
   Widget _buildReportList(BuildContext context, List<Student> students, List<StudentAttendance> attendance) {
     return Expanded(
       child: ListView.separated(
@@ -214,7 +233,7 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
         separatorBuilder: (_, __) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final student = students[index];
-          final logs = attendance.where((l) => l.studentId == student.studentId).toList();
+          final logs = attendance.where((l) => l.studentId == student.id).toList();
           final status = logs.isNotEmpty ? logs.first.status : 'Not Marked';
 
           return Container(
@@ -237,7 +256,7 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Student ID: ${student.studentId}',
+                        'Student ID: ${student.id}',
                         style: AppTypography.caption,
                       ),
                     ],
@@ -253,12 +272,13 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
   }
 
   Widget _buildStatusIndicator(String status) {
+    final theme = FlutterFlowTheme.of(context);
     Color color;
     switch (status) {
-      case 'Present': color = Colors.green; break;
-      case 'Absent': color = Colors.red; break;
-      case 'Leave': color = Colors.orange; break;
-      default: color = Colors.grey;
+      case 'Present': color = theme.success; break;
+      case 'Absent': color = theme.error; break;
+      case 'Leave': color = theme.warning; break;
+      default: color = theme.secondaryText;
     }
         
     return Container(

@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "d_c_i_teacher_app",
-      "version": "1.0.2+3",
+      "version": "1.0.2+4",
       "dependencies": [
         "auto_size_text",
         "cached_network_image",
@@ -13,6 +13,7 @@
         "cached_network_image_web",
         "cloud_firestore",
         "collection",
+        "connectivity_plus",
         "crypto",
         "cupertino_icons",
         "dropdown_button2",
@@ -935,6 +936,19 @@
         "firebase_core_platform_interface",
         "flutter",
         "meta"
+      ]
+    },
+    {
+      "name": "connectivity_plus",
+      "version": "6.1.5",
+      "dependencies": [
+        "collection",
+        "connectivity_plus_platform_interface",
+        "flutter",
+        "flutter_web_plugins",
+        "meta",
+        "nm",
+        "web"
       ]
     },
     {
@@ -1868,6 +1882,22 @@
       "dependencies": [
         "_flutterfire_internals",
         "firebase_core",
+        "flutter",
+        "meta",
+        "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "nm",
+      "version": "0.5.0",
+      "dependencies": [
+        "dbus"
+      ]
+    },
+    {
+      "name": "connectivity_plus_platform_interface",
+      "version": "2.1.0",
+      "dependencies": [
         "flutter",
         "meta",
         "plugin_platform_interface"

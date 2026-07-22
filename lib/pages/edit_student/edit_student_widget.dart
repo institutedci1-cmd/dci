@@ -1,6 +1,5 @@
 import 'package:d_c_i_teacher_app/features/student/application/edit_student_notifier.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_section_header.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
@@ -10,7 +9,6 @@ import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // Sections
 import 'package:d_c_i_teacher_app/pages/edit_student/sections/basic_info_section.dart';
@@ -100,7 +98,7 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
         content: const Text('Are you sure you want to delete this student? This action cannot be undone.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: TextStyle(color: FlutterFlowTheme.of(context).error))),
         ],
       ),
     );
@@ -116,6 +114,7 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     final state = ref.watch(editStudentNotifierProvider);
     final isAdmin = state.currentUser?.role == 'Admin';
 
@@ -143,23 +142,23 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
                         children: [
-                          if (widget.student != null) _buildQuickActions(),
+                          if (widget.student != null) _buildQuickActions(theme),
                           
-                          _buildProfileSection(state),
-                          const SizedBox(height: AppSpacing.xl),
+                          _buildProfileSection(state, theme),
+                          const SizedBox(height: AppSpacing.lg),
                           
                           const AppSectionHeader(title: 'Basic Information', icon: Icons.person_outline_rounded),
                           BasicInfoSection(model: _model, isAdmin: isAdmin, onChanged: () => safeSetState(() {})),
                           
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: AppSpacing.lg),
                           const AppSectionHeader(title: 'Parent Information', icon: Icons.family_restroom_rounded),
                           ParentInfoSection(model: _model, onChanged: () => safeSetState(() {})),
                           
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: AppSpacing.lg),
                           const AppSectionHeader(title: 'Address Details', icon: Icons.location_on_outlined),
                           AddressInfoSection(model: _model, onChanged: () => safeSetState(() {})),
                           
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: AppSpacing.lg),
                           const AppSectionHeader(title: 'Academic Information', icon: Icons.school_outlined),
                           AcademicInfoSection(model: _model, onChanged: () => safeSetState(() {})),
                           
@@ -210,8 +209,7 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
     );
   }
 
-  Widget _buildQuickActions() {
-    final theme = FlutterFlowTheme.of(context);
+  Widget _buildQuickActions(FlutterFlowTheme theme) {
     final phone = _model.parentPhoneModel.inputTextController?.text;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -226,7 +224,7 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
           const SizedBox(width: 12),
           Expanded(
             child: _buildActionButton(
-              'WhatsApp', Icons.chat_rounded, AppColors.success, 
+              'WhatsApp', Icons.chat_rounded, theme.success, 
               () => phone != null && phone.isNotEmpty ? launchURL('https://wa.me/$phone') : null,
             ),
           ),
@@ -258,7 +256,7 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
     );
   }
 
-  Widget _buildProfileSection(EditStudentState state) {
+  Widget _buildProfileSection(EditStudentState state, FlutterFlowTheme theme) {
     return Center(
       child: Column(
         children: [
@@ -268,9 +266,9 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
                 width: 110,
                 height: 110,
                 decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
+                  color: theme.secondaryBackground,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary, width: 2),
+                  border: Border.all(color: theme.primary, width: 2),
                   boxShadow: AppShadows.low,
                 ),
                 child: Padding(
@@ -284,7 +282,7 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
                             placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
                             errorWidget: (context, url, error) => const Icon(Icons.person, size: 60),
                           )
-                        : Icon(Icons.person_rounded, size: 60, color: FlutterFlowTheme.of(context).secondaryText),
+                        : Icon(Icons.person_rounded, size: 60, color: theme.secondaryText),
                   ),
                 ),
               ),
@@ -300,8 +298,8 @@ class _EditStudentWidgetState extends ConsumerState<EditStudentWidget> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                    decoration: BoxDecoration(
+                      color: theme.primary,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.camera_alt_rounded, size: 16, color: Colors.white),

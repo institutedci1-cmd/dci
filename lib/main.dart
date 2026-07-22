@@ -79,7 +79,7 @@ class MyAppState extends ConsumerState<MyApp> {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'DCI Teachers App',
+      title: 'Deshmukh Coaching Institute',
       scrollBehavior: MyAppScrollBehavior(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

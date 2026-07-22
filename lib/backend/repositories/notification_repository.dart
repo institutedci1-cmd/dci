@@ -31,6 +31,11 @@ class NotificationRepository {
         .map((snapshot) => snapshot.docs.length);
   }
 
+  Future<AppNotification?> getNotificationById(String id) async {
+    final doc = await _notificationsCollection.doc(id).get();
+    return doc.exists ? AppNotification.fromFirestore(doc) : null;
+  }
+
   Future<void> markAsRead(String notificationId) async {
     await _notificationsCollection.doc(notificationId).update({'isRead': true});
   }

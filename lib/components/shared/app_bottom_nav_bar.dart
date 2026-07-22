@@ -68,7 +68,7 @@ class AppBottomNavBar extends StatelessWidget {
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                     color: color,
-                    fontSize: 10,
+                    fontSize: 11,
                   ),
             ),
           ],

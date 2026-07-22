@@ -16,4 +16,4 @@ Your data is stored using Google Firebase. We implement industry-standard securi
 We do not sell or share your personal data or your students' data with any third parties.
 
 ### 4. Contact Us
-If you have any questions about this Privacy Policy, please contact us at: admin@dciteachers.com
+If you have any questions about this Privacy Policy, please contact us at: admin@deshmukhinstitute.com

@@ -5,7 +5,7 @@
 
 
     <application
-        android:label="DCI Teachers App"
+        android:label="Deshmukh Coaching Institute"
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">

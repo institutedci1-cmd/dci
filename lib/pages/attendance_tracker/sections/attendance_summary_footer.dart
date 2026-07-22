@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 
@@ -32,7 +31,7 @@ class AttendanceSummaryFooter extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             blurRadius: 10,
-            color: Colors.black.withAlpha(20),
+            color: FlutterFlowTheme.of(context).primaryText.withAlpha(20),
             offset: const Offset(0, -2),
           )
         ],
@@ -78,15 +77,16 @@ class AttendanceSummaryFooter extends StatelessWidget {
   }
 
   Widget _buildSummary(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: _buildSummaryItem('Present', '$presentCount', AppColors.success)),
-          Expanded(child: _buildSummaryItem('Absent', '$absentCount', AppColors.error)),
-          Expanded(child: _buildSummaryItem('Rate', '${percentage.toStringAsFixed(0)}%', AppColors.secondary)),
-          Expanded(child: _buildSummaryItem('Total', '${presentCount + absentCount}', FlutterFlowTheme.of(context).primary)),
+          Expanded(child: _buildSummaryItem('Present', '$presentCount', theme.success)),
+          Expanded(child: _buildSummaryItem('Absent', '$absentCount', theme.error)),
+          Expanded(child: _buildSummaryItem('Rate', '${percentage.toStringAsFixed(0)}%', theme.secondary)),
+          Expanded(child: _buildSummaryItem('Total', '${presentCount + absentCount}', theme.primary)),
         ],
       ),
     );

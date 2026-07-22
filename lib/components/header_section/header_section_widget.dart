@@ -2,6 +2,7 @@ import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_icon_button.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/backend/services/connectivity_service.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +40,7 @@ class HeaderSectionWidget extends ConsumerWidget {
       stream: configRepo.getInstituteInfoStream(),
       builder: (context, snapshot) {
         final info = snapshot.data;
-        final instituteName = info?['name'] ?? 'DCI Teachers';
+        final instituteName = info?['name'] ?? 'Deshmukh Institute';
 
         return Container(
           decoration: BoxDecoration(
@@ -110,7 +111,7 @@ class HeaderSectionWidget extends ConsumerWidget {
                                   style: FlutterFlowTheme.of(context).labelSmall.override(
                                         font: GoogleFonts.inter(),
                                         color: FlutterFlowTheme.of(context).onPrimary80,
-                                        fontSize: 11,
+                                        fontSize: 12,
                                       ),
                                 ),
                               ],
@@ -119,6 +120,7 @@ class HeaderSectionWidget extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    _buildSyncIndicator(ref),
                     if (showActionIcon)
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
@@ -149,7 +151,7 @@ class HeaderSectionWidget extends ConsumerWidget {
                       style: FlutterFlowTheme.of(context).bodySmall.override(
                             font: GoogleFonts.inter(),
                             color: FlutterFlowTheme.of(context).onPrimary70,
-                            fontSize: 12,
+                            fontSize: 13,
                           ),
                     ),
                   ),
@@ -158,6 +160,30 @@ class HeaderSectionWidget extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSyncIndicator(WidgetRef ref) {
+    final status = ref.watch(connectivityStatusProvider).value ?? ConnectivityStatus.online;
+    final isOnline = status == ConnectivityStatus.online;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Tooltip(
+        message: isOnline ? 'Synced & Online' : 'Working Offline',
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: isOnline ? Colors.white.withAlpha(20) : AppColors.secondary.withAlpha(40),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            isOnline ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
+            color: isOnline ? Colors.white.withAlpha(200) : AppColors.secondary,
+            size: 16,
+          ),
+        ),
+      ),
     );
   }
 }

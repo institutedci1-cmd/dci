@@ -1,11 +1,10 @@
 import 'package:d_c_i_teacher_app/backend/models/exam.dart';
-import 'package:d_c_i_teacher_app/backend/models/exam_result.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_search_bar.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/core/services/report_card_service.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,11 +24,19 @@ class MeritListWidget extends ConsumerStatefulWidget {
 
 class _MeritListWidgetState extends ConsumerState<MeritListWidget> {
   late MeritListModel _model;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => MeritListModel());
+    _model.searchController ??= TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,6 +69,18 @@ class _MeritListWidgetState extends ConsumerState<MeritListWidget> {
               );
             },
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: AppSearchBar(
+              controller: _model.searchController,
+              hintText: 'Search by student name...',
+              onChanged: (val) => setState(() => _searchQuery = val),
+              onClear: () => setState(() {
+                _model.searchController?.clear();
+                _searchQuery = '';
+              }),
+            ),
+          ),
           Expanded(
             child: resultsAsync.when(
               data: (results) {
@@ -69,24 +88,32 @@ class _MeritListWidgetState extends ConsumerState<MeritListWidget> {
                   return const Center(child: Text('No results published yet.'));
                 }
 
+                final filteredResults = results.where((r) {
+                  return r.studentName.toLowerCase().contains(_searchQuery.toLowerCase());
+                }).toList();
+
+                if (filteredResults.isEmpty) {
+                  return const Center(child: Text('No matching results found.'));
+                }
+
                 return ListView.builder(
                   padding: const EdgeInsets.all(AppSpacing.md),
-                  itemCount: results.length,
+                  itemCount: filteredResults.length,
                   itemBuilder: (context, index) {
-                    final result = results[index];
-                    final rank = index + 1;
+                    final result = filteredResults[index];
+                    final originalIndex = results.indexOf(result);
+                    final rank = originalIndex + 1;
                     final isTop3 = rank <= 3;
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                       decoration: BoxDecoration(
-                        color: theme.secondaryBackground,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                         border: Border.all(color: theme.alternate),
                         boxShadow: AppShadows.low,
                       ),
                       child: Material(
-                        color: Colors.transparent,
+                        color: theme.secondaryBackground,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                         clipBehavior: Clip.antiAlias,
                         child: ListTile(
@@ -97,14 +124,14 @@ class _MeritListWidgetState extends ConsumerState<MeritListWidget> {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: isTop3 ? AppColors.secondary : AppColors.primary.withAlpha(20),
+                              color: isTop3 ? theme.secondary : theme.primary.withAlpha(20),
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               rank.toString(),
                               style: TextStyle(
-                                color: isTop3 ? Colors.white : AppColors.primary,
+                                color: isTop3 ? Colors.white : theme.primary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -114,7 +141,7 @@ class _MeritListWidgetState extends ConsumerState<MeritListWidget> {
                             style: AppTypography.label.copyWith(
                               fontWeight: FontWeight.bold, 
                               fontSize: 15,
-                              color: AppColors.textPrimary,
+                              color: theme.primaryText,
                             ),
                           ),
                           subtitle: Padding(
@@ -131,7 +158,7 @@ class _MeritListWidgetState extends ConsumerState<MeritListWidget> {
                               Text(
                                 '${result.marksObtained.toInt()}/${result.totalMarks}',
                                 style: AppTypography.label.copyWith(
-                                  color: AppColors.primary, 
+                                  color: theme.primary, 
                                   fontWeight: FontWeight.bold, 
                                   fontSize: 15,
                                 ),
@@ -141,7 +168,7 @@ class _MeritListWidgetState extends ConsumerState<MeritListWidget> {
                                 style: AppTypography.caption.copyWith(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textSecondary,
+                                  color: theme.secondaryText,
                                 ),
                               ),
                             ],

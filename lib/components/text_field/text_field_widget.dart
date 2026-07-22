@@ -1,7 +1,6 @@
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_model.dart';
 export 'package:d_c_i_teacher_app/components/text_field/text_field_model.dart';
@@ -109,6 +108,13 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   void dispose() {
     _model.inputFocusNode?.removeListener(_handleFocusChange);
+    
+    // If the controller or focusNode was provided by the widget, 
+    // we should NOT dispose it here as it is owned by the parent.
+    if (widget.controller != null || widget.focusNode != null) {
+      _model.disposeOnWidgetDisposal = false;
+    }
+    
     _model.maybeDispose();
     super.dispose();
   }

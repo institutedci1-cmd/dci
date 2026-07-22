@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class CompactStudentCard extends StatelessWidget {
   final Student student;
@@ -17,77 +16,83 @@ class CompactStudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: FlutterFlowTheme.of(context).secondaryBackground,
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      child: InkWell(
-        onTap: onTap,
+    final theme = FlutterFlowTheme.of(context);
+    return Container(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(
-              color: FlutterFlowTheme.of(context).alternate.withAlpha(100),
-              width: 1,
-            ),
-            boxShadow: AppShadows.low,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildAvatar(context),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      student.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.body.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: FlutterFlowTheme.of(context).primaryText,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            'Roll: ${student.rollNo}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.caption.copyWith(fontSize: 11),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          width: 4,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent3,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            student.className,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.caption.copyWith(fontSize: 11),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+        boxShadow: AppShadows.low,
+      ),
+      child: Material(
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              border: Border.all(
+                color: theme.alternate.withAlpha(100),
+                width: 1,
               ),
-              _buildAttendanceBadge(context),
-            ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildAvatar(context),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        student.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.body.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: theme.primaryText,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'Roll: ${student.rollNo}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.caption.copyWith(fontSize: 12),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: theme.accent3,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              student.className,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.caption.copyWith(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                _buildAttendanceBadge(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -135,7 +140,7 @@ class CompactStudentCard extends StatelessWidget {
         color: color.withAlpha(20),
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
-      child: Text(
+      child: const Text(
         '94%',
         style: TextStyle(
           color: color,

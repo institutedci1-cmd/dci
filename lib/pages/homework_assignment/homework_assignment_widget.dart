@@ -1,8 +1,8 @@
+import 'package:d_c_i_teacher_app/features/homework/application/homework_assignment_notifier.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/index.dart';
@@ -48,23 +48,21 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
     super.dispose();
   }
 
-  Future<void> _pickFile() async {
+  Future<void> _pickFile(HomeworkAssignmentNotifier notifier) async {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
     );
 
     if (result != null && result.files.single.path != null) {
-      setState(() => _model.isDataUploading = true);
+      notifier.setUploading(true);
       try {
         final file = File(result.files.single.path!);
         final storageService = ref.read(storageServiceProvider);
         final url = await storageService.uploadHomeworkAttachment(file);
 
         if (url != null && mounted) {
-          setState(() {
-            _model.attachmentUrls.add(url);
-          });
+          notifier.addAttachment(url);
         }
       } catch (e) {
         if (mounted) {
@@ -73,42 +71,46 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
           );
         }
       } finally {
-        if (mounted) setState(() => _model.isDataUploading = false);
+        notifier.setUploading(false);
       }
     }
   }
 
-  Future<void> _saveHomework(String status) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || !_formKey.currentState!.validate()) return;
+  Future<void> _saveHomework(String status, HomeworkAssignmentNotifier notifier) async {
+    if (!_formKey.currentState!.validate()) return;
 
-    try {
-      final assignment = HomeworkAssignment(
-        id: '',
-        className: _model.dropdownValue1 ?? '',
-        subject: _model.dropdownValue2 ?? '',
-        teacher: _model.dropdownValue3 ?? '',
-        title: _model.textFieldModel1.inputTextController!.text,
-        description: _model.textFieldModel2.inputTextController!.text,
-        dueDate: _model.dueDate != null ? dateTimeFormat('yMMMd', _model.dueDate) : 'No Due Date',
-        status: status,
-        attachments: _model.attachmentUrls,
-        createdBy: user.uid,
-        createdByEmail: user.email ?? '',
-      );
+    final success = await notifier.saveHomework(
+      className: _model.dropdownValue1 ?? '',
+      subject: _model.dropdownValue2 ?? '',
+      teacher: _model.dropdownValue3 ?? '',
+      title: _model.textFieldModel1.inputTextController!.text,
+      description: _model.textFieldModel2.inputTextController!.text,
+      dueDate: _model.dueDate,
+      status: status,
+    );
 
-      await ref.read(homeworkRepositoryProvider).saveHomework(assignment);
-      if (!mounted) return;
+    if (!mounted) return;
+    if (success) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status == 'published' ? 'Homework published.' : 'Draft saved.')));
       if (status == 'published') context.goNamed(HomeDashboardWidget.routeName);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error saving homework.')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final homeworkStateAsync = ref.watch(homeworkAssignmentNotifierProvider);
+    final notifier = ref.read(homeworkAssignmentNotifierProvider.notifier);
+
+    return homeworkStateAsync.when(
+      data: (state) => _buildScaffold(context, state, notifier),
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, HomeworkAssignmentState state, HomeworkAssignmentNotifier notifier) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -118,9 +120,9 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
           children: [
             _buildHeader(context),
             Expanded(
-              child: _buildForm(context),
+              child: _buildForm(context, state, notifier),
             ),
-            _buildHomeworkFooter(context),
+            _buildHomeworkFooter(context, state, notifier),
           ],
         ),
       ),
@@ -142,8 +144,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
     );
   }
 
-  Widget _buildForm(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+  Widget _buildForm(BuildContext context, HomeworkAssignmentState state, HomeworkAssignmentNotifier notifier) {
     final studentsAsync = ref.watch(studentsStreamProvider);
     final subjectsAsync = ref.watch(subjectsStreamProvider);
     final allUsersAsync = ref.watch(allUsersStreamProvider);
@@ -178,7 +179,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
             }),
             AssignmentDetailsSection(
                 model: _model, onChanged: () => safeSetState(() {})),
-            _buildAttachmentsSection(context),
+            _buildAttachmentsSection(context, state, notifier),
             DueDateSection(model: _model, onChanged: () => safeSetState(() {})),
             _buildInfoNote(context),
           ].divide(const SizedBox(height: 12.0)),
@@ -211,7 +212,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
     );
   }
 
-  Widget _buildAttachmentsSection(BuildContext context) {
+  Widget _buildAttachmentsSection(BuildContext context, HomeworkAssignmentState state, HomeworkAssignmentNotifier notifier) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -225,7 +226,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            if (_model.isDataUploading)
+            if (state.isUploading)
               const SizedBox(
                 width: 20,
                 height: 20,
@@ -233,7 +234,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
               )
             else
               InkWell(
-                onTap: _pickFile,
+                onTap: () => _pickFile(notifier),
                 child: Row(
                   children: [
                     Icon(Icons.add_circle_outline_rounded,
@@ -252,20 +253,20 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
               ),
           ],
         ),
-        if (_model.attachmentUrls.isNotEmpty)
+        if (state.attachmentUrls.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 12.0),
             child: Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _model.attachmentUrls.map((url) => _buildFileBadge(url)).toList(),
+              children: state.attachmentUrls.map((url) => _buildFileBadge(url, notifier)).toList(),
             ),
           ),
       ],
     );
   }
 
-  Widget _buildFileBadge(String url) {
+  Widget _buildFileBadge(String url, HomeworkAssignmentNotifier notifier) {
     final fileName = url.split('%2F').last.split('?').first;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -288,9 +289,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
           const SizedBox(width: 8),
           InkWell(
             onTap: () {
-              setState(() {
-                _model.attachmentUrls.remove(url);
-              });
+              notifier.removeAttachment(url);
               ref.read(storageServiceProvider).deleteAttachment(url);
             },
             child: Icon(Icons.close_rounded,
@@ -301,7 +300,7 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
     );
   }
 
-  Widget _buildHomeworkFooter(BuildContext context) {
+  Widget _buildHomeworkFooter(BuildContext context, HomeworkAssignmentState state, HomeworkAssignmentNotifier notifier) {
     final theme = FlutterFlowTheme.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -316,14 +315,16 @@ class _HomeworkAssignmentWidgetState extends ConsumerState<HomeworkAssignmentWid
             child: AppPrimaryButton(
               text: 'Save Draft',
               variant: 'outline',
-              onPressed: () => _saveHomework('draft'),
+              isLoading: state.isSaving,
+              onPressed: state.isSaving ? null : () => _saveHomework('draft', notifier),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: AppPrimaryButton(
               text: 'Publish',
-              onPressed: () => _saveHomework('published'),
+              isLoading: state.isSaving,
+              onPressed: state.isSaving ? null : () => _saveHomework('published', notifier),
             ),
           ),
         ],

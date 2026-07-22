@@ -4,12 +4,10 @@ import 'package:d_c_i_teacher_app/components/header_section/header_section_widge
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // Direct imports for the page and its model
 import 'package:d_c_i_teacher_app/pages/attendance_history/attendance_history_model.dart';
@@ -45,9 +43,10 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      backgroundColor: theme.primaryBackground,
       body: Column(
         children: [
           wrapWithModel(
@@ -79,11 +78,10 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                   separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, index) {
                     final record = records[index];
-                    final color = _getStatusColor(record.status);
+                    final color = _getStatusColor(record.status, theme);
                     
                     return Container(
                       decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                         border: Border.all(
                           color: FlutterFlowTheme.of(context).alternate,
@@ -91,7 +89,7 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                         boxShadow: AppShadows.low,
                       ),
                       child: Material(
-                        color: Colors.transparent,
+                        color: FlutterFlowTheme.of(context).secondaryBackground,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                         clipBehavior: Clip.antiAlias,
                         child: ListTile(
@@ -141,7 +139,7 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                               record.status.toUpperCase(),
                               style: TextStyle(
                                 color: color,
-                                fontSize: 9,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -158,7 +156,7 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+                      Icon(Icons.error_outline_rounded, color: theme.error, size: 48),
                       const SizedBox(height: 16),
                       Text('Error Loading Data', style: AppTypography.section),
                       const SizedBox(height: 8),
@@ -185,12 +183,12 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
     );
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(String status, FlutterFlowTheme theme) {
     switch (status) {
-      case 'Present': return AppColors.success;
-      case 'Absent': return AppColors.error;
-      case 'Leave': return AppColors.warning;
-      default: return AppColors.textSecondary;
+      case 'Present': return theme.success;
+      case 'Absent': return theme.error;
+      case 'Leave': return theme.warning;
+      default: return theme.secondaryText;
     }
   }
 

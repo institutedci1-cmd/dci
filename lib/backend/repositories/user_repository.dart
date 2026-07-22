@@ -51,6 +51,12 @@ class UserRepository implements IUserRepository {
     return doc.exists ? Teacher.fromFirestore(doc) : null;
   }
 
+  @override
+  Future<Teacher?> getUserDataById(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    return doc.exists ? Teacher.fromFirestore(doc) : null;
+  }
+
   Future<String> getUserRole() async {
     final teacher = await getUserData();
     return teacher?.role ?? 'Teacher';

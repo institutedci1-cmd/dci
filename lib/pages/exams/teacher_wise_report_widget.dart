@@ -1,11 +1,8 @@
-import 'package:d_c_i_teacher_app/backend/models/teacher.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
-import 'package:d_c_i_teacher_app/components/shared/app_stat_card.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
+import 'package:d_c_i_teacher_app/components/drop_down/drop_down_widget.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,21 +46,12 @@ class _TeacherWiseReportWidgetState extends ConsumerState<TeacherWiseReportWidge
             padding: const EdgeInsets.all(AppSpacing.md),
             child: usersAsync.when(
               data: (users) {
-                return FlutterFlowDropDown<String>(
+                return DropDownWidget(
+                  label: 'Faculty Member',
                   options: users.map((u) => u.uid).toList(),
                   optionLabels: users.map((u) => u.displayName).toList(),
                   onChanged: (val) => setState(() => _model.selectedTeacherUid = val),
-                  width: double.infinity,
-                  height: 44,
-                  textStyle: theme.bodyMedium,
-                  hintText: 'Select Teacher',
-                  fillColor: theme.secondaryBackground,
-                  elevation: 1,
-                  borderColor: theme.alternate,
-                  borderWidth: 1.5,
-                  borderRadius: 8,
-                  margin: const EdgeInsetsDirectional.fromSTEB(12, 4, 12, 4),
-                  hidesUnderline: true,
+                  hint: 'Select Teacher',
                 );
               },
               loading: () => const LinearProgressIndicator(),
@@ -130,7 +118,9 @@ class _TeacherWiseReportWidgetState extends ConsumerState<TeacherWiseReportWidge
                           final exam = exams[index];
                           final examResults = results.where((r) => r.examId == exam.id).toList();
                           double examObtained = 0;
-                          for (var r in examResults) examObtained += r.marksObtained;
+                          for (var r in examResults) {
+                            examObtained += r.marksObtained;
+                          }
                           final examAvg = examResults.isEmpty ? 0 : (examObtained / (examResults.length * exam.totalMarks) * 100).toInt();
 
                           return Container(
@@ -182,7 +172,7 @@ class _TeacherWiseReportWidgetState extends ConsumerState<TeacherWiseReportWidge
           children: [
             Container(
               padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: color.withAlpha(25), shape: BoxShape.circle),
               child: Icon(icon, size: 16, color: color),
             ),
             const SizedBox(width: 12),
@@ -190,7 +180,7 @@ class _TeacherWiseReportWidgetState extends ConsumerState<TeacherWiseReportWidge
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(value, style: AppTypography.label.copyWith(fontSize: 16, color: theme.primaryText, fontWeight: FontWeight.bold)),
-                Text(label, style: AppTypography.caption.copyWith(fontSize: 9, color: theme.secondaryText)),
+                Text(label, style: AppTypography.caption.copyWith(fontSize: 10, color: theme.secondaryText)),
               ],
             ),
           ],

@@ -10,38 +10,55 @@ final routerProvider = Provider<GoRouter>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   
   return GoRouter(
-    // Removed hardcoded initialLocation to allow Web to use the actual URL in the address bar
     debugLogDiagnostics: true,
     refreshListenable: _AuthListenable(authRepository.authStateChanges),
     redirect: (context, state) {
       final user = authRepository.currentUser;
       final loggedIn = user != null;
-      
-      // Determine if we are on the login page
       final isLoggingIn = state.matchedLocation == LoginWidget.routePath;
 
-      // 1. If not logged in and not on login page, go to login
-      if (!loggedIn && !isLoggingIn) {
-        return LoginWidget.routePath;
+      if (!loggedIn && !isLoggingIn) return LoginWidget.routePath;
+      if (loggedIn && isLoggingIn) return '/';
+      if (state.matchedLocation == '/') return '/';
+
+      if (loggedIn) {
+        final access = ref.read(accessControlProvider);
+
+        final adminOnlyRoutes = [
+          AddUserWidget.routePath,
+          FacultyListWidget.routePath,
+          InstituteSettingsWidget.routePath,
+        ];
+
+        final staffOnlyRoutes = [
+          DailyReportFormWidget.routePath,
+          ReportsDashboardWidget.routePath,
+          AttendanceTrackerWidget.routePath,
+          AttendanceDashboardWidget.routePath,
+          ExamsDashboardWidget.routePath,
+          ResultsDashboardWidget.routePath,
+          StudentListWidget.routePath,
+        ];
+
+        if (adminOnlyRoutes.contains(state.matchedLocation) && !access.canManageTeachers) {
+          return '/';
+        }
+
+        if (state.matchedLocation == DailyReportFormWidget.routePath && !access.canSubmitDailyReport) {
+          return '/';
+        }
+
+        if (staffOnlyRoutes.contains(state.matchedLocation) && access.isStudent) {
+          return '/';
+        }
       }
 
-      // 2. If logged in and trying to go to login, go to home
-      if (loggedIn && isLoggingIn) {
-        return HomeDashboardWidget.routePath;
-      }
-
-      // 3. If on root '/', go to home
-      if (state.matchedLocation == '/') {
-        return HomeDashboardWidget.routePath;
-      }
-
-      // 4. Otherwise, stay where you are (this allows URLs like /reportsDashboard to work)
       return null;
     },
     routes: [
       GoRoute(
         path: '/',
-        redirect: (_, __) => HomeDashboardWidget.routePath,
+        builder: (context, state) => const RootDashboardWidget(),
       ),
       GoRoute(
         name: LoginWidget.routeName,
@@ -52,6 +69,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: HomeDashboardWidget.routeName,
         path: HomeDashboardWidget.routePath,
         builder: (context, state) => const HomeDashboardWidget(),
+      ),
+      GoRoute(
+        name: StudentDashboardWidget.routeName,
+        path: StudentDashboardWidget.routePath,
+        builder: (context, state) => const StudentDashboardWidget(),
       ),
       GoRoute(
         name: DailyReportFormWidget.routeName,
@@ -79,9 +101,29 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AttendanceDashboardWidget(),
       ),
       GoRoute(
+        name: TodayAttendanceWidget.routeName,
+        path: TodayAttendanceWidget.routePath,
+        builder: (context, state) => const TodayAttendanceWidget(),
+      ),
+      GoRoute(
+        name: AbsentListWidget.routeName,
+        path: AbsentListWidget.routePath,
+        builder: (context, state) => const AbsentListWidget(),
+      ),
+      GoRoute(
+        name: MonthlyAttendanceWidget.routeName,
+        path: MonthlyAttendanceWidget.routePath,
+        builder: (context, state) => const MonthlyAttendanceWidget(),
+      ),
+      GoRoute(
         name: AttendanceHistoryWidget.routeName,
         path: AttendanceHistoryWidget.routePath,
         builder: (context, state) => const AttendanceHistoryWidget(),
+      ),
+      GoRoute(
+        name: MyAttendanceHistoryWidget.routeName,
+        path: MyAttendanceHistoryWidget.routePath,
+        builder: (context, state) => const MyAttendanceHistoryWidget(),
       ),
       GoRoute(
         name: ExamsWidget.routeName,
@@ -97,6 +139,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: ExamsDashboardWidget.routeName,
         path: ExamsDashboardWidget.routePath,
         builder: (context, state) => const ExamsDashboardWidget(),
+      ),
+      GoRoute(
+        name: ResultsDashboardWidget.routeName,
+        path: ResultsDashboardWidget.routePath,
+        builder: (context, state) => const ResultsDashboardWidget(),
+      ),
+      GoRoute(
+        name: MyResultsWidget.routeName,
+        path: MyResultsWidget.routePath,
+        builder: (context, state) => const MyResultsWidget(),
+      ),
+      GoRoute(
+        name: MyProfileWidget.routeName,
+        path: MyProfileWidget.routePath,
+        builder: (context, state) => const MyProfileWidget(),
+      ),
+      GoRoute(
+        name: AIChatWidget.routeName,
+        path: AIChatWidget.routePath,
+        builder: (context, state) => const AIChatWidget(),
       ),
       GoRoute(
         name: EnterMarksWidget.routeName,
@@ -158,6 +220,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeworkAssignmentWidget(),
       ),
       GoRoute(
+        name: HomeworkDashboardWidget.routeName,
+        path: HomeworkDashboardWidget.routePath,
+        builder: (context, state) => const HomeworkDashboardWidget(),
+      ),
+      GoRoute(
+        name: MyHomeworkWidget.routeName,
+        path: MyHomeworkWidget.routePath,
+        builder: (context, state) => const MyHomeworkWidget(),
+      ),
+      GoRoute(
         name: HomeworkHistoryWidget.routeName,
         path: HomeworkHistoryWidget.routePath,
         builder: (context, state) => const HomeworkHistoryWidget(),
@@ -208,6 +280,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AboutDCIWidget.routePath,
         builder: (context, state) => const AboutDCIWidget(),
       ),
+      GoRoute(
+        name: InstituteSettingsWidget.routeName,
+        path: InstituteSettingsWidget.routePath,
+        builder: (context, state) => const InstituteSettingsWidget(),
+      ),
+      GoRoute(
+        name: AuditLogsWidget.routeName,
+        path: AuditLogsWidget.routePath,
+        builder: (context, state) => const AuditLogsWidget(),
+      ),
+      GoRoute(
+        name: StaffAnalyticsWidget.routeName,
+        path: StaffAnalyticsWidget.routePath,
+        builder: (context, state) => const StaffAnalyticsWidget(),
+      ),
+      GoRoute(
+        name: ComparativeResultsWidget.routeName,
+        path: ComparativeResultsWidget.routePath,
+        builder: (context, state) => const ComparativeResultsWidget(),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -217,7 +309,6 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-/// A simple Listenable that triggers whenever the auth stream emits a value.
 class _AuthListenable extends ChangeNotifier {
   _AuthListenable(Stream<User?> authStream) {
     _subscription = authStream.listen((_) => notifyListeners());

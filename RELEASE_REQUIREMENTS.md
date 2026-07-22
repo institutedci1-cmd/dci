@@ -8,7 +8,7 @@ This document contains all the metadata and asset requirements needed for the **
 * **App Name**: DCI Teachers App
 * **Package Name**: `com.dciteacherapp`
 * **Version Name**: `1.0.2`
-* **Version Code**: `3`
+* **Version Code**: `4`
 * **Build Format**: `.aab` (Android App Bundle) for Play Store, `.apk` for App Center.
 
 ---
@@ -56,7 +56,7 @@ Google requires you to fill out a "Data Safety" form based on the following:
 ---
 
 ## 5. Contact Information
-* **Support Email**: admin@dciteachers.com
+* **Support Email**: admin@deshmukhinstitute.com
 * **Website**: (Your institute website)
 
 ---

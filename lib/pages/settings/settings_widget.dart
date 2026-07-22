@@ -1,12 +1,13 @@
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:d_c_i_teacher_app/core/services/access_control.dart';
+import 'package:d_c_i_teacher_app/pages/institute_settings/institute_settings_widget.dart';
+import 'package:d_c_i_teacher_app/pages/audit_logs/audit_logs_widget.dart';
 import 'package:d_c_i_teacher_app/pages/settings/settings_model.dart';
 export 'package:d_c_i_teacher_app/pages/settings/settings_model.dart';
 
@@ -56,6 +57,23 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
             child: ListView(
               padding: AppSpacing.pagePadding,
               children: [
+                if (ref.watch(accessControlProvider).canViewAdminReports) ...[
+                  _buildSectionHeader('Institutional Management'),
+                  if (ref.watch(accessControlProvider).canManageFullSettings)
+                    _buildSettingsTile(
+                      Icons.account_balance_rounded,
+                      'Institute Setup',
+                      'Configure name, logo, and subjects',
+                      onTap: () => context.pushNamed(InstituteSettingsWidget.routeName),
+                    ),
+                  _buildSettingsTile(
+                    Icons.history_rounded,
+                    'System Audit Logs',
+                    'Track platform actions and updates',
+                    onTap: () => context.pushNamed(AuditLogsWidget.routeName),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 _buildSectionHeader('Appearance'),
                 _buildThemeToggle(),
                 const SizedBox(height: AppSpacing.lg),
@@ -81,7 +99,7 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
                 _buildSettingsTile(
                   Icons.info_outline_rounded,
                   'About App',
-                  'Version 1.0.5',
+                  'Version 1.0.2',
                   onTap: () {},
                 ),
               ],

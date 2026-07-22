@@ -42,9 +42,10 @@ class AdditionalInfoSection extends StatelessWidget {
             focusNode: model.textFieldModel5.inputFocusNode,
             label: 'Homework Assigned',
             labelPresent: true,
-            leadingIcon: const Icon(
+            leadingIcon: Icon(
               Icons.edit_note_rounded,
-              size: 24.0,
+              size: 20.0,
+              color: FlutterFlowTheme.of(context).primary,
             ),
             leadingIconPresent: true,
             hint: 'Describe the homework...',
@@ -59,16 +60,17 @@ class AdditionalInfoSection extends StatelessWidget {
             focusNode: model.textFieldModel6.inputFocusNode,
             label: 'Remarks',
             labelPresent: true,
-            leadingIcon: const Icon(
+            leadingIcon: Icon(
               Icons.notes_rounded,
-              size: 24.0,
+              size: 20.0,
+              color: FlutterFlowTheme.of(context).primary,
             ),
             leadingIconPresent: true,
             hint: 'Any other observations...',
             variant: 'outlined',
           ),
         ),
-      ].divide(const SizedBox(height: 16.0)),
+      ].divide(const SizedBox(height: 12.0)),
     );
   }
 }

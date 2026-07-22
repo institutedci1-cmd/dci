@@ -4,13 +4,12 @@ import 'package:d_c_i_teacher_app/backend/services/excel_service/excel_service.d
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 export 'package:d_c_i_teacher_app/pages/report_history/report_history_model.dart';
 
 class ReportHistoryWidget extends ConsumerStatefulWidget {
@@ -56,7 +55,9 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
               onBackPressed: () async => context.goNamed(ReportsDashboardWidget.routeName),
               actionIcon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 24),
               onActionPressed: () async {
-                final reports = await ref.read(dailyReportRepositoryProvider).getReports(limit: 100);
+                final access = ref.read(accessControlProvider);
+                final creatorId = (access.role == UserRole.teacher) ? access.user?.uid : null;
+                final reports = await ref.read(dailyReportRepositoryProvider).getReports(limit: 100, creatorId: creatorId);
                 if (reports.isEmpty) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -92,74 +93,82 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
                   );
                 }
                 return ListView.separated(
-                  padding: AppSpacing.pagePadding,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   itemCount: reports.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
+                  separatorBuilder: (context, index) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final report = reports[index];
                     return Container(
                       decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(
-                          color: FlutterFlowTheme.of(context).alternate,
-                        ),
+                        borderRadius: BorderRadius.circular(8),
                         boxShadow: AppShadows.low,
                       ),
                       child: Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        clipBehavior: Clip.antiAlias,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                          title: Text(
-                            '${report.className} - ${report.subject}',
-                            style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 2),
-                              Text('Topic: ${report.chapter}', style: AppTypography.caption.copyWith(fontSize: 13)),
-                              if (report.teacher.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text('By: ${report.teacher}', style: AppTypography.caption.copyWith(fontSize: 12)),
-                                ),
-                              const SizedBox(height: 4),
-                              Text(
-                                dateTimeFormat('yMMMd', report.createdAt),
-                                style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 11),
-                              ),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.share_rounded, color: AppColors.success, size: 20),
-                                onPressed: () async {
-                                  final whatsappService = ref.read(whatsappServiceProvider);
-                                  final message = 'Daily Report Summary: ${report.className} - ${report.subject}. Chapter: ${report.chapter}. Present: ${report.presentCount}, Absent: ${report.absentCount}.';
-                                  await whatsappService.launchWhatsapp(message: message);
-                                },
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                              const SizedBox(width: 12),
-                              IconButton(
-                                icon: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.info, size: 20),
-                                onPressed: () => PdfService.exportDailyReport(report),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary, size: 20),
-                            ],
-                          ),
+                        color: FlutterFlowTheme.of(context).secondaryBackground,
+                        borderRadius: BorderRadius.circular(8),
+                        child: InkWell(
                           onTap: () {
                             // Detail view
                           },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: FlutterFlowTheme.of(context).alternate,
+                              ),
+                            ),
+                            child: ListTile(
+                              dense: true,
+                              visualDensity: VisualDensity.compact,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              title: Text(
+                                '${report.className} - ${report.subject}',
+                                style: AppTypography.label.copyWith(fontWeight: FontWeight.bold, fontSize: 14, color: FlutterFlowTheme.of(context).primaryText),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 2),
+                                  Text('Topic: ${report.chapter}', style: AppTypography.caption.copyWith(fontSize: 11)),
+                                  if (report.teacher.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text('By: ${report.teacher}', style: AppTypography.caption.copyWith(fontSize: 10)),
+                                    ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    dateTimeFormat('yMMMd', report.createdAt),
+                                    style: AppTypography.caption.copyWith(color: FlutterFlowTheme.of(context).primary, fontWeight: FontWeight.bold, fontSize: 10),
+                                  ),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.share_rounded, color: FlutterFlowTheme.of(context).success, size: 18),
+                                    onPressed: () async {
+                                      final whatsappService = ref.read(whatsappServiceProvider);
+                                      final message = 'Daily Report Summary: ${report.className} - ${report.subject}. Chapter: ${report.chapter}. Present: ${report.presentCount}, Absent: ${report.absentCount}.';
+                                      await whatsappService.launchWhatsapp(message: message);
+                                    },
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: Icon(Icons.picture_as_pdf_rounded, color: FlutterFlowTheme.of(context).info, size: 18),
+                                    onPressed: () => PdfService.exportDailyReport(report),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(Icons.chevron_right_rounded, color: FlutterFlowTheme.of(context).secondaryText, size: 18),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     );

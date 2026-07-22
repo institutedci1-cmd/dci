@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/form_field_controller.dart';
 import 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_widget.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/components/drop_down/drop_down_widget.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/core/utils/responsive_utils.dart';
 import 'package:d_c_i_teacher_app/pages/daily_report_form/daily_report_form_model.dart';
 
 class ClassDetailsSection extends StatelessWidget {
@@ -36,44 +38,32 @@ class ClassDetailsSection extends StatelessWidget {
             title: 'Class Details',
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 1,
-              child: _buildDropDownField(
-                context,
-                label: 'Class',
-                hint: 'Select Class',
-                options: model.classOptions,
-                initialValue: model.dropdownValue1,
-                onChanged: (val) {
-                  model.dropdownValue1 = val;
-                  onChanged();
-                },
-                controller: model.dropdownValueController1,
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: _buildDropDownField(
-                context,
-                label: 'Subject',
-                hint: 'Select Subject',
-                icon: Icons.menu_book_rounded,
-                options: model.subjectOptions,
-                initialValue: model.dropdownValue2,
-                onChanged: (val) {
-                  model.dropdownValue2 = val;
-                  onChanged();
-                },
-                controller: model.dropdownValueController2,
-              ),
-            ),
-          ].divide(const SizedBox(width: 16.0)),
-        ),
+        ResponsiveUtils.responsiveRow(context, [
+          _buildDropDownField(
+            context,
+            label: 'Class',
+            hint: 'Select Class',
+            options: model.classOptions,
+            initialValue: model.dropdownValue1,
+            onChanged: (val) {
+              model.dropdownValue1 = val;
+              onChanged();
+            },
+            controller: model.dropdownValueController1,
+          ),
+          _buildDropDownField(
+            context,
+            label: 'Subject',
+            hint: 'Select Subject',
+            options: model.subjectOptions,
+            initialValue: model.dropdownValue2,
+            onChanged: (val) {
+              model.dropdownValue2 = val;
+              onChanged();
+            },
+            controller: model.dropdownValueController2,
+          ),
+        ]),
         _buildDropDownField(
           context,
           label: 'Teacher',
@@ -96,16 +86,17 @@ class ClassDetailsSection extends StatelessWidget {
             focusNode: model.textFieldModel3.inputFocusNode,
             label: 'Chapter',
             labelPresent: true,
-            leadingIcon: const Icon(
+            leadingIcon: Icon(
               Icons.bookmark_rounded,
-              size: 24.0,
+              size: 20.0,
+              color: FlutterFlowTheme.of(context).primary,
             ),
             leadingIconPresent: true,
             hint: 'Enter chapter name',
             variant: 'outlined',
           ),
         ),
-      ].divide(const SizedBox(height: 16.0)),
+      ].divide(const SizedBox(height: 12.0)),
     );
   }
 
@@ -120,36 +111,14 @@ class ClassDetailsSection extends StatelessWidget {
     IconData icon = Icons.arrow_drop_down_rounded,
     bool fullWidth = false,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(label, style: FlutterFlowTheme.of(context).labelMedium),
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
-          child: FlutterFlowDropDown<String>(
-            controller: controller!,
-            options: options,
-            onChanged: onChanged,
-            width: fullWidth ? double.infinity : 200.0,
-            height: 40.0,
-            textStyle: FlutterFlowTheme.of(context).bodyMedium,
-            hintText: hint,
-            icon: Icon(
-              icon,
-              color: FlutterFlowTheme.of(context).secondaryText,
-              size: 24.0,
-            ),
-            fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-            elevation: 2.0,
-            borderColor: FlutterFlowTheme.of(context).alternate,
-            borderWidth: 1.0,
-            borderRadius: 12.0,
-            margin: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-            hidesUnderline: true,
-          ),
-        ),
-      ],
+    return DropDownWidget(
+      label: label,
+      hint: hint,
+      options: options,
+      controller: controller,
+      onChanged: onChanged,
+      fullWidth: fullWidth,
+      icon: Icon(icon, color: AppColors.textSecondary, size: 24),
     );
   }
 }

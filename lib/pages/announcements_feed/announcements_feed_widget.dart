@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/announcement_card/announcement_card_widget.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_bottom_nav_bar.dart';
@@ -5,8 +6,8 @@ import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/components/drop_down/drop_down_widget.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/index.dart';
@@ -57,7 +58,7 @@ ${announcement.description}
 
 Please make it convenient to attend.
 Regards,
-DCI Team
+Deshmukh Team
 '''
       : '''
 📢 *New Announcement: ${announcement.title}*
@@ -66,7 +67,7 @@ Date: ${dateTimeFormat('yMMMd', announcement.createdAt ?? DateTime.now())}
 
 ${announcement.description}
 
-Read more in the DCI Teacher App.
+Read more in the Deshmukh Teacher App.
 ''';
 
     try {
@@ -209,34 +210,11 @@ Read more in the DCI Teacher App.
                   variant: 'outlined',
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Category', style: AppTypography.label.copyWith(color: AppColors.textSecondary)),
-                    const SizedBox(height: 6),
-                    DropdownButtonFormField<String>(
-                      value: selectedCategory,
-                      items: categories
-                          .map((c) => DropdownMenuItem(value: c, child: Text(c, style: AppTypography.body)))
-                          .toList(),
-                      onChanged: (val) => setModalState(() => selectedCategory = val!),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                          borderSide: BorderSide(color: theme.alternate),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                          borderSide: BorderSide(color: theme.alternate),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                          borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                        ),
-                      ),
-                    ),
-                  ],
+                DropDownWidget(
+                  label: 'Category',
+                  options: categories,
+                  initialValue: selectedCategory,
+                  onChanged: (val) => setModalState(() => selectedCategory = val!),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFieldWidget(
@@ -257,7 +235,7 @@ Read more in the DCI Teacher App.
                       return;
                     }
 
-                    await ref.read(announcementRepositoryProvider).createAnnouncement(
+                    await ref.read(announcementServiceProvider).createAnnouncement(
                           title: titleController.text,
                           description: descriptionController.text,
                           category: selectedCategory,

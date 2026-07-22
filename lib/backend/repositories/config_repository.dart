@@ -55,7 +55,22 @@ class ConfigRepository {
       
       final year = DateTime.now().year;
       final formattedIndex = nextIndex.toString().padLeft(3, '0');
-      return 'DCI-$year-$formattedIndex';
+      return 'DESHMUKH-$year-$formattedIndex';
     });
+  }
+
+  Future<void> updateInstituteInfo(Map<String, dynamic> data) async {
+    await _firestore.collection('config').doc('institute_info').set(data, SetOptions(merge: true));
+  }
+
+  Future<void> addSubject(String name) async {
+    await _firestore.collection('subjects').add({'name': name, 'created_at': FieldValue.serverTimestamp()});
+  }
+
+  Future<void> deleteSubject(String name) async {
+    final snapshot = await _firestore.collection('subjects').where('name', isEqualTo: name).get();
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
   }
 }

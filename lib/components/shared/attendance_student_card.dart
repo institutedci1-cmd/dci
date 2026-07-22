@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AttendanceStudentCard extends StatelessWidget {
   final String name;
@@ -21,16 +20,17 @@ class AttendanceStudentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPresent = status == 'Present';
     final statusColor = isPresent ? AppColors.success : AppColors.error;
+    final theme = FlutterFlowTheme.of(context);
     
     return Material(
-      color: Colors.transparent,
+      color: theme.secondaryBackground,
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           height: 52,
           decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).secondaryBackground,
             borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(
               color: statusColor.withAlpha(isPresent ? 20 : 40),
@@ -43,7 +43,7 @@ class AttendanceStudentCard extends StatelessWidget {
                 width: 6,
                 decoration: BoxDecoration(
                   color: statusColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(AppRadius.md),
                     bottomLeft: Radius.circular(AppRadius.md),
                   ),
@@ -73,7 +73,7 @@ class AttendanceStudentCard extends StatelessWidget {
                     ),
                     Text(
                       'Roll: $rollNo',
-                      style: AppTypography.caption.copyWith(fontSize: 11),
+                      style: AppTypography.caption.copyWith(fontSize: 12),
                     ),
                   ],
                 ),
@@ -91,7 +91,7 @@ class AttendanceStudentCard extends StatelessWidget {
                   style: TextStyle(
                     color: statusColor,
                     fontWeight: FontWeight.bold,
-                    fontSize: 9,
+                    fontSize: 10,
                   ),
                 ),
               ),

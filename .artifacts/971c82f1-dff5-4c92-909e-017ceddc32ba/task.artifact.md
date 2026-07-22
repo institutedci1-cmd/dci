@@ -1,23 +1,22 @@
-# Task List - Backend & State Management Optimization
+# Task List - Institutional Branding Refresh
 
-- [x] **Student List Optimization**
-    - [x] Refactor `StudentListNotifier` to `AsyncNotifier` (Riverpod 2.0)
-    - [x] Implement search debounce logic
-    - [x] Simplify `StudentListWidget` (remove manual sync)
-- [x] **Attendance Tracker Modernization**
-    - [x] Refactor `AttendanceTrackerNotifier` to `AsyncNotifier`
-    - [x] Improve class/subject selection loading states
-    - [x] Update `AttendanceTrackerWidget` UI bindings
-- [x] **Backend Efficiency**
-    - [x] Add paginated fetch capability to `StudentRepository`
-    - [x] Optimize Attendance queries
-    - [x] Refactor `DailyReportNotifier` to `AsyncNotifier`
-- [x] **Bug Fixes & Audit**
-    - [x] Resolve compile errors in `AttendanceTrackerWidget`, `LoginWidget`, `AddUserWidget`, etc.
-    - [x] Fix duplicated methods and syntax errors in Attendance Tracker.
-    - [x] Correct `BorderRadius` type mismatches in Exam module.
-    - [x] Add missing imports for design tokens and third-party widgets.
-- [x] **Verification**
-    - [x] Verify student search responsiveness (Debounce)
-    - [x] Confirm attendance saving works with new logic
-    - [x] Audit Firestore usage for redundant reads
+- `[/]` **Global Constants & Configuration**
+    - `[ ]` Update `lib/backend/services/app_constants.dart`
+    - `[ ]` Update `lib/backend/repositories/config_repository.dart`
+- `[/]` **App Metadata & Identity**
+    - `[ ]` Update `android/app/src/main/AndroidManifest.xml`
+    - `[ ]` Update `android/app/src/main/res/values/strings.xml`
+    - `[ ]` Update `ios/Runner/Info.plist`
+    - `[ ]` Update `lib/main.dart`
+- `[/]` **UI Branding & Components**
+    - `[ ]` Update `lib/components/shared/responsive_scaffold.dart`
+    - `[ ]` Update `lib/components/header_section/header_section_widget.dart`
+    - `[ ]` Update `lib/components/auth_header/auth_header_widget.dart`
+    - `[ ]` Update `lib/pages/ai_chat/ai_chat_widget.dart`
+    - `[ ]` Update `lib/pages/about_dci/about_dci_widget.dart`
+- `[/]` **Document Branding**
+    - `[ ]` Update `lib/backend/services/pdf_service.dart`
+    - `[ ]` Update `lib/pages/announcements_feed/announcements_feed_widget.dart`
+- `[ ]` **Verification**
+    - `[ ]` Visual audit of all screens
+    - `[ ]` Verify PDF report headers

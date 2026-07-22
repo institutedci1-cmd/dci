@@ -1,3 +1,5 @@
+import 'package:d_c_i_teacher_app/auth/firebase_auth/auth_util.dart';
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/models/teacher.dart';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -5,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
@@ -58,29 +59,25 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
         return;
       }
 
-      Teacher? userData = widget.userToEdit;
-      
-      if (userData == null) {
-        userData = currentUser;
-      }
+      Teacher? userData = widget.userToEdit ?? currentUser;
 
       if (userData != null && mounted) {
         setState(() {
-          _currentPhotoUrl = userData!.photoUrl;
+          _currentPhotoUrl = userData.photoUrl;
           _model.textFieldModel1.inputTextController?.text =
-              userData!.displayName;
+              userData.displayName;
           _model.textFieldModel2.inputTextController?.text =
-              userData!.designation;
+              userData.designation;
           _model.textFieldModel3.inputTextController?.text =
-              userData!.phoneNumber;
+              userData.phoneNumber;
           _model.textFieldModel4.inputTextController?.text =
-              userData!.qualification ?? '';
+              userData.qualification ?? '';
           _model.textFieldModel5.inputTextController?.text =
-              userData!.subjectExpertise ?? '';
+              userData.subjectExpertise ?? '';
           _model.textFieldModel6.inputTextController?.text =
-              userData!.experience ?? '';
+              userData.experience ?? '';
           _model.textFieldModel7.inputTextController?.text =
-              userData!.employeeId ?? '';
+              userData.employeeId ?? '';
         });
       }
     } catch (e) {
@@ -97,17 +94,20 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
     if (result != null && result.files.single.path != null) {
       setState(() => _isUploading = true);
       try {
-        final repository = ref.read(userRepositoryProvider);
+        final service = ref.read(teacherServiceProvider);
         final file = File(result.files.single.path!);
         
-        final newUrl = await repository.uploadProfilePicture(
+        await service.updateProfilePicture(
           file, 
           targetUid: widget.userToEdit?.uid,
         );
 
+        // Fetch the updated user data to get the new URL
+        final updatedUser = await ref.read(userRepositoryProvider).getUserDataById(widget.userToEdit?.uid ?? currentUserUid);
+
         if (mounted) {
           setState(() {
-            _currentPhotoUrl = newUrl;
+            _currentPhotoUrl = updatedUser?.photoUrl;
             _isUploading = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -128,11 +128,10 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
   Future<void> _saveProfile() async {
     try {
       final repository = ref.read(userRepositoryProvider);
+      final service = ref.read(teacherServiceProvider);
       
       Teacher? currentData = widget.userToEdit;
-      if (currentData == null) {
-        currentData = await repository.getUserData();
-      }
+      currentData ??= await repository.getUserData();
       
       if (currentData == null) throw Exception('User data not found');
 
@@ -147,7 +146,7 @@ class _EditProfileWidgetState extends ConsumerState<EditProfileWidget> {
         employeeId: _model.textFieldModel7.inputTextController?.text,
       );
 
-      await repository.updateProfile(updatedTeacher);
+      await service.updateTeacher(updatedTeacher);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully!')),

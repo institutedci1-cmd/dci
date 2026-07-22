@@ -82,7 +82,7 @@ class _AuthHeaderWidgetState extends ConsumerState<AuthHeaderWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  info?['app_name'] ?? 'DCI Teachers App',
+                  info?['app_name'] ?? 'Deshmukh Institute',
                   style: FlutterFlowTheme.of(context).headlineMedium.override(
                         font: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class _AuthHeaderWidgetState extends ConsumerState<AuthHeaderWidget> {
                       ),
                 ),
                 Text(
-                  info?['name'] ?? 'DCI Teachers',
+                  info?['name'] ?? 'Deshmukh Coaching Institute',
                   style: FlutterFlowTheme.of(context).bodyMedium.override(
                         font: GoogleFonts.inter(
                           fontWeight:

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class StudentCard extends StatelessWidget {
   final Student student;
@@ -18,21 +17,21 @@ class StudentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    return Material(
-      color: theme.secondaryBackground,
-      borderRadius: AppRadius.standard,
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      decoration: BoxDecoration(
         borderRadius: AppRadius.standard,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: AppRadius.standard,
-            border: Border.all(
-              color: theme.alternate,
-              width: 1,
-            ),
-            boxShadow: AppShadows.low,
-          ),
+        border: Border.all(
+          color: theme.alternate,
+          width: 1,
+        ),
+        boxShadow: AppShadows.low,
+      ),
+      child: Material(
+        color: theme.secondaryBackground,
+        borderRadius: AppRadius.standard,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Row(
@@ -81,12 +80,13 @@ class StudentCard extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     final initials = student.name.trim().isEmpty ? '?' : student.name.trim()[0].toUpperCase();
     return Container(
       width: 52,
       height: 52,
       decoration: BoxDecoration(
-        color: AppColors.primary.withAlpha(25),
+        color: theme.primary.withAlpha(25),
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -98,14 +98,14 @@ class StudentCard extends StatelessWidget {
                   fit: BoxFit.cover,
                   width: 52,
                   height: 52,
-                  placeholder: (context, url) => Container(color: FlutterFlowTheme.of(context).accent4),
+                  placeholder: (context, url) => Container(color: theme.accent4),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               )
             : Text(
                 initials,
-                style: const TextStyle(
-                  color: AppColors.primary,
+                style: TextStyle(
+                  color: theme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
@@ -115,16 +115,17 @@ class StudentCard extends StatelessWidget {
   }
 
   Widget _buildInfoChip(BuildContext context, String label, String value, IconData icon) {
+    final theme = FlutterFlowTheme.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: AppColors.textSecondary),
+        Icon(icon, size: 14, color: theme.secondaryText),
         const SizedBox(width: 4),
         Text(
           value,
           style: AppTypography.caption.copyWith(
             fontWeight: FontWeight.w600,
-            color: FlutterFlowTheme.of(context).primaryText,
+            color: theme.primaryText,
           ),
         ),
       ],
@@ -132,26 +133,27 @@ class StudentCard extends StatelessWidget {
   }
 
   Widget _buildAttendanceBadge(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.success.withAlpha(20),
+        color: theme.success.withAlpha(20),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             '94%',
             style: TextStyle(
-              color: AppColors.success,
+              color: theme.success,
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
           ),
           Text(
             'Attend',
-            style: AppTypography.caption.copyWith(fontSize: 10, color: AppColors.success),
+            style: AppTypography.caption.copyWith(fontSize: 10, color: theme.success),
           ),
         ],
       ),

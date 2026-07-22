@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/audit_repository.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 
 class ErrorHandler {
   static void show(BuildContext context, dynamic error, {AuditRepository? auditRepo, String? errorContext}) {
@@ -30,7 +31,7 @@ class ErrorHandler {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: FlutterFlowTheme.of(context).error,
         behavior: SnackBarBehavior.floating,
       ),
     );

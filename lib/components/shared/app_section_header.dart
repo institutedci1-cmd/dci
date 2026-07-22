@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppSectionHeader extends StatelessWidget {
   final String title;

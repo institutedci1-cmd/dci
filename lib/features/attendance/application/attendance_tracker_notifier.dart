@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/backend/models/student_attendance.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// State for the attendance tracker
@@ -161,8 +161,6 @@ class AttendanceTrackerNotifier extends AutoDisposeAsyncNotifier<AttendanceTrack
 
     state = AsyncData(currentState.copyWith(isSaving: true));
     try {
-      final attendanceRepository = ref.read(attendanceRepositoryProvider);
-      
       final attendanceList = currentState.students.map((s) {
         return StudentAttendance(
           id: '',
@@ -176,23 +174,10 @@ class AttendanceTrackerNotifier extends AutoDisposeAsyncNotifier<AttendanceTrack
         );
       }).toList();
 
-      await attendanceRepository.recordStudentAttendance(attendanceList);
-
-      if (sendWhatsApp) {
-        final whatsappService = ref.read(whatsappServiceProvider);
-        final absentStudents = currentState.students.where((s) => (currentState.attendanceMap[s.id] ?? 'Present') == 'Absent').toList();
-        
-        if (absentStudents.isNotEmpty) {
-          final alertFutures = absentStudents
-              .where((s) => s.parentPhone != null && s.parentPhone!.isNotEmpty)
-              .map((s) => whatsappService.sendTemplateMessage(
-                    to: s.parentPhone!,
-                    templateName: 'student_absent_alert',
-                    parameters: [s.name, dateTimeFormat('yMMMd', currentState.selectedDate)],
-                  ));
-          await Future.wait(alertFutures).catchError((_) => <bool>[]);
-        }
-      }
+      await ref.read(attendanceServiceProvider).recordAttendance(
+        attendanceList: attendanceList,
+        sendWhatsApp: sendWhatsApp,
+      );
 
       state = AsyncData(state.value!.copyWith(isSaving: false));
       return true;

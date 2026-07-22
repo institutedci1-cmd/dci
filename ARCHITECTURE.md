@@ -33,5 +33,5 @@ All Firestore interactions must be abstracted behind **Repositories**. Repositor
 - Critical errors are logged in the `error_logs` collection.
 
 ## Form Validation
-- Standardized validation patterns are available in `lib/shared/form_validator.dart`.
+- Standardized validation patterns are available in `lib/backend/services/validation_service.dart`.
 - Always use `GlobalKey<FormState>` for form validation before submission.

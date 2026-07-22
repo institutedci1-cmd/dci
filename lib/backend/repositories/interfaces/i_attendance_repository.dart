@@ -6,8 +6,8 @@ abstract class IAttendanceRepository {
   Future<void> recordStaffAttendance(AttendanceRecord record);
   Future<bool> checkAttendanceExists(String className, String subject, DateTime date);
   Future<void> recordStudentAttendance(List<StudentAttendance> attendanceData);
-  Stream<List<AttendanceRecord>> getUserAttendance({int limit = 20});
-  Stream<List<StudentAttendance>> getStudentAttendanceLogs({int limit = 50});
+  Stream<List<AttendanceRecord>> getUserAttendance({int limit = 20, String? userId});
+  Stream<List<StudentAttendance>> getStudentAttendanceLogs({int limit = 50, String? userId});
   Future<List<StudentAttendance>> getDailyAttendance(String className, DateTime date);
   Future<List<StudentAttendance>> getAttendanceByDateRange(String className, DateTime start, DateTime end);
   Stream<List<StudentAttendance>> getStudentAttendanceHistory(String studentId, {int limit = 100});

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppStatCard extends StatelessWidget {
   const AppStatCard({
@@ -33,7 +32,7 @@ class AppStatCard extends StatelessWidget {
         border: Border.all(color: theme.alternate, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: theme.primaryText.withOpacity(0.04),
+            color: theme.primaryText.withAlpha(10),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -65,7 +64,7 @@ class AppStatCard extends StatelessWidget {
                     style: AppTypography.caption.copyWith(
                       color: trendColor ?? color,
                       fontWeight: FontWeight.bold,
-                      fontSize: 10,
+                      fontSize: 11,
                     ),
                   ),
                 ),

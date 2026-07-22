@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 
 class AppLoading extends StatelessWidget {

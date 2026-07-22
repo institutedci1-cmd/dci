@@ -43,7 +43,17 @@ class ValidationService {
     }
     final phoneRegex = RegExp(r'^\+?[0-9]{10,12}$');
     if (!phoneRegex.hasMatch(value.trim())) {
-      return 'Enter a valid phone number.';
+      return 'Enter a valid 10-12 digit phone number.';
+    }
+    return null;
+  }
+
+  static String? validateNumber(String? value, String fieldName) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required.';
+    }
+    if (num.tryParse(value) == null) {
+      return '$fieldName must be a valid number.';
     }
     return null;
   }

@@ -1,13 +1,13 @@
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/components/profile_header/profile_header_widget.dart';
 import 'package:d_c_i_teacher_app/components/profile_info_tile/profile_info_tile_widget.dart';
-import 'package:d_c_i_teacher_app/components/shared/app_bottom_nav_bar.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/index.dart';
+import 'package:d_c_i_teacher_app/components/shared/responsive_scaffold.dart';
 import 'package:d_c_i_teacher_app/backend/services/pdf_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,33 +64,14 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
               error: (err, stack) => Center(child: Text('Error: $err')),
             );
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: body,
-        bottomNavigationBar: AppBottomNavBar(
-          currentIndex: 3,
-          onTap: (index) {
-            final routes = [
-              HomeDashboardWidget.routeName,
-              ReportsDashboardWidget.routeName,
-              AttendanceDashboardWidget.routeName,
-              TeacherProfileWidget.routeName,
-            ];
-            if (index != 3) {
-              context.goNamed(routes[index]);
-            }
-          },
-        ),
-      ),
+    return ResponsiveScaffold(
+      currentIndex: 3,
+      body: body,
     );
   }
 
   Widget _buildProfileContent(BuildContext context, Teacher? userData) {
-    final isAdmin = userData?.role == 'Admin';
-    final isDirector = userData?.role == 'Director';
+    final access = ref.watch(accessControlProvider);
 
     return SingleChildScrollView(
       child: Column(
@@ -104,11 +85,11 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                   'Senior Faculty • M.Sc., M.Ed.',
               name: (userData?.displayName.isNotEmpty ?? false)
                   ? userData!.displayName
-                  : 'DCI Faculty',
+                  : 'Deshmukh Faculty',
               photoUrl: userData?.photoUrl,
             ),
           ),
-          if ((isAdmin || isDirector) && widget.initialUserData == null) ...[
+          if (access.canViewAdminReports && widget.initialUserData == null) ...[
             const SizedBox(height: 12),
             _buildInstituteStats(context),
           ],
@@ -124,8 +105,8 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                 const SizedBox(height: 20.0),
                 _buildEducationExpertise(context, userData),
                 const SizedBox(height: 20.0),
-                if ((isAdmin || isDirector) && widget.initialUserData == null) ...[
-                  _buildAdminToolsSection(context),
+                if (access.canViewFacultyList && widget.initialUserData == null) ...[
+                  _buildAdminToolsSection(context, access),
                   const SizedBox(height: 20.0),
                 ],
                 _buildAppLinksSection(context),
@@ -167,26 +148,33 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
     final theme = FlutterFlowTheme.of(context);
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: theme.secondaryBackground,
-          borderRadius: AppRadius.standard,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: theme.alternate),
           boxShadow: AppShadows.low,
         ),
-        child: Column(
+        child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withAlpha(25),
+                color: color.withAlpha(20),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 20),
+              child: Icon(icon, color: color, size: 18),
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(value, style: AppTypography.title.copyWith(fontSize: 20)),
-            Text(title, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w500)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(value, style: AppTypography.title.copyWith(fontSize: 18, color: theme.primaryText)),
+                  Text(title, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w500, fontSize: 10, color: theme.secondaryText)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -244,7 +232,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           child: ProfileInfoTileWidget(
             icon: Icon(Icons.email_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Email Address',
-            value: userData?.email ?? 'admin@dciteachers.com',
+            value: userData?.email ?? 'admin@deshmukhinstitute.com',
           ),
         ),
         wrapWithModel(
@@ -262,7 +250,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           child: ProfileInfoTileWidget(
             icon: Icon(Icons.badge_rounded, color: FlutterFlowTheme.of(context).onPrimaryContainer, size: 20.0),
             label: 'Employee ID',
-            value: userData?.employeeId ?? 'DCI-T-2024-001',
+            value: userData?.employeeId ?? 'DESHMUKH-T-2024-001',
           ),
         ),
         wrapWithModel(
@@ -315,19 +303,21 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
   }
 
   Widget _buildSettingsSection(BuildContext context, Teacher? userData) {
+    final theme = FlutterFlowTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(context, 'Settings & Preferences'),
-        Material(
-          color: FlutterFlowTheme.of(context).secondaryBackground,
-          shape: RoundedRectangleBorder(
+        Container(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.0),
-            side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
+            border: Border.all(color: theme.alternate),
+            boxShadow: AppShadows.low,
           ),
           child: Material(
-            color: Colors.transparent,
+            color: theme.secondaryBackground,
             borderRadius: BorderRadius.circular(16.0),
+            clipBehavior: Clip.antiAlias,
             child: SwitchListTile.adaptive(
               value: userData?.notificationsEnabled ?? true,
               onChanged: (newValue) async {
@@ -335,10 +325,10 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                     .read(userRepositoryProvider)
                     .toggleNotifications(newValue);
               },
-              title: Text('Push Notifications', style: FlutterFlowTheme.of(context).bodyLarge),
-              subtitle: Text('Receive alerts for new announcements.', style: FlutterFlowTheme.of(context).labelSmall),
-              activeThumbColor: FlutterFlowTheme.of(context).primary,
-              activeTrackColor: FlutterFlowTheme.of(context).primary10,
+              title: Text('Push Notifications', style: theme.bodyLarge),
+              subtitle: Text('Receive alerts for new announcements.', style: theme.labelSmall),
+              activeThumbColor: theme.primary,
+              activeTrackColor: theme.primary.withAlpha(50),
               controlAffinity: ListTileControlAffinity.trailing,
             ),
           ),
@@ -364,7 +354,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'About DCI Teacher Portal',
+                  'About Deshmukh Teacher Portal',
                   style: FlutterFlowTheme.of(context).labelLarge.override(
                     font: GoogleFonts.inter(fontWeight: FontWeight.bold),
                     fontWeight: FontWeight.bold,
@@ -372,7 +362,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                 ),
                 const SizedBox(height: 4.0),
                 Text(
-                  'This profile is managed by the DCI HR department.',
+                  'This profile is managed by the Institutional HR department.',
                   style: FlutterFlowTheme.of(context).bodySmall,
                 ),
               ],
@@ -405,43 +395,37 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
     );
   }
 
-  Widget _buildAdminToolsSection(BuildContext context) {
+  Widget _buildAdminToolsSection(BuildContext context, AccessControl access) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(context, 'Administrative Tools'),
-        _buildListTile(
-          context,
-          icon: Icons.people_outline_rounded,
-          title: 'Manage Faculty',
-          onTap: () => context.pushNamed(FacultyListWidget.routeName),
-        ),
-        _buildListTile(
+        if (access.canViewFacultyList)
+          _buildListTile(
+            context,
+            icon: Icons.people_outline_rounded,
+            title: 'Manage Faculty',
+            onTap: () => context.pushNamed(FacultyListWidget.routeName),
+          ),
+          _buildListTile(
           context,
           icon: Icons.admin_panel_settings_outlined,
           title: 'Institute Settings',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Institute Settings coming soon!')),
-            );
-          },
+          onTap: () => context.pushNamed(InstituteSettingsWidget.routeName),
         ),
         _buildListTile(
           context,
           icon: Icons.history_rounded,
           title: 'Audit Logs',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Audit Logs coming soon!')),
-            );
-          },
+          onTap: () => context.pushNamed(AuditLogsWidget.routeName),
         ),
-        _buildListTile(
-          context,
-          icon: Icons.person_add_rounded,
-          title: 'Add New User',
-          onTap: () => context.pushNamed(AddUserWidget.routeName),
-        ),
+        if (access.canManageTeachers)
+          _buildListTile(
+            context,
+            icon: Icons.person_add_rounded,
+            title: 'Add New User',
+            onTap: () => context.pushNamed(AddUserWidget.routeName),
+          ),
       ],
     );
   }
@@ -468,18 +452,22 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
   }
 
   Widget _buildListTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
+    final theme = FlutterFlowTheme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.alternate),
+        boxShadow: AppShadows.low,
+      ),
       child: Material(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: FlutterFlowTheme.of(context).alternate),
-        ),
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
         child: ListTile(
           onTap: onTap,
-          leading: Icon(icon, color: FlutterFlowTheme.of(context).secondaryText),
-          title: Text(title, style: FlutterFlowTheme.of(context).bodyLarge),
+          leading: Icon(icon, color: theme.secondaryText),
+          title: Text(title, style: theme.bodyLarge),
           trailing: const Icon(Icons.chevron_right_rounded),
         ),
       ),
@@ -511,7 +499,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
           ),
         ) ?? false;
         if (confirm) {
-          await ref.read(authRepositoryProvider).signOut();
+          await ref.read(authServiceProvider).signOut();
           if (!context.mounted) return;
           context.goNamed(LoginWidget.routeName);
         }

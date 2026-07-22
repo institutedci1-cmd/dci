@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppSearchBar extends StatelessWidget {
   final String hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
+  final VoidCallback? onFilterTap;
+  final bool filterPresent;
   final TextEditingController? controller;
 
   const AppSearchBar({
@@ -14,6 +15,8 @@ class AppSearchBar extends StatelessWidget {
     this.hintText = 'Search...',
     this.onChanged,
     this.onClear,
+    this.onFilterTap,
+    this.filterPresent = false,
     this.controller,
   });
 
@@ -69,10 +72,25 @@ class AppSearchBar extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.close_rounded, size: 20),
               onPressed: onClear,
-              color: FlutterFlowTheme.of(context).secondaryText,
+              color: theme.secondaryText,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
+          if (filterPresent) ...[
+            VerticalDivider(
+              color: theme.alternate,
+              width: 24,
+              thickness: 1,
+              indent: 8,
+              endIndent: 8,
+            ),
+            IconButton(
+              icon: Icon(Icons.filter_list_rounded, color: theme.primary, size: 20),
+              onPressed: onFilterTap,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
         ],
       ),
     );

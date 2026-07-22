@@ -5,6 +5,7 @@ abstract class IUserRepository {
   Stream<Teacher?> getUserStream();
   Stream<Teacher?> getUserStreamById(String uid);
   Future<Teacher?> getUserData();
+  Future<Teacher?> getUserDataById(String uid);
   Future<List<Teacher>> getTeachers();
   Stream<List<Teacher>> getAllUsersStream();
   Future<void> updateProfile(Teacher user);

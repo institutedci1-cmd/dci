@@ -3,6 +3,7 @@ import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/profile_header/profile_header_widget.dart';
 import 'package:d_c_i_teacher_app/components/profile_info_tile/profile_info_tile_widget.dart';
+import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/pages/edit_student/edit_student_widget.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/pages/student_profile/student_profile_model.dart';
 
 class StudentProfileWidget extends ConsumerStatefulWidget {
@@ -253,19 +253,20 @@ class _StudentProfileWidgetState extends ConsumerState<StudentProfileWidget> {
   }
 
   Widget _buildStatusBadge(BuildContext context, String status) {
+    final theme = FlutterFlowTheme.of(context);
     Color color;
     switch (status) {
       case 'Present':
-        color = Colors.green;
+        color = theme.success;
         break;
       case 'Absent':
-        color = Colors.red;
+        color = theme.error;
         break;
       case 'Leave':
-        color = Colors.orange;
+        color = theme.warning;
         break;
       default:
-        color = Colors.grey;
+        color = theme.secondaryText;
     }
 
     return Container(
@@ -287,28 +288,30 @@ class _StudentProfileWidgetState extends ConsumerState<StudentProfileWidget> {
   }
 
   Widget _buildActionButtons(BuildContext context) {
+    final access = ref.watch(accessControlProvider);
     return Row(
       children: [
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () {
-              context.pushNamed(
-                EditStudentWidget.routeName,
-                extra: {'student': widget.student},
-              );
-            },
-            icon: const Icon(Icons.edit_rounded, size: 18),
-            label: const Text('Edit Profile'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(0, 48),
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+        if (access.canManageStudents)
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                context.pushNamed(
+                  EditStudentWidget.routeName,
+                  extra: {'student': widget.student},
+                );
+              },
+              icon: const Icon(Icons.edit_rounded, size: 18),
+              label: const Text('Edit Profile'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(0, 48),
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
+        if (access.canManageStudents) const SizedBox(width: 12),
         Expanded(
           child: OutlinedButton.icon(
             onPressed: () {

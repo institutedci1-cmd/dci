@@ -20,11 +20,11 @@ class NavigationService {
   }
 
   static void navigateToDailyReport(BuildContext context) {
-    context.goNamed(DailyReportFormWidget.routeName);
+    context.goNamed(ReportsDashboardWidget.routeName);
   }
 
   static void navigateToHomework(BuildContext context) {
-    context.goNamed(HomeworkAssignmentWidget.routeName);
+    context.goNamed(HomeworkDashboardWidget.routeName);
   }
 
   static void navigateToStudentList(BuildContext context) {
@@ -36,7 +36,7 @@ class NavigationService {
   }
 
   static void navigateToResults(BuildContext context) {
-    context.goNamed(ExamsDashboardWidget.routeName);
+    context.goNamed(ResultsDashboardWidget.routeName);
   }
 
   static void navigateToExamsDashboard(BuildContext context) {

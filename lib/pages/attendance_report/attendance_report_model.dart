@@ -7,13 +7,17 @@ class AttendanceReportModel extends FlutterFlowModel<AttendanceReportWidget> {
   String? selectedClass;
   FormFieldController<String>? classDropdownController;
   DateTime? selectedDate;
+  TextEditingController? searchController;
 
   @override
   void initState(BuildContext context) {
     classDropdownController = FormFieldController<String>(null);
     selectedDate = DateTime.now();
+    searchController = TextEditingController();
   }
 
   @override
-  void dispose() {}
+  void dispose() {
+    searchController?.dispose();
+  }
 }

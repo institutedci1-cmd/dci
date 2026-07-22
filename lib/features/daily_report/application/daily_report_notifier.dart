@@ -4,6 +4,7 @@ import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/backend/models/daily_report.dart';
 import 'package:d_c_i_teacher_app/backend/models/teacher.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class DailyReportFormState {
@@ -139,7 +140,7 @@ class DailyReportNotifier extends AutoDisposeAsyncNotifier<DailyReportFormState>
         createdByEmail: user.email ?? '',
       );
 
-      await ref.read(dailyReportRepositoryProvider).submitReport(report);
+      await ref.read(reportServiceProvider).submitDailyReport(report);
       state = AsyncData(state.value!.copyWith(isSaving: false));
       return true;
     } catch (e) {

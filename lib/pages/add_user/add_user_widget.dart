@@ -1,13 +1,12 @@
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
-import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/validation_service.dart';
 import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
+import 'package:d_c_i_teacher_app/components/drop_down/drop_down_widget.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
       final email = _model.emailModel.inputTextController!.text.trim();
-      if (RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      if (RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
         _fetchExistingUserData(email);
       }
     });
@@ -86,10 +85,10 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
   }
 
   Future<void> _checkAdminStatus() async {
-    final userData = await ref.read(userRepositoryProvider).getUserData();
+    final access = ref.read(accessControlProvider);
     if (mounted) {
       setState(() {
-        _isAdmin = userData?.role == 'Admin';
+        _isAdmin = access.canManageTeachers;
         _checkingRole = false;
       });
       if (!_isAdmin) {
@@ -120,7 +119,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
 
     setState(() => _isSaving = true);
     try {
-      await ref.read(userRepositoryProvider).createNewUser(
+      await ref.read(teacherServiceProvider).createTeacher(
         email: _model.emailModel.inputTextController!.text,
         password: _model.passwordModel.inputTextController!.text,
         displayName: _model.nameModel.inputTextController!.text,
@@ -258,7 +257,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               validator: (val) => ValidationService.validateRequired(val, 'Full Name'),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           wrapWithModel(
             model: _model.emailModel,
             updateCallback: () => safeSetState(() {}),
@@ -272,7 +271,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               validator: ValidationService.validateEmail,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           wrapWithModel(
             model: _model.passwordModel,
             updateCallback: () => safeSetState(() {}),
@@ -286,32 +285,16 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               validator: ValidationService.validatePassword,
             ),
           ),
-          const SizedBox(height: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 4, bottom: 6),
-                child: Text('User Role', style: AppTypography.label.copyWith(color: AppColors.textSecondary)),
-              ),
-              FlutterFlowDropDown<String>(
-                controller: _model.roleValueController!,
-                options: const ['Teacher', 'Admin'],
-                onChanged: (val) => setState(() => _model.roleValue = val),
-                height: 48,
-                hintText: 'Select Role',
-                fillColor: theme.secondaryBackground,
-                borderRadius: AppRadius.md,
-                borderWidth: 1,
-                borderColor: theme.alternate,
-                hidesUnderline: true,
-                textStyle: AppTypography.body,
-                elevation: 0,
-                margin: const EdgeInsetsDirectional.fromSTEB(14, 0, 14, 0),
-              ),
-            ],
+          const SizedBox(height: 12),
+          DropDownWidget(
+            label: 'User Role',
+            controller: _model.roleValueController!,
+            options: const ['Teacher', 'Admin'],
+            onChanged: (val) => setState(() => _model.roleValue = val),
+            height: 48,
+            hint: 'Select Role',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           wrapWithModel(
             model: _model.designationModel,
             updateCallback: () => safeSetState(() {}),
@@ -323,7 +306,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               variant: 'outlined',
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           wrapWithModel(
             model: _model.subjectExpertiseModel,
             updateCallback: () => safeSetState(() {}),
@@ -335,7 +318,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               variant: 'outlined',
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           wrapWithModel(
             model: _model.phoneModel,
             updateCallback: () => safeSetState(() {}),

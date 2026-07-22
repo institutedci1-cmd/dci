@@ -1,7 +1,6 @@
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/components/dashboard_card/dashboard_card_model.dart';
@@ -47,15 +46,17 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
 
   String _routeNameForTarget(String target) {
     return switch (target) {
-      'DailyReport' => DailyReportFormWidget.routeName,
-      'Attendance' => AttendanceTrackerWidget.routeName,
-      'Homework' => HomeworkAssignmentWidget.routeName,
+      'DailyReport' => ReportsDashboardWidget.routeName,
+      'Attendance' => AttendanceDashboardWidget.routeName,
+      'Homework' => HomeworkDashboardWidget.routeName,
       'TeacherProfile' => TeacherProfileWidget.routeName,
       'Announcements' => AnnouncementsFeedWidget.routeName,
       'AboutDCI' => AboutDCIWidget.routeName,
       'Students' => StudentListWidget.routeName,
       'Exams' => ExamsDashboardWidget.routeName,
-      'Results' => ExamsDashboardWidget.routeName,
+      'Results' => ResultsDashboardWidget.routeName,
+      'ReportsDashboard' => ReportsDashboardWidget.routeName,
+      'FacultyList' => FacultyListWidget.routeName,
       _ => HomeDashboardWidget.routeName,
     };
   }
@@ -70,62 +71,70 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
       child: AnimatedScale(
         duration: const Duration(milliseconds: 200),
         scale: _isHovered ? 1.02 : 1.0,
-        child: InkWell(
-          onTap: () {
-            final routeName = _routeNameForTarget(widget.target);
-            context.pushNamed(routeName);
-          },
-          borderRadius: AppRadius.card,
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.secondaryBackground,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.card,
+            boxShadow: _isHovered ? AppShadows.medium : AppShadows.low,
+          ),
+          child: Material(
+            color: theme.secondaryBackground,
+            borderRadius: AppRadius.card,
+            child: InkWell(
+              onTap: () {
+                final routeName = _routeNameForTarget(widget.target);
+                context.pushNamed(routeName);
+              },
               borderRadius: AppRadius.card,
-              border: Border.all(
-                color: _isHovered ? AppColors.primary : theme.alternate,
-                width: _isHovered ? 2.0 : 1.5,
-              ),
-              boxShadow: _isHovered ? AppShadows.medium : AppShadows.low,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.xs,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(25),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      alignment: Alignment.center,
-                      child: IconTheme(
-                        data: const IconThemeData(
-                          color: AppColors.primary,
-                          size: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: AppRadius.card,
+                  border: Border.all(
+                    color: _isHovered ? theme.primary : theme.alternate,
+                    width: _isHovered ? 2.0 : 1.5,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: theme.primary.withAlpha(25),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          child: IconTheme(
+                            data: IconThemeData(
+                              color: theme.primary,
+                              size: 20,
+                            ),
+                            child: widget.icon ?? const Icon(Icons.apps_rounded),
+                          ),
                         ),
-                        child: widget.icon ?? const Icon(Icons.apps_rounded),
                       ),
-                    ),
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.title,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.label.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryText,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    widget.title,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.label.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.primaryText,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

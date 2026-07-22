@@ -1,8 +1,6 @@
 import 'package:d_c_i_teacher_app/features/daily_report/application/daily_report_notifier.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
-import 'package:d_c_i_teacher_app/components/form_section_header/form_section_header_widget.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
@@ -204,59 +202,67 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
   }
 
   Widget _buildRestoreButton(DailyReportNotifier notifier, DailyReportFormState state) {
-    return InkWell(
-      onTap: () {
-        notifier.applyLastReport();
-        final report = state.lastReport!;
-        _model.textFieldModel3.inputTextController?.text = report.chapter;
-        _model.textFieldModel4.inputTextController?.text = report.topics;
-        _model.textFieldModel5.inputTextController?.text = report.homeworkAssigned;
-        _model.textFieldModel6.inputTextController?.text = report.remarks;
-      },
+    final theme = FlutterFlowTheme.of(context);
+    return Material(
+      color: theme.primary.withAlpha(25),
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 56.0,
-        height: 56.0,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withAlpha(25),
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: const Icon(
-          Icons.restore_page_rounded,
-          color: AppColors.primary,
-          size: 24.0,
+      child: InkWell(
+        onTap: () {
+          notifier.applyLastReport();
+          final report = state.lastReport!;
+          _model.textFieldModel3.inputTextController?.text = report.chapter;
+          _model.textFieldModel4.inputTextController?.text = report.topics;
+          _model.textFieldModel5.inputTextController?.text = report.homeworkAssigned;
+          _model.textFieldModel6.inputTextController?.text = report.remarks;
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: 56.0,
+          height: 56.0,
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.restore_page_rounded,
+            color: theme.primary,
+            size: 24.0,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildClearButton(DailyReportNotifier notifier) {
-    return InkWell(
-      onTap: () async {
-        final confirm = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Clear Form'),
-            content: const Text('Are you sure you want to clear all inputs?'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-              TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Clear')),
-            ],
-          ),
-        ) ?? false;
-        if (confirm) {
-          ref.invalidate(dailyReportNotifierProvider);
-          _model.textFieldModel3.inputTextController?.clear();
-          _model.textFieldModel4.inputTextController?.clear();
-          _model.textFieldModel5.inputTextController?.clear();
-          _model.textFieldModel6.inputTextController?.clear();
-        }
-      },
+    final theme = FlutterFlowTheme.of(context);
+    return Material(
+      color: theme.error.withAlpha(25),
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 56.0, height: 56.0,
-        decoration: BoxDecoration(color: AppColors.error.withAlpha(25), borderRadius: BorderRadius.circular(16.0)),
-        child: const Icon(Icons.delete_sweep_rounded, color: AppColors.error, size: 24.0),
+      child: InkWell(
+        onTap: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Clear Form'),
+              content: const Text('Are you sure you want to clear all inputs?'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Clear')),
+              ],
+            ),
+          ) ?? false;
+          if (confirm) {
+            ref.invalidate(dailyReportNotifierProvider);
+            _model.textFieldModel3.inputTextController?.clear();
+            _model.textFieldModel4.inputTextController?.clear();
+            _model.textFieldModel5.inputTextController?.clear();
+            _model.textFieldModel6.inputTextController?.clear();
+          }
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: 56.0, 
+          height: 56.0,
+          alignment: Alignment.center,
+          child: Icon(Icons.delete_sweep_rounded, color: theme.error, size: 24.0),
+        ),
       ),
     );
   }

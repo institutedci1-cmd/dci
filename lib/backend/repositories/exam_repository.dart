@@ -34,11 +34,15 @@ class ExamRepository {
   Stream<List<Exam>> getExamsByTeacherStream(String teacherUid) {
     return _examsCollection
         .where('createdBy', isEqualTo: teacherUid)
-        .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Exam.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          final exams = snapshot.docs
+              .map((doc) => Exam.fromFirestore(doc))
+              .toList();
+          // Local sort
+          exams.sort((a, b) => b.date.compareTo(a.date));
+          return exams;
+        });
   }
 
   Stream<List<Exam>> getExamsByDateStream(DateTime date) {
@@ -53,8 +57,27 @@ class ExamRepository {
             .toList());
   }
 
+  Future<Exam?> getExamById(String id) async {
+    final doc = await _examsCollection.doc(id).get();
+    return doc.exists ? Exam.fromFirestore(doc) : null;
+  }
+
   Future<void> deleteExam(String examId) async {
     if (examId.isEmpty) return;
     await _examsCollection.doc(examId).delete();
+  }
+
+  Stream<List<Exam>> getExamsByClassStream(String className) {
+    return _examsCollection
+        .where('class', isEqualTo: className)
+        .snapshots()
+        .map((snapshot) {
+          final exams = snapshot.docs
+              .map((doc) => Exam.fromFirestore(doc))
+              .toList();
+          // Local sort: Upcoming first
+          exams.sort((a, b) => a.date.compareTo(b.date));
+          return exams;
+        });
   }
 }

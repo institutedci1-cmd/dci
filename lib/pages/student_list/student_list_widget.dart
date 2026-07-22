@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/features/student/application/student_list_notifier.dart';
 import 'package:d_c_i_teacher_app/core/services/navigation_service.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_search_bar.dart';
@@ -5,15 +6,13 @@ import 'package:d_c_i_teacher_app/components/shared/compact_student_card.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/excel_service/excel_service.dart';
 import 'package:d_c_i_teacher_app/backend/services/error_handler.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
-import 'package:d_c_i_teacher_app/pages/edit_student/edit_student_widget.dart';
-import 'package:d_c_i_teacher_app/pages/student_profile/student_profile_widget.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,6 +72,8 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                 .toList()
               ..sort();
 
+            final access = ref.watch(accessControlProvider);
+
             return Column(
               children: [
                 HeaderSectionWidget(
@@ -81,6 +82,7 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                       ? 'No students' 
                       : '${allStudents.length} Students Total',
                   onBackPressed: () async => NavigationService.navigateToHome(context),
+                  showActionIcon: access.canManageStudents,
                   actionIcon: const Icon(
                     Icons.person_add_rounded,
                     size: 20,
@@ -91,11 +93,12 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                   },
                 ),
                 _buildSearchAndFilter(context, dynamicClassOptions, classCounts, allStudents.length, selectedClass, notifier),
-                filteredStudentsAsync.when(
-                  data: (filteredStudents) => _buildImportExportRow(context, filteredStudents),
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
-                ),
+                if (access.canManageStudents)
+                  filteredStudentsAsync.when(
+                    data: (filteredStudents) => _buildImportExportRow(context, filteredStudents),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
@@ -148,6 +151,7 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
   }
 
   Widget _buildImportExportRow(BuildContext context, List<Student> filteredStudents) {
+    final access = ref.read(accessControlProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
       child: Row(
@@ -169,34 +173,35 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
               },
             ),
           ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: AppPrimaryButton(
-              text: 'Bulk Import',
-              isLoading: _isImporting,
-              icon: Icons.file_upload_outlined,
-              height: 44,
-              onPressed: () async {
-                safeSetState(() => _isImporting = true);
-                try {
-                  final data = await ExcelService.importStudents();
-                  if (data.isNotEmpty) {
-                    final repository = ref.read(studentRepositoryProvider);
-                    await repository.bulkAddStudents(data);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Imported ${data.length} students successfully!')),
-                      );
+          if (access.canManageStudents) ...[
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: AppPrimaryButton(
+                text: 'Bulk Import',
+                isLoading: _isImporting,
+                icon: Icons.file_upload_outlined,
+                height: 44,
+                onPressed: () async {
+                  safeSetState(() => _isImporting = true);
+                  try {
+                    final data = await ExcelService.importStudents();
+                    if (data.isNotEmpty) {
+                      await ref.read(studentServiceProvider).bulkImport(data);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Imported ${data.length} students successfully!')),
+                        );
+                      }
                     }
+                  } catch (e) {
+                    if (context.mounted) ErrorHandler.show(context, e);
+                  } finally {
+                    safeSetState(() => _isImporting = false);
                   }
-                } catch (e) {
-                  if (context.mounted) ErrorHandler.show(context, e);
-                } finally {
-                  safeSetState(() => _isImporting = false);
-                }
-              },
+                },
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

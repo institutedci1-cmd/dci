@@ -9,7 +9,6 @@ import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/pages/attendance_dashboard/attendance_dashboard_widget.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
@@ -60,6 +59,7 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
   }
 
   Widget _buildScaffold(BuildContext context, AttendanceTrackerState state, AttendanceTrackerNotifier notifier) {
+    final theme = FlutterFlowTheme.of(context);
     int presentCount = state.students.where((s) => state.attendanceMap[s.id] == 'Present').length;
     int absentCount = state.students.length - presentCount;
     double percentage = state.students.isEmpty ? 0 : (presentCount / state.students.length) * 100;
@@ -94,10 +94,10 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
             ),
             _buildSelectionArea(context, state, notifier),
             if (state.students.isNotEmpty) _buildSearchBar(notifier),
-            if (state.isAlreadySubmitted && state.students.isNotEmpty) _buildAlreadySubmittedWarning(),
-            if (state.students.isNotEmpty) _buildQuickActions(notifier),
+            if (state.isAlreadySubmitted && state.students.isNotEmpty) _buildAlreadySubmittedWarning(theme),
+            if (state.students.isNotEmpty) _buildQuickActions(notifier, theme),
             Expanded(
-              child: _buildMainContent(state, notifier),
+              child: _buildMainContent(state, notifier, theme),
             ),
             if (state.students.isNotEmpty) _buildWhatsAppToggle(),
           ],
@@ -157,7 +157,7 @@ Total Students: ${state.students.length}
     }
   }
 
-  Widget _buildMainContent(AttendanceTrackerState state, AttendanceTrackerNotifier notifier) {
+  Widget _buildMainContent(AttendanceTrackerState state, AttendanceTrackerNotifier notifier, FlutterFlowTheme theme) {
     final filteredStudents = state.students.where((student) {
       if (state.searchQuery.isEmpty) return true;
       final query = state.searchQuery.toLowerCase();
@@ -171,11 +171,11 @@ Total Students: ${state.students.length}
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.school_rounded, size: 40, color: FlutterFlowTheme.of(context).primary.withAlpha(50)),
+              Icon(Icons.school_rounded, size: 40, color: theme.primary.withAlpha(50)),
               const SizedBox(height: 12),
               Text(
                 'Select Class & Subject to begin',
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                style: AppTypography.caption.copyWith(color: theme.secondaryText, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -224,60 +224,63 @@ Total Students: ${state.students.length}
     );
   }
 
-  Widget _buildAlreadySubmittedWarning() {
+  Widget _buildAlreadySubmittedWarning(FlutterFlowTheme theme) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.warning.withAlpha(20),
+        color: theme.warning.withAlpha(20),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.warning.withAlpha(30)),
+        border: Border.all(color: theme.warning.withAlpha(30)),
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: AppColors.warning, size: 16),
+          Icon(Icons.info_outline_rounded, color: theme.warning, size: 16),
           const SizedBox(width: 8),
-          Expanded(child: Text('Attendance already marked. Updates allowed.', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
+          Expanded(child: Text('Attendance already marked. Updates allowed.', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: theme.primaryText))),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActions(AttendanceTrackerNotifier notifier) {
+  Widget _buildQuickActions(AttendanceTrackerNotifier notifier, FlutterFlowTheme theme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 8),
       child: Row(
         children: [
-          Expanded(child: _buildActionButton('All Present', Icons.check_circle_rounded, FlutterFlowTheme.of(context).primary, () => notifier.setAllStatus('Present'))),
+          Expanded(child: _buildActionButton('All Present', Icons.check_circle_rounded, theme.primary, () => notifier.setAllStatus('Present'))),
           const SizedBox(width: 12),
-          Expanded(child: _buildActionButton('All Absent', Icons.cancel_rounded, AppColors.secondary, () => notifier.setAllStatus('Absent'))),
+          Expanded(child: _buildActionButton('All Absent', Icons.cancel_rounded, theme.secondary, () => notifier.setAllStatus('Absent'))),
         ],
       ),
     );
   }
 
   Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: color.withAlpha(20),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: color.withAlpha(40)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center, 
-          children: [
-            Icon(icon, color: color, size: 18), 
-            const SizedBox(width: 8), 
-            Text(
-              label, 
-              style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-          ],
+    return Material(
+      color: color.withAlpha(20),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: color.withAlpha(40)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center, 
+            children: [
+              Icon(icon, color: color, size: 18), 
+              const SizedBox(width: 8), 
+              Text(
+                label, 
+                style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+            ],
+          ),
         ),
       ),
     );

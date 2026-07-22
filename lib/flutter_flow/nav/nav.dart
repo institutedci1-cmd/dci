@@ -68,9 +68,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => appStateNotifier.loggedIn
-              ? const HomeDashboardWidget()
-              : const LoginWidget(),
+          builder: (context, _) => const RootDashboardWidget(),
         ),
         FFRoute(
           name: 'Login',
@@ -82,6 +80,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: '/homeDashboard',
           requireAuth: true,
           builder: (context, params) => const HomeDashboardWidget(),
+        ),
+        FFRoute(
+          name: 'StudentDashboard',
+          path: '/studentDashboard',
+          requireAuth: true,
+          builder: (context, params) => const StudentDashboardWidget(),
         ),
         FFRoute(
           name: 'DailyReportForm',
@@ -114,16 +118,46 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const AttendanceDashboardWidget(),
         ),
         FFRoute(
+          name: 'TodayAttendance',
+          path: '/todayAttendance',
+          requireAuth: true,
+          builder: (context, params) => const TodayAttendanceWidget(),
+        ),
+        FFRoute(
+          name: 'AbsentList',
+          path: '/absentList',
+          requireAuth: true,
+          builder: (context, params) => const AbsentListWidget(),
+        ),
+        FFRoute(
+          name: 'MonthlyAttendance',
+          path: '/monthlyAttendance',
+          requireAuth: true,
+          builder: (context, params) => const MonthlyAttendanceWidget(),
+        ),
+        FFRoute(
           name: 'AttendanceHistory',
           path: '/attendanceHistory',
           requireAuth: true,
           builder: (context, params) => const AttendanceHistoryWidget(),
         ),
         FFRoute(
+          name: 'MyAttendanceHistory',
+          path: '/myAttendanceHistory',
+          requireAuth: true,
+          builder: (context, params) => const MyAttendanceHistoryWidget(),
+        ),
+        FFRoute(
+          name: 'ClassWiseReport',
+          path: '/classWiseReport',
+          requireAuth: true,
+          builder: (context, params) => const ClassWiseReportWidget(),
+        ),
+        FFRoute(
           name: 'MonthlyReport',
           path: '/monthlyReport',
           requireAuth: true,
-          builder: (context, params) => const AttendanceReportWidget(),
+          builder: (context, params) => const MonthlyReportWidget(),
         ),
         FFRoute(
           name: 'StudentList',
@@ -153,6 +187,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: '/homeworkHistory',
           requireAuth: true,
           builder: (context, params) => const HomeworkHistoryWidget(),
+        ),
+        FFRoute(
+          name: 'MyHomework',
+          path: '/myHomework',
+          requireAuth: true,
+          builder: (context, params) => const MyHomeworkWidget(),
         ),
         FFRoute(
           name: 'AnnouncementsFeed',
@@ -207,6 +247,30 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const ExamsDashboardWidget(),
         ),
         FFRoute(
+          name: 'ResultsDashboard',
+          path: '/resultsDashboard',
+          requireAuth: true,
+          builder: (context, params) => const ResultsDashboardWidget(),
+        ),
+        FFRoute(
+          name: 'MyResults',
+          path: '/myResults',
+          requireAuth: true,
+          builder: (context, params) => const MyResultsWidget(),
+        ),
+        FFRoute(
+          name: 'MyProfile',
+          path: '/myProfile',
+          requireAuth: true,
+          builder: (context, params) => const MyProfileWidget(),
+        ),
+        FFRoute(
+          name: 'AIChat',
+          path: '/aiChat',
+          requireAuth: true,
+          builder: (context, params) => const AIChatWidget(),
+        ),
+        FFRoute(
           name: 'Exams',
           path: '/exams',
           requireAuth: true,
@@ -217,6 +281,30 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: '/addExam',
           requireAuth: true,
           builder: (context, params) => const AddExamWidget(),
+        ),
+        FFRoute(
+          name: 'InstituteSettings',
+          path: '/instituteSettings',
+          requireAuth: true,
+          builder: (context, params) => const InstituteSettingsWidget(),
+        ),
+        FFRoute(
+          name: 'AuditLogs',
+          path: '/auditLogs',
+          requireAuth: true,
+          builder: (context, params) => const AuditLogsWidget(),
+        ),
+        FFRoute(
+          name: 'StaffAnalytics',
+          path: '/staffAnalytics',
+          requireAuth: true,
+          builder: (context, params) => const StaffAnalyticsWidget(),
+        ),
+        FFRoute(
+          name: 'ComparativeResults',
+          path: '/comparativeResults',
+          requireAuth: true,
+          builder: (context, params) => const ComparativeResultsWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

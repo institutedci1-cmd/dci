@@ -110,9 +110,9 @@ class StudentCountSection extends StatelessWidget {
                 ),
               ),
             ),
-          ].divide(const SizedBox(width: 16.0)),
+          ].divide(const SizedBox(width: 12.0)),
         ),
-      ].divide(const SizedBox(height: 16.0)),
+      ].divide(const SizedBox(height: 12.0)),
     );
   }
 }

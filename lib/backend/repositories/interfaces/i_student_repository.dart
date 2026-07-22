@@ -5,6 +5,7 @@ abstract class IStudentRepository {
   Future<List<Student>> getStudentsByClass(String className);
   Future<List<Student>> getAllStudents();
   Future<List<Student>> getStudentsPaginated(int limit, {DocumentSnapshot? lastDocument});
+  Future<Student?> getStudentById(String id);
   Stream<List<Student>> getAllStudentsStream();
   Future<void> updateStudent(Student student);
   Future<void> deleteStudent(String id);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
+import 'package:d_c_i_teacher_app/components/drop_down/drop_down_widget.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/pages/attendance_tracker/attendance_tracker_model.dart';
@@ -84,7 +84,9 @@ class AttendanceSelectionSection extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 flex: 2,
-                child: FlutterFlowDropDown<String>(
+                child: DropDownWidget(
+                  label: 'Class',
+                  labelPresent: false,
                   controller: model.classDropdownController!,
                   options: effectiveClassOptions,
                   onChanged: (val) {
@@ -94,25 +96,15 @@ class AttendanceSelectionSection extends StatelessWidget {
                   },
                   disabled: isLoadingClasses,
                   height: 40,
-                  hintText: 'Class',
-                  fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: FlutterFlowTheme.of(context).alternate,
-                  hidesUnderline: true,
-                  textStyle: FlutterFlowTheme.of(context).bodySmall.override(
-                    font: GoogleFonts.inter(),
-                    fontSize: 12,
-                  ),
-                  elevation: 2,
-                  margin: const EdgeInsetsDirectional.fromSTEB(8, 0, 8, 0),
+                  hint: 'Class',
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 flex: 4,
-                child: FlutterFlowDropDown<String>(
-                  key: ValueKey('subject_dd_${effectiveSubjectOptions.length}_${model.selectedSubject}'),
+                child: DropDownWidget(
+                  label: 'Subject',
+                  labelPresent: false,
                   controller: model.subjectDropdownController!,
                   options: effectiveSubjectOptions,
                   onChanged: (val) {
@@ -120,23 +112,7 @@ class AttendanceSelectionSection extends StatelessWidget {
                     onSubjectChanged();
                   },
                   height: 40,
-                  hintText: 'Subject',
-                  fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: FlutterFlowTheme.of(context).alternate,
-                  hidesUnderline: true,
-                  textStyle: FlutterFlowTheme.of(context).bodySmall.override(
-                    font: GoogleFonts.inter(),
-                    fontSize: 12,
-                  ),
-                  elevation: 2,
-                  margin: const EdgeInsetsDirectional.fromSTEB(8, 0, 8, 0),
-                  icon: Icon(
-                    Icons.menu_book_rounded,
-                    color: FlutterFlowTheme.of(context).primary,
-                    size: 16,
-                  ),
+                  hint: 'Subject',
                 ),
               ),
             ],

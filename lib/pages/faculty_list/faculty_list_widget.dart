@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/backend/models/teacher.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
+import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_search_bar.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/pages/edit_profile/edit_profile_widget.dart';
 import 'package:d_c_i_teacher_app/pages/teacher_profile/teacher_profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,15 +106,18 @@ class _FacultyListWidgetState extends ConsumerState<FacultyListWidget> {
   }
 
   Widget _buildUserCard(BuildContext context, Teacher user) {
+    final theme = FlutterFlowTheme.of(context);
+    final access = ref.read(accessControlProvider);
+    final bool canEdit = access.canManageTeachers;
+
     return Container(
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+        border: Border.all(color: theme.alternate),
         boxShadow: AppShadows.low,
       ),
       child: Material(
-        color: Colors.transparent,
+        color: theme.secondaryBackground,
         borderRadius: BorderRadius.circular(AppRadius.md),
         clipBehavior: Clip.antiAlias,
         child: ListTile(
@@ -144,7 +148,23 @@ class _FacultyListWidgetState extends ConsumerState<FacultyListWidget> {
             '${user.role} • ${user.email}',
             style: AppTypography.caption.copyWith(fontSize: 12),
           ),
-          trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (canEdit)
+                IconButton(
+                  icon: Icon(Icons.edit_rounded, color: theme.primary, size: 20),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => context.pushNamed(
+                    EditProfileWidget.routeName,
+                    extra: {'userToEdit': user},
+                  ),
+                ),
+              if (canEdit) const SizedBox(width: 8),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+            ],
+          ),
         ),
       ),
     );

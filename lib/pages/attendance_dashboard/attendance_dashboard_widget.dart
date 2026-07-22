@@ -1,14 +1,12 @@
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
-import 'package:d_c_i_teacher_app/components/shared/app_bottom_nav_bar.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/index.dart';
+import 'package:d_c_i_teacher_app/components/shared/responsive_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // Direct imports for the page and its model
 import 'package:d_c_i_teacher_app/pages/attendance_dashboard/attendance_dashboard_model.dart';
@@ -46,9 +44,8 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
     final theme = FlutterFlowTheme.of(context);
     final attendanceLogsAsync = ref.watch(studentAttendanceLogsProvider);
 
-    return Scaffold(
-      key: scaffoldKey,
-      backgroundColor: theme.primaryBackground,
+    return ResponsiveScaffold(
+      currentIndex: 2,
       body: Column(
         children: [
           HeaderSectionWidget(
@@ -77,9 +74,9 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                         children: [
                           _buildMicroStat(context, 'Marked', totalMarked.toString(), Icons.people_rounded, theme.primary),
                           const SizedBox(width: 8),
-                          _buildMicroStat(context, 'Rate', '$attendanceRate%', Icons.trending_up_rounded, AppColors.success),
+                          _buildMicroStat(context, 'Rate', '$attendanceRate%', Icons.trending_up_rounded, theme.success),
                           const SizedBox(width: 8),
-                          _buildMicroStat(context, 'Absent', (totalMarked - presentCount).toString(), Icons.person_off_rounded, AppColors.error),
+                          _buildMicroStat(context, 'Absent', (totalMarked - presentCount).toString(), Icons.person_off_rounded, theme.error),
                         ],
                       );
                     },
@@ -95,9 +92,19 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                     children: [
                       _buildActionBtn(context, 'Mark Now', Icons.check_box_rounded, theme.primary, () => context.pushNamed(AttendanceTrackerWidget.routeName)),
                       const SizedBox(width: 8),
-                      _buildActionBtn(context, 'History', Icons.history_toggle_off_rounded, AppColors.info, () => context.pushNamed(AttendanceHistoryWidget.routeName)),
+                      _buildActionBtn(context, 'Today', Icons.today_rounded, AppColors.secondary, () => context.pushNamed(TodayAttendanceWidget.routeName)),
                       const SizedBox(width: 8),
-                      _buildActionBtn(context, 'Reports', Icons.assessment_outlined, AppColors.success, () => context.pushNamed(AttendanceReportWidget.routeName)),
+                      _buildActionBtn(context, 'Absents', Icons.person_off_rounded, AppColors.error, () => context.pushNamed(AbsentListWidget.routeName)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _buildActionBtn(context, 'Monthly', Icons.calendar_month_rounded, AppColors.info, () => context.pushNamed(MonthlyAttendanceWidget.routeName)),
+                      const SizedBox(width: 8),
+                      _buildActionBtn(context, 'History', Icons.history_toggle_off_rounded, AppColors.primary, () => context.pushNamed(AttendanceHistoryWidget.routeName)),
+                      const SizedBox(width: 8),
+                      _buildActionBtn(context, 'Reports', Icons.assessment_outlined, theme.success, () => context.pushNamed(AttendanceReportWidget.routeName)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -136,48 +143,29 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
           ),
         ],
       ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 2,
-        onTap: (index) {
-          final routes = [
-            HomeDashboardWidget.routeName,
-            ReportsDashboardWidget.routeName,
-            AttendanceDashboardWidget.routeName,
-            TeacherProfileWidget.routeName,
-          ];
-          if (index != 2) {
-            context.goNamed(routes[index]);
-          }
-        },
-      ),
     );
   }
 
   Widget _buildMicroStat(BuildContext context, String label, String value, IconData icon, Color color) {
     final theme = FlutterFlowTheme.of(context);
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        decoration: BoxDecoration(
-          color: theme.secondaryBackground,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: theme.alternate),
-          boxShadow: AppShadows.low,
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: color.withAlpha(20),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 12, color: color),
-            ),
-            const SizedBox(height: 6),
-            Text(value, style: AppTypography.title.copyWith(fontSize: 18, height: 1.1)),
-            Text(label, style: AppTypography.caption.copyWith(fontSize: 11, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-          ],
+      child: Material(
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: theme.alternate),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(height: 4),
+              Text(value, style: AppTypography.label.copyWith(fontSize: 14, color: theme.primaryText, fontWeight: FontWeight.bold)),
+              Text(label, style: AppTypography.caption.copyWith(fontSize: 9, color: theme.secondaryText), overflow: TextOverflow.ellipsis),
+            ],
+          ),
         ),
       ),
     );
@@ -186,31 +174,26 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
   Widget _buildActionBtn(BuildContext context, String label, IconData icon, Color color, VoidCallback onTap) {
     final theme = FlutterFlowTheme.of(context);
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: theme.secondaryBackground,
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: color.withAlpha(40)),
-            boxShadow: AppShadows.low,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: color.withAlpha(20),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, size: 20, color: color),
-              ),
-              const SizedBox(height: 6),
-              Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 11, color: AppColors.textPrimary)),
-            ],
+      child: Material(
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: color.withAlpha(50)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 20, color: color),
+                const SizedBox(height: 6),
+                Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 11, color: theme.primaryText)),
+              ],
+            ),
           ),
         ),
       ),
@@ -221,15 +204,12 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: theme.secondaryBackground,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: theme.alternate),
-        boxShadow: AppShadows.low,
       ),
       child: Material(
-        color: Colors.transparent,
+        color: theme.secondaryBackground,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        clipBehavior: Clip.antiAlias,
         child: ListTile(
           dense: true,
           visualDensity: VisualDensity.compact,
@@ -238,23 +218,23 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: _getStatusColor(record.status).withAlpha(20),
+              color: _getStatusColor(record.status, theme).withAlpha(20),
               shape: BoxShape.circle,
             ),
-            child: Icon(_getStatusIcon(record.status), color: _getStatusColor(record.status), size: 14),
+            child: Icon(_getStatusIcon(record.status), color: _getStatusColor(record.status, theme), size: 14),
           ),
-          title: Text(record.studentName, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
+          title: Text(record.studentName, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 13, color: theme.primaryText)),
           subtitle: Text('${record.className} • ${dateTimeFormat('yMMMd', record.date)}', style: AppTypography.caption.copyWith(fontSize: 11)),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: _getStatusColor(record.status).withAlpha(25),
+              color: _getStatusColor(record.status, theme).withAlpha(25),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: _getStatusColor(record.status).withAlpha(40)),
+              border: Border.all(color: _getStatusColor(record.status, theme).withAlpha(40)),
             ),
             child: Text(
               record.status.toUpperCase(), 
-              style: TextStyle(color: _getStatusColor(record.status), fontWeight: FontWeight.bold, fontSize: 9),
+              style: TextStyle(color: _getStatusColor(record.status, theme), fontWeight: FontWeight.bold, fontSize: 10),
             ),
           ),
           onTap: () {
@@ -265,12 +245,12 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
     );
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(String status, FlutterFlowTheme theme) {
     switch (status) {
-      case 'Present': return AppColors.success;
-      case 'Absent': return AppColors.error;
-      case 'Leave': return AppColors.warning;
-      default: return AppColors.textSecondary;
+      case 'Present': return theme.success;
+      case 'Absent': return theme.error;
+      case 'Leave': return theme.warning;
+      default: return theme.secondaryText;
     }
   }
 

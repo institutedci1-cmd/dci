@@ -1,10 +1,10 @@
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/models/exam.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/exam_card/exam_card_widget.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/pages/exams/add_exam_widget.dart';
@@ -48,35 +48,45 @@ class _ExamsWidgetState extends ConsumerState<ExamsWidget> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text('Cancel', style: TextStyle(color: theme.secondaryText)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Delete', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+            child: Text('Delete', style: TextStyle(color: theme.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     ) ?? false;
 
     if (confirm) {
-      await ref.read(examRepositoryProvider).deleteExam(exam.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exam deleted successfully.')));
+      try {
+        await ref.read(examServiceProvider).deleteExam(exam.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exam deleted successfully.')));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    final user = ref.read(currentUserDataStreamProvider).value;
+    final isAdmin = user?.role == 'Admin';
+
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-      floatingActionButton: FloatingActionButton(
+      backgroundColor: theme.primaryBackground,
+      floatingActionButton: isAdmin ? FloatingActionButton(
         onPressed: () => context.pushNamed(AddExamWidget.routeName),
-        backgroundColor: AppColors.primary,
+        backgroundColor: theme.primary,
         elevation: 4,
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
-      ),
+      ) : null,
       body: Column(
         children: [
           HeaderSectionWidget(
@@ -93,8 +103,8 @@ class _ExamsWidgetState extends ConsumerState<ExamsWidget> {
                     icon: Icons.assignment_rounded,
                     title: 'No exams scheduled',
                     description: 'Keep track of all tests and exams here.',
-                    actionLabel: 'Schedule First Exam',
-                    onActionPressed: () => context.pushNamed(AddExamWidget.routeName),
+                    actionLabel: isAdmin ? 'Schedule First Exam' : null,
+                    onActionPressed: isAdmin ? () => context.pushNamed(AddExamWidget.routeName) : null,
                   );
                 }
                 return ListView.builder(
@@ -104,7 +114,7 @@ class _ExamsWidgetState extends ConsumerState<ExamsWidget> {
                     final exam = exams[index];
                     return ExamCardWidget(
                       exam: exam,
-                      onDelete: () => _deleteExam(exam),
+                      onDelete: isAdmin ? () => _deleteExam(exam) : null,
                     );
                   },
                 );

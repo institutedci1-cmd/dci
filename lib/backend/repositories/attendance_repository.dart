@@ -68,12 +68,16 @@ class AttendanceRepository implements IAttendanceRepository {
   // FIX: Removed server-side orderBy to bypass missing index errors. 
   // We now sort locally in Dart.
   @override
-  Stream<List<AttendanceRecord>> getUserAttendance({int limit = 20}) {
+  Stream<List<AttendanceRecord>> getUserAttendance({int limit = 20, String? userId}) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
-    return _attendanceCollection
-        .where('createdBy', isEqualTo: user.uid)
+    Query query = _attendanceCollection;
+    if (userId != null) {
+      query = query.where('createdBy', isEqualTo: userId);
+    }
+
+    return query
         .limit(100)
         .snapshots()
         .map((snapshot) {
@@ -90,12 +94,16 @@ class AttendanceRepository implements IAttendanceRepository {
   // FIX: Removed server-side orderBy to bypass missing index errors. 
   // We now sort locally in Dart.
   @override
-  Stream<List<StudentAttendance>> getStudentAttendanceLogs({int limit = 50}) {
+  Stream<List<StudentAttendance>> getStudentAttendanceLogs({int limit = 50, String? userId}) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
-    return _studentAttendanceCollection
-        .where('markedBy', isEqualTo: user.uid)
+    Query query = _studentAttendanceCollection;
+    if (userId != null) {
+      query = query.where('markedBy', isEqualTo: userId);
+    }
+
+    return query
         .limit(200)
         .snapshots()
         .map((snapshot) {
@@ -124,6 +132,7 @@ class AttendanceRepository implements IAttendanceRepository {
     return getAttendanceByDateRange(className, startOfDay, endOfDay);
   }
 
+  @override
   Future<List<StudentAttendance>> getAttendanceByDateRange(
       String className, DateTime start, DateTime end) async {
     final query = await _studentAttendanceCollection

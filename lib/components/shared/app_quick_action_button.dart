@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppQuickActionButton extends StatelessWidget {
   const AppQuickActionButton({
@@ -19,7 +17,6 @@ class AppQuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
     final activeColor = color ?? AppColors.primary;
 
     return InkWell(

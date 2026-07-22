@@ -28,4 +28,14 @@ class AppNotification {
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'title': title,
+      'body': body,
+      'type': type,
+      'isRead': isRead,
+      'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
+    };
+  }
 }

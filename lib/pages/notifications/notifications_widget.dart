@@ -1,14 +1,13 @@
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/models/notification_model.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:d_c_i_teacher_app/pages/notifications/notifications_model.dart';
 export 'package:d_c_i_teacher_app/pages/notifications/notifications_model.dart';
 
@@ -63,6 +62,7 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
   }
 
   Widget _buildNotificationsList() {
+    final theme = FlutterFlowTheme.of(context);
     return FutureBuilder<List<AppNotification>>(
       future: ref.read(notificationRepositoryProvider).getNotificationsStream().first,
       builder: (context, snapshot) {
@@ -90,7 +90,7 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
               key: Key(item.id),
               direction: DismissDirection.endToStart,
               onDismissed: (_) {
-                ref.read(notificationRepositoryProvider).deleteNotification(item.id);
+                ref.read(dciNotificationServiceProvider).deleteNotification(item.id);
               },
               background: Container(
                 alignment: Alignment.centerRight,
@@ -101,96 +101,102 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
                 ),
                 child: const Icon(Icons.delete_outline, color: Colors.white),
               ),
-              child: Material(
-                color: item.isRead 
-                    ? FlutterFlowTheme.of(context).secondaryBackground 
-                    : AppColors.primary.withAlpha(15),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () {
-                    if (!item.isRead) {
-                      ref.read(notificationRepositoryProvider).markAsRead(item.id);
-                    }
-                  },
+              child: Container(
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(AppRadius.md),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(
-                        color: item.isRead 
-                            ? FlutterFlowTheme.of(context).alternate 
-                            : AppColors.primary.withAlpha(50),
-                        width: 1.0,
+                  boxShadow: item.isRead ? null : AppShadows.low,
+                ),
+                child: Material(
+                  color: item.isRead 
+                      ? theme.secondaryBackground 
+                      : theme.primary.withAlpha(15),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () {
+                      if (!item.isRead) {
+                        ref.read(dciNotificationServiceProvider).markAsRead(item.id);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(
+                          color: item.isRead 
+                              ? theme.alternate 
+                              : theme.primary.withAlpha(50),
+                          width: 1.0,
+                        ),
                       ),
-                      boxShadow: item.isRead ? null : AppShadows.low,
-                    ),
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: item.isRead 
-                                ? AppColors.primary.withAlpha(25)
-                                : AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            _getIcon(item.type), 
-                            color: item.isRead 
-                                ? AppColors.primary 
-                                : Colors.white, 
-                            size: 20
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.title, 
-                                style: AppTypography.body.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                item.body, 
-                                style: AppTypography.caption.copyWith(
-                                  color: FlutterFlowTheme.of(context).secondaryText,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                item.createdAt != null 
-                                    ? dateTimeFormat('relative', item.createdAt)
-                                    : 'Just now', 
-                                style: AppTypography.caption.copyWith(
-                                  fontSize: 11,
-                                  color: AppColors.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (!item.isRead)
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            width: 10,
-                            height: 10,
-                            decoration: const BoxDecoration(
-                              color: AppColors.secondary,
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: item.isRead 
+                                  ? theme.primary.withAlpha(25)
+                                  : theme.primary,
                               shape: BoxShape.circle,
                             ),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              _getIcon(item.type), 
+                              color: item.isRead 
+                                  ? theme.primary 
+                                  : Colors.white, 
+                              size: 20
+                            ),
                           ),
-                      ],
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.title, 
+                                  style: AppTypography.body.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: theme.primaryText,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.body, 
+                                  style: AppTypography.caption.copyWith(
+                                    color: theme.secondaryText,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  item.createdAt != null 
+                                      ? dateTimeFormat('relative', item.createdAt)
+                                      : 'Just now', 
+                                  style: AppTypography.caption.copyWith(
+                                    fontSize: 11,
+                                    color: theme.secondaryText.withAlpha(150),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (!item.isRead)
+                            Container(
+                              margin: const EdgeInsets.only(top: 4),
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: theme.secondary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

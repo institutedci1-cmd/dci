@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+export 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppSpacing {
@@ -14,6 +15,12 @@ class AppSpacing {
 
   static const EdgeInsets pagePadding = EdgeInsets.all(lg);
   static const EdgeInsets cardPadding = EdgeInsets.all(md);
+
+  // Responsive Breakpoints
+  static const double mobileBreakpoint = 600.0;
+  static const double tabletBreakpoint = 900.0;
+  static const double desktopBreakpoint = 1200.0;
+  static const double maxContentWidth = 1200.0;
 }
 
 class AppSize {

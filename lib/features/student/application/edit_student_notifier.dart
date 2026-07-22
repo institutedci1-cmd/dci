@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/backend/models/teacher.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:uuid/uuid.dart';
 
 class EditStudentState {
@@ -60,7 +61,7 @@ class EditStudentNotifier extends StateNotifier<EditStudentState> {
       }
 
       final studentToSave = student.copyWith(id: finalId, photoUrl: state.photoUrl);
-      await ref.read(studentRepositoryProvider).updateStudent(studentToSave);
+      await ref.read(studentServiceProvider).saveStudent(studentToSave, isNew: isNew);
       state = state.copyWith(isSaving: false);
       return true;
     } catch (e) {
@@ -70,10 +71,9 @@ class EditStudentNotifier extends StateNotifier<EditStudentState> {
   }
 
   Future<bool> deleteStudent(String id) async {
-    if (!isAdmin) return false;
     state = state.copyWith(isSaving: true);
     try {
-      await ref.read(studentRepositoryProvider).deleteStudent(id);
+      await ref.read(studentServiceProvider).deleteStudent(id);
       state = state.copyWith(isSaving: false);
       return true;
     } catch (e) {

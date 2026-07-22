@@ -3,7 +3,6 @@ import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -115,7 +114,7 @@ class _DateWiseReportWidgetState extends ConsumerState<DateWiseReportWidget> {
                 Text('${exam.subject} - ${exam.className}', style: AppTypography.label.copyWith(fontWeight: FontWeight.bold, fontSize: 13)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(color: theme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(color: theme.primary.withAlpha(25), borderRadius: BorderRadius.circular(4)),
                   child: Text(exam.startTime, style: AppTypography.caption.copyWith(color: theme.primary, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
               ],

@@ -25,12 +25,25 @@ class HomeworkRepository {
 
     return _homeworkCollection
         .where('createdBy', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => HomeworkAssignment.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          final list = snapshot.docs
+              .map((doc) => HomeworkAssignment.fromFirestore(doc))
+              .toList();
+          
+          // Local sort to avoid index
+          list.sort((a, b) {
+            if (a.createdAt == null || b.createdAt == null) return 0;
+            return b.createdAt!.compareTo(a.createdAt!);
+          });
+          
+          return list.take(limit).toList();
+        });
+  }
+
+  Future<HomeworkAssignment?> getHomeworkById(String id) async {
+    final doc = await _homeworkCollection.doc(id).get();
+    return doc.exists ? HomeworkAssignment.fromFirestore(doc) : null;
   }
 
   Future<void> updateHomeworkStatus(String homeworkId, String status) async {
@@ -41,5 +54,24 @@ class HomeworkRepository {
   Future<void> deleteHomework(String homeworkId) async {
     if (homeworkId.isEmpty) return;
     await _homeworkCollection.doc(homeworkId).delete();
+  }
+
+  Stream<List<HomeworkAssignment>> getHomeworkByClass(String className) {
+    return _homeworkCollection
+        .where('className', isEqualTo: className)
+        .where('status', isEqualTo: 'published')
+        .snapshots()
+        .map((snapshot) {
+          final list = snapshot.docs
+              .map((doc) => HomeworkAssignment.fromFirestore(doc))
+              .toList();
+          
+          list.sort((a, b) {
+            if (a.createdAt == null || b.createdAt == null) return 0;
+            return b.createdAt!.compareTo(a.createdAt!);
+          });
+          
+          return list;
+        });
   }
 }

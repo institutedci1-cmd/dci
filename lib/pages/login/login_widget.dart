@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/error_handler.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/validation_service.dart';
@@ -5,15 +6,11 @@ import 'package:d_c_i_teacher_app/components/auth_header/auth_header_widget.dart
 import 'package:d_c_i_teacher_app/components/button/button_widget.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
-import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 export 'package:d_c_i_teacher_app/pages/login/login_model.dart';
 
 class LoginWidget extends ConsumerStatefulWidget {
@@ -55,11 +52,10 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
       final email = _model.textFieldModel1.inputTextController!.text.trim();
       final password = _model.textFieldModel2.inputTextController!.text;
       
-      final authRepository = ref.read(authRepositoryProvider);
-      await authRepository.signInWithEmail(email, password);
+      await ref.read(authServiceProvider).signInWithEmail(email, password);
 
       if (!mounted) return;
-      context.goNamed(HomeDashboardWidget.routeName);
+      context.go('/');
     } catch (e) {
       if (mounted) ErrorHandler.show(context, e);
     } finally {
@@ -77,7 +73,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
     }
 
     try {
-      await ref.read(authRepositoryProvider).sendPasswordResetEmail(email);
+      await ref.read(authServiceProvider).sendPasswordResetEmail(email);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password reset email sent.')),
@@ -171,7 +167,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
           updateCallback: () => safeSetState(() {}),
           child: const TextFieldWidget(
             label: 'Email Address',
-            hint: 'teacher@dciteachers.com',
+            hint: 'teacher@deshmukhinstitute.com',
             leadingIcon: Icon(Icons.email_outlined, size: 20),
             leadingIconPresent: true,
             keyboardType: TextInputType.emailAddress,

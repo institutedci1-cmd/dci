@@ -1,41 +1,63 @@
-# Implementation Plan - Functional Module Modernization (Phase 7)
+# Implementation Plan - Institutional Branding Refresh
 
-Following the successful optimization of Students and Attendance, this plan covers the refactoring of the remaining core modules (Homework, Announcements, and Exams) to the modern Riverpod **AsyncNotifier** pattern.
-
-## User Review Required
-
-> [!IMPORTANT]
-> This refactor will move logic from the UI (WidgetState) into dedicated logic controllers (Notifiers). This makes the code more testable and prevents UI "stutter" during heavy operations like file uploads or marks calculations.
+Update all naming-related details across the application to consistently use **"Deshmukh Coaching Institute"** instead of "DCI Teachers" or generic "DCI" placeholders.
 
 ## Proposed Changes
 
-### 1. Homework Assignment Modernization
-- **[NEW] [homework_assignment_notifier.dart](file:///A:/dci-latest/lib/features/homework/application/homework_assignment_notifier.dart)**:
-    - Create a notifier to manage class/subject selection, file uploads, and final submission.
-    - Centralize form validation logic.
-- **[MODIFY] [homework_assignment_widget.dart](file:///A:/dci-latest/lib/pages/homework_assignment/homework_assignment_widget.dart)**:
-    - Bind the UI to the new `homeworkAssignmentNotifierProvider`.
-    - Simplify file picking and status management.
+### [1. Global Constants & Configuration]
 
-### 2. Notice Board (Announcements) Refactoring
-- **[NEW] [announcements_notifier.dart](file:///A:/dci-latest/lib/features/announcement/application/announcements_notifier.dart)**:
-    - Create a notifier to handle fetching notices and the "Post Announcement" flow.
-- **[MODIFY] [announcements_feed_widget.dart](file:///A:/dci-latest/lib/pages/announcements_feed/announcements_feed_widget.dart)**:
-    - Simplify the building of the list and the modal bottom sheet using the new notifier.
+#### [MODIFY] [app_constants.dart](file:///A:/dci-latest/lib/backend/services/app_constants.dart)
+- Update `instituteName` constant to "Deshmukh Coaching Institute".
 
-### 3. Exams & Marks Logic Optimization
-- **[NEW] [marks_entry_notifier.dart](file:///A:/dci-latest/lib/features/exams/application/marks_entry_notifier.dart)**:
-    - Create a specialized notifier for `EnterMarksWidget` to handle marks parsing, grade calculation, and batch saving.
-- **[MODIFY] [enter_marks_widget.dart](file:///A:/dci-latest/lib/pages/exams/enter_marks_widget.dart)**:
-    - Replace imperative state management with the new logic controller.
+#### [MODIFY] [config_repository.dart](file:///A:/dci-latest/lib/backend/repositories/config_repository.dart)
+- Update default "DCI" prefix in `getNextEmployeeId` to "DESHMUKH".
+
+### [2. App Metadata & Identity]
+
+#### [MODIFY] [AndroidManifest.xml](file:///A:/dci-latest/android/app/src/main/AndroidManifest.xml)
+- Update `android:label` to "Deshmukh Coaching Institute".
+
+#### [MODIFY] [strings.xml](file:///A:/dci-latest/android/app/src/main/res/values/strings.xml)
+- Update `app_name` string to "Deshmukh Coaching Institute".
+
+#### [MODIFY] [Info.plist](file:///A:/dci-latest/ios/Runner/Info.plist)
+- Update `CFBundleName` and `CFBundleDisplayName` to "Deshmukh Coaching Institute".
+
+#### [MODIFY] [main.dart](file:///A:/dci-latest/lib/main.dart)
+- Update MaterialApp `title` to "Deshmukh Coaching Institute".
+
+### [3. UI Branding & Components]
+
+#### [MODIFY] [responsive_scaffold.dart](file:///A:/dci-latest/lib/components/shared/responsive_scaffold.dart)
+- Update sidebar brand text from "DCI ERP" to "Deshmukh ERP".
+
+#### [MODIFY] [header_section_widget.dart](file:///A:/dci-latest/lib/components/header_section/header_section_widget.dart)
+- Update fallback institute name to "Deshmukh Coaching Institute".
+
+#### [MODIFY] [auth_header_widget.dart](file:///A:/dci-latest/lib/components/auth_header/auth_header_widget.dart)
+- Update default app name and institute name labels.
+
+#### [MODIFY] [ai_chat_widget.dart](file:///A:/dci-latest/lib/pages/ai_chat/ai_chat_widget.dart)
+- Update "DCI AI Assistant" to "Deshmukh AI Assistant".
+- Update mock AI response persona.
+
+#### [MODIFY] [about_dci_widget.dart](file:///A:/dci-latest/lib/pages/about_dci/about_dci_widget.dart)
+- Update title to "About Deshmukh Coaching Institute".
+- Update app version label prefix.
+
+### [4. Document Branding (PDFs & Reports)]
+
+#### [MODIFY] [pdf_service.dart](file:///A:/dci-latest/lib/backend/services/pdf_service.dart)
+- Update footers and report headers from "DCI Teachers" to "Deshmukh Coaching Institute".
+
+#### [MODIFY] [announcements_feed_widget.dart](file:///A:/dci-latest/lib/pages/announcements_feed/announcements_feed_widget.dart)
+- Update signature in shared messages from "DCI Team" to "Deshmukh Team".
 
 ## Verification Plan
 
-### Automated Logic Check
-- Verify that **Grade Calculation** (A, B, C, etc.) is consistent across the new notifier.
-- Ensure **File Upload** state correctly updates the UI during homework assignment.
+### Visual Brand Audit
+- Inspect Login, Dashboard, Sidebar, and About screens to ensure the full name is displayed correctly.
+- Generate a sample PDF report to verify the updated branding in the document header/footer.
 
-### Manual Verification
-- Test "Save Draft" vs "Publish" in the Homework module.
-- Post a new Notice and verify it appears immediately in the feed without manual refresh.
-- Enter marks for a class and confirm they are correctly recorded in Firestore.
+### System Verification
+- Ensure the app title in the device's launcher is updated to "Deshmukh Coaching Institute".

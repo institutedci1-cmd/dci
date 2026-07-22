@@ -27,14 +27,21 @@ class DailyReportRepository implements IDailyReportRepository {
     return reports.isNotEmpty ? reports.first : null;
   }
 
-  Future<List<DailyReport>> getReports({int limit = 20}) async {
+  Future<DailyReport?> getReportById(String id) async {
+    final doc = await _reportsCollection.doc(id).get();
+    return doc.exists ? DailyReport.fromFirestore(doc) : null;
+  }
+
+  Future<List<DailyReport>> getReports({int limit = 20, String? creatorId}) async {
     final user = _auth.currentUser;
     if (user == null) return [];
 
-    final querySnapshot = await _reportsCollection
-        .where('createdBy', isEqualTo: user.uid)
-        .limit(limit)
-        .get();
+    Query query = _reportsCollection;
+    if (creatorId != null) {
+      query = query.where('createdBy', isEqualTo: creatorId);
+    }
+
+    final querySnapshot = await query.limit(limit).get();
 
     final list = querySnapshot.docs
         .map((doc) => DailyReport.fromFirestore(doc))
@@ -50,12 +57,16 @@ class DailyReportRepository implements IDailyReportRepository {
   }
 
   @override
-  Stream<List<DailyReport>> getRecentReports({int limit = 3}) {
+  Stream<List<DailyReport>> getRecentReports({int limit = 3, String? creatorId}) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
-    return _reportsCollection
-        .where('createdBy', isEqualTo: user.uid)
+    Query query = _reportsCollection;
+    if (creatorId != null) {
+      query = query.where('createdBy', isEqualTo: creatorId);
+    }
+
+    return query
         .limit(50) 
         .snapshots()
         .map((snapshot) {

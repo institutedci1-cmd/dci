@@ -63,6 +63,18 @@ class StudentRepository implements IStudentRepository {
   }
 
   @override
+  Future<Student?> getStudentById(String id) async {
+    final doc = await _studentsCollection.doc(id).get();
+    return doc.exists ? Student.fromFirestore(doc) : null;
+  }
+
+  Stream<Student?> getStudentByIdStream(String id) {
+    return _studentsCollection.doc(id).snapshots().map((doc) {
+      return doc.exists ? Student.fromFirestore(doc) : null;
+    });
+  }
+
+  @override
   Stream<List<Student>> getAllStudentsStream() {
     return _studentsCollection.snapshots().map((snapshot) {
       final students = snapshot.docs.map((doc) => Student.fromFirestore(doc)).toList();

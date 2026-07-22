@@ -2,9 +2,7 @@ import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:d_c_i_teacher_app/components/announcement_card/announcement_card_model.dart';
 export 'package:d_c_i_teacher_app/components/announcement_card/announcement_card_model.dart';
 
@@ -47,11 +45,7 @@ class _AnnouncementCardWidgetState extends State<AnnouncementCardWidget> {
 
   Color _getCategoryColor(String category) {
     return switch (category) {
-      'URGENT' => AppColors.error,
-      'EXAM' => AppColors.primary,
-      'EVENT' => AppColors.info,
-      'HOLIDAY' => AppColors.warning,
-      'PARENT_MEETING' => Colors.purple,
+      'PARENT_MEETING' => AppColors.tertiary,
       _ => AppColors.secondary,
     };
   }
@@ -63,99 +57,110 @@ class _AnnouncementCardWidgetState extends State<AnnouncementCardWidget> {
     final categoryColor = _getCategoryColor(category);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: InkWell(
-        onTap: () async {
-          if (widget.onTap != null) {
-            await widget.onTap!();
-          }
-        },
-        borderRadius: AppRadius.card,
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.secondaryBackground,
-            borderRadius: AppRadius.card,
-            border: Border.all(
-              color: theme.alternate,
-              width: 1.0,
-            ),
-            boxShadow: AppShadows.low,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: AppShadows.low,
+        ),
+        child: Material(
+          color: theme.secondaryBackground,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            onTap: () async {
+              if (widget.onTap != null) {
+                await widget.onTap!();
+              }
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.alternate,
+                  width: 1.0,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: categoryColor.withAlpha(25),
-                        borderRadius: BorderRadius.circular(AppRadius.full),
-                      ),
-                      child: Text(
-                        category,
-                        style: AppTypography.caption.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: categoryColor,
-                          fontSize: 10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: categoryColor.withAlpha(25),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            category,
+                            style: AppTypography.caption.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: categoryColor,
+                              fontSize: 10,
+                            ),
+                          ),
                         ),
-                      ),
+                        Text(
+                          widget.date ?? '',
+                          style: AppTypography.caption.copyWith(fontSize: 11),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 8),
                     Text(
-                      widget.date ?? '',
-                      style: AppTypography.caption,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  widget.title ?? '',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.section.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.description ?? '',
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.body.copyWith(
-                    color: theme.secondaryText,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (widget.onShare != null)
-                      IconButton(
-                        icon: const Icon(Icons.share_rounded, color: AppColors.success, size: 20),
-                        onPressed: widget.onShare,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                      widget.title ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.label.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: theme.primaryText,
                       ),
-                    const SizedBox(width: AppSpacing.md),
-                    AppPrimaryButton(
-                      text: 'Read More',
-                      variant: 'outline',
-                      width: 100,
-                      height: 36,
-                      onPressed: () async {
-                        if (widget.onTap != null) {
-                          await widget.onTap!();
-                        }
-                      },
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.description ?? '',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.caption.copyWith(
+                        color: theme.secondaryText,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (widget.onShare != null)
+                          IconButton(
+                            icon: Icon(Icons.share_rounded, color: theme.success, size: 18),
+                            onPressed: widget.onShare,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        const SizedBox(width: 12),
+                        AppPrimaryButton(
+                          text: 'Read More',
+                          variant: 'primary',
+                          fullWidth: false,
+                          width: 100,
+                          height: 32,
+                          onPressed: () async {
+                            if (widget.onTap != null) {
+                              await widget.onTap!();
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

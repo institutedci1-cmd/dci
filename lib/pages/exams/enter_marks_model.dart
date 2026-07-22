@@ -2,6 +2,8 @@ import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 
 class EnterMarksModel extends FlutterFlowModel {
+  TextEditingController? searchController;
+
   // Map of studentId to marks controller
   final Map<String, TextEditingController> marksControllers = {};
   // Map of studentId to remarks controller
@@ -12,6 +14,7 @@ class EnterMarksModel extends FlutterFlowModel {
 
   @override
   void dispose() {
+    searchController?.dispose();
     for (var controller in marksControllers.values) {
       controller.dispose();
     }

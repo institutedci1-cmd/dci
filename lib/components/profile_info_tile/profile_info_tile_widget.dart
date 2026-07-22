@@ -12,7 +12,7 @@ class ProfileInfoTileWidget extends StatefulWidget {
     String? label,
     String? value,
   })  : label = label ?? 'Email Address',
-        value = value ?? 'admin@dciteachers.com';
+        value = value ?? 'admin@deshmukhinstitute.com';
 
   final Widget? icon;
   final String label;
@@ -116,7 +116,7 @@ class _ProfileInfoTileWidgetState extends State<ProfileInfoTileWidget> {
                     Text(
                       valueOrDefault<String>(
                         widget.value,
-                        'admin@dciteachers.com',
+                        'admin@deshmukhinstitute.com',
                       ),
                       style: FlutterFlowTheme.of(context)
                           .bodyLarge

@@ -1,14 +1,15 @@
 import 'package:d_c_i_teacher_app/auth/firebase_auth/auth_util.dart';
 import 'package:d_c_i_teacher_app/backend/models/exam.dart';
+import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/text_field/text_field_widget.dart';
+import 'package:d_c_i_teacher_app/components/drop_down/drop_down_widget.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
-import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_drop_down.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/core/utils/responsive_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:d_c_i_teacher_app/pages/exams/add_exam_model.dart';
@@ -63,7 +64,7 @@ class _AddExamWidgetState extends ConsumerState<AddExamWidget> {
         createdBy: currentUserUid,
       );
 
-      await ref.read(examRepositoryProvider).saveExam(exam);
+      await ref.read(examServiceProvider).scheduleExam(exam);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exam scheduled successfully!')));
         context.safePop();
@@ -108,90 +109,73 @@ class _AddExamWidgetState extends ConsumerState<AddExamWidget> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Class and Subject
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 4, bottom: 6),
-                                  child: Text('Class', style: AppTypography.label.copyWith(color: AppColors.textSecondary)),
-                                ),
-                                studentsAsync.when(
-                                  data: (students) {
-                                    final options = students
-                                        .map((s) => s.className)
-                                        .where((c) => c.isNotEmpty)
-                                        .toSet()
-                                        .toList()..sort();
-                                    
-                                    return FlutterFlowDropDown<String>(
-                                      controller: _model.classDropdownController!,
-                                      options: options.isEmpty ? ['No Classes'] : options,
-                                      onChanged: (val) => setState(() => _model.selectedClass = val),
-                                      height: 48.0,
-                                      hintText: 'Select...',
-                                      textStyle: AppTypography.body,
-                                      fillColor: theme.secondaryBackground,
-                                      borderRadius: AppRadius.md,
-                                      borderWidth: 1.0,
-                                      borderColor: theme.alternate,
-                                      elevation: 0,
-                                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                                    );
-                                  },
-                                  loading: () => const SizedBox(
-                                    height: 48.0,
-                                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                  ),
-                                  error: (_, __) => const Text('Error', style: TextStyle(fontSize: 10)),
-                                ),
-                              ],
+                      ResponsiveUtils.responsiveRow(context, [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 4, bottom: 6),
+                              child: Text('Class', style: AppTypography.label.copyWith(color: theme.secondaryText)),
                             ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 4, bottom: 6),
-                                  child: Text('Subject', style: AppTypography.label.copyWith(color: AppColors.textSecondary)),
-                                ),
-                                subjectsAsync.when(
-                                  data: (subjects) {
-                                    final options = {
-                                      'English', 'Marathi', 'Math', 'Science',
-                                      ...subjects,
-                                    }.toList()..sort();
+                            studentsAsync.when(
+                              data: (students) {
+                                final options = students
+                                    .map((s) => s.className)
+                                    .where((c) => c.isNotEmpty)
+                                    .toSet()
+                                    .toList()..sort();
+                                
+                                return DropDownWidget(
+                                  label: 'Class',
+                                  labelPresent: false,
+                                  controller: _model.classDropdownController!,
+                                  options: options.isEmpty ? ['No Classes'] : options,
+                                  onChanged: (val) => setState(() => _model.selectedClass = val),
+                                  height: 48.0,
+                                  hint: 'Select...',
+                                );
+                              },
+                              loading: () => const SizedBox(
+                                height: 48.0,
+                                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                              ),
+                              error: (_, __) => const Text('Error', style: TextStyle(fontSize: 10)),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 4, bottom: 6),
+                              child: Text('Subject', style: AppTypography.label.copyWith(color: theme.secondaryText)),
+                            ),
+                            subjectsAsync.when(
+                              data: (subjects) {
+                                final options = {
+                                  'English', 'Marathi', 'Math', 'Science',
+                                  ...subjects,
+                                }.toList()..sort();
 
-                                    return FlutterFlowDropDown<String>(
-                                      controller: _model.subjectDropdownController!,
-                                      options: options,
-                                      onChanged: (val) => setState(() => _model.selectedSubject = val),
-                                      height: 48.0,
-                                      hintText: 'Select...',
-                                      textStyle: AppTypography.body,
-                                      fillColor: theme.secondaryBackground,
-                                      borderRadius: AppRadius.md,
-                                      borderWidth: 1.0,
-                                      borderColor: theme.alternate,
-                                      elevation: 0,
-                                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                                    );
-                                  },
-                                  loading: () => const SizedBox(
-                                    height: 48.0,
-                                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                  ),
-                                  error: (_, __) => const Text('Error', style: TextStyle(fontSize: 10)),
-                                ),
-                              ],
+                                return DropDownWidget(
+                                  label: 'Subject',
+                                  labelPresent: false,
+                                  controller: _model.subjectDropdownController!,
+                                  options: options,
+                                  onChanged: (val) => setState(() => _model.selectedSubject = val),
+                                  height: 48.0,
+                                  hint: 'Select...',
+                                );
+                              },
+                              loading: () => const SizedBox(
+                                height: 48.0,
+                                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                              ),
+                              error: (_, __) => const Text('Error', style: TextStyle(fontSize: 10)),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ]),
                       const SizedBox(height: AppSpacing.lg),
                       // Date Picker
                       _buildSelectorTile(
@@ -211,66 +195,52 @@ class _AddExamWidgetState extends ConsumerState<AddExamWidget> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       // Time Pickers
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildSelectorTile(
-                              context,
-                              label: 'Start Time',
-                              value: _model.startTime!.format(context),
-                              icon: Icons.access_time_rounded,
-                              onTap: () async {
-                                final picked = await showTimePicker(context: context, initialTime: _model.startTime!);
-                                if (picked != null) setState(() => _model.startTime = picked);
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: _buildSelectorTile(
-                              context,
-                              label: 'End Time',
-                              value: _model.endTime!.format(context),
-                              icon: Icons.access_time_filled_rounded,
-                              onTap: () async {
-                                final picked = await showTimePicker(context: context, initialTime: _model.endTime!);
-                                if (picked != null) setState(() => _model.endTime = picked);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+                      ResponsiveUtils.responsiveRow(context, [
+                        _buildSelectorTile(
+                          context,
+                          label: 'Start Time',
+                          value: _model.startTime!.format(context),
+                          icon: Icons.access_time_rounded,
+                          onTap: () async {
+                            final picked = await showTimePicker(context: context, initialTime: _model.startTime!);
+                            if (picked != null) setState(() => _model.startTime = picked);
+                          },
+                        ),
+                        _buildSelectorTile(
+                          context,
+                          label: 'End Time',
+                          value: _model.endTime!.format(context),
+                          icon: Icons.access_time_filled_rounded,
+                          onTap: () async {
+                            final picked = await showTimePicker(context: context, initialTime: _model.endTime!);
+                            if (picked != null) setState(() => _model.endTime = picked);
+                          },
+                        ),
+                      ]),
                       const SizedBox(height: AppSpacing.lg),
                       // Marks
-                      Row(
-                        children: [
-                          Expanded(
-                            child: wrapWithModel(
-                              model: _model.totalMarksModel,
-                              updateCallback: () => safeSetState(() {}),
-                              child: const TextFieldWidget(
-                                label: 'Total Marks',
-                                hint: '100',
-                                keyboardType: TextInputType.number,
-                                variant: 'outlined',
-                              ),
-                            ),
+                      ResponsiveUtils.responsiveRow(context, [
+                        wrapWithModel(
+                          model: _model.totalMarksModel,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Total Marks',
+                            hint: '100',
+                            keyboardType: TextInputType.number,
+                            variant: 'outlined',
                           ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: wrapWithModel(
-                              model: _model.passingMarksModel,
-                              updateCallback: () => safeSetState(() {}),
-                              child: const TextFieldWidget(
-                                label: 'Passing Marks',
-                                hint: '35',
-                                keyboardType: TextInputType.number,
-                                variant: 'outlined',
-                              ),
-                            ),
+                        ),
+                        wrapWithModel(
+                          model: _model.passingMarksModel,
+                          updateCallback: () => safeSetState(() {}),
+                          child: const TextFieldWidget(
+                            label: 'Passing Marks',
+                            hint: '35',
+                            keyboardType: TextInputType.number,
+                            variant: 'outlined',
                           ),
-                        ],
-                      ),
+                        ),
+                      ]),
                       const SizedBox(height: AppSpacing.lg),
                       // Venue
                       wrapWithModel(
@@ -330,7 +300,7 @@ class _AddExamWidgetState extends ConsumerState<AddExamWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: AppTypography.label.copyWith(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(label, style: AppTypography.label.copyWith(color: theme.secondaryText, fontSize: 13)),
                   const SizedBox(height: 2),
                   Text(value, style: AppTypography.body.copyWith(fontWeight: FontWeight.bold)),
                 ],
@@ -339,10 +309,10 @@ class _AddExamWidgetState extends ConsumerState<AddExamWidget> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(20),
+                color: theme.primary.withAlpha(20),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: AppColors.primary, size: 16),
+              child: Icon(icon, color: theme.primary, size: 16),
             ),
           ],
         ),
