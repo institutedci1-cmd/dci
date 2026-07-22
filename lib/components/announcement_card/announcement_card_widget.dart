@@ -122,7 +122,7 @@ class _AnnouncementCardWidgetState extends State<AnnouncementCardWidget> {
                         color: theme.primaryText,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Text(
                       widget.description ?? '',
                       maxLines: 2,

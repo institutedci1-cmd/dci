@@ -78,7 +78,7 @@ class AppStatCard extends StatelessWidget {
               color: theme.primaryText,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             title, 
             style: AppTypography.caption.copyWith(

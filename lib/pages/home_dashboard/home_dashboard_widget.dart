@@ -43,6 +43,7 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final access = ref.watch(accessControlProvider);
     return ResponsiveScaffold(
       currentIndex: 0,
       body: LayoutBuilder(
@@ -61,12 +62,15 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Management Modules',
-                            style: AppTypography.section.copyWith(fontWeight: FontWeight.bold),
-                          ),
+                          _buildSectionTitle('Management Modules'),
                           const SizedBox(height: AppSpacing.md),
-                          _buildModulesGrid(context, constraints.maxWidth),
+                          _buildModulesGrid(context, constraints.maxWidth, isManagement: true),
+                          if (access.canViewAdminReports || access.canViewFacultyList) ...[
+                            const SizedBox(height: AppSpacing.xl),
+                            _buildSectionTitle('Administrative Tools'),
+                            const SizedBox(height: AppSpacing.md),
+                            _buildModulesGrid(context, constraints.maxWidth, isManagement: false),
+                          ],
                           const SizedBox(height: AppSpacing.xl),
                           _buildAIHelpSection(context),
                           const SizedBox(height: AppSpacing.xl),
@@ -80,6 +84,13 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: AppTypography.section.copyWith(fontWeight: FontWeight.bold),
     );
   }
 
@@ -175,26 +186,38 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
     );
   }
 
-  Widget _buildModulesGrid(BuildContext context, double width) {
+  Widget _buildModulesGrid(BuildContext context, double width, {required bool isManagement}) {
     final crossAxisCount = width > 1000 ? 5 : (width > 700 ? 4 : (width > 400 ? 3 : 2));
     final access = ref.watch(accessControlProvider);
 
-    final modules = [
-      if (access.canSubmitDailyReport)
-        {'target': 'DailyReport', 'title': 'Daily Report', 'icon': Icons.assessment_rounded},
-      {'target': 'Attendance', 'title': 'Attendance', 'icon': Icons.fact_check_rounded},
-      {'target': 'Homework', 'title': 'Homework', 'icon': Icons.edit_note_rounded},
-      {'target': 'Students', 'title': 'Students', 'icon': Icons.people_rounded},
-      {'target': 'Exams', 'title': 'Exams', 'icon': Icons.assignment_rounded},
-      {'target': 'Results', 'title': 'Results', 'icon': Icons.grade_rounded},
-      {'target': 'Announcements', 'title': 'Announcements', 'icon': Icons.campaign_rounded},
-      if (access.canViewAdminReports)
-        {'target': 'ReportsDashboard', 'title': 'Admin Reports', 'icon': Icons.insights_rounded},
-      if (access.canViewFacultyList)
-        {'target': 'FacultyList', 'title': 'Faculty', 'icon': Icons.people_outline_rounded},
-      {'target': 'TeacherProfile', 'title': 'My Profile', 'icon': Icons.person_rounded},
-      {'target': 'AboutDCI', 'title': 'About DCI', 'icon': Icons.info_rounded},
-    ];
+    final List<Map<String, dynamic>> modules;
+    if (isManagement) {
+      modules = [
+        if (access.canSubmitDailyReport)
+          {'target': 'DailyReport', 'title': 'Daily Report', 'icon': Icons.assessment_rounded},
+        {'target': 'Attendance', 'title': 'Attendance', 'icon': Icons.fact_check_rounded},
+        {'target': 'Homework', 'title': 'Homework', 'icon': Icons.edit_note_rounded},
+        {'target': 'Students', 'title': 'Students', 'icon': Icons.people_rounded},
+        {'target': 'Exams', 'title': 'Exams', 'icon': Icons.assignment_rounded},
+        {'target': 'Results', 'title': 'Results', 'icon': Icons.grade_rounded},
+        {'target': 'Announcements', 'title': 'Announcements', 'icon': Icons.campaign_rounded},
+        {'target': 'TeacherProfile', 'title': 'My Profile', 'icon': Icons.person_rounded},
+        {'target': 'AboutDCI', 'title': 'About DCI', 'icon': Icons.info_rounded},
+      ];
+    } else {
+      modules = [
+        if (access.canViewAdminReports)
+          {'target': 'ReportsDashboard', 'title': 'Institute Reports', 'icon': Icons.insights_rounded},
+        if (access.canViewFacultyList)
+          {'target': 'FacultyList', 'title': 'Faculty Management', 'icon': Icons.people_outline_rounded},
+        if (access.canViewAdminReports) // Use this for audit logs visibility
+          {'target': 'AuditLogs', 'title': 'Audit Logs', 'icon': Icons.history_rounded},
+        if (access.canManageFullSettings || access.canManageLimitedSettings)
+          {'target': 'InstituteSettings', 'title': 'ERP Settings', 'icon': Icons.admin_panel_settings_outlined},
+      ];
+    }
+
+    if (modules.isEmpty) return const SizedBox.shrink();
 
     return GridView.builder(
       padding: EdgeInsets.zero,

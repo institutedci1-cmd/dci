@@ -52,7 +52,7 @@ class StudentCard extends StatelessWidget {
                           color: theme.primaryText,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Wrap(
                         spacing: 12,
                         runSpacing: 4,

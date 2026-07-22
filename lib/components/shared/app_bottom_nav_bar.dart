@@ -60,7 +60,7 @@ class AppBottomNavBar extends StatelessWidget {
               color: color,
               size: 24,
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 8),
             Text(
               label,
               style: FlutterFlowTheme.of(context).labelSmall.override(

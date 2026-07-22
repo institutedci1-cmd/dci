@@ -290,7 +290,7 @@ class _AboutDCIWidgetState extends ConsumerState<AboutDCIWidget> {
                 font: GoogleFonts.inter(fontWeight: FontWeight.w600),
               ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           'Empowering Educators, Inspiring Minds.',
           style: FlutterFlowTheme.of(context).labelSmall.override(

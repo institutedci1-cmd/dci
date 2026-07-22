@@ -109,8 +109,8 @@ class _ProfileHeaderWidgetState extends State<ProfileHeaderWidget> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(9999.0),
                   child: Container(
-                    width: 110.0,
-                    height: 110.0,
+                    width: 90.0,
+                    height: 90.0,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(9999.0),
                       shape: BoxShape.rectangle,
@@ -183,7 +183,7 @@ class _ProfileHeaderWidgetState extends State<ProfileHeaderWidget> {
                             lineHeight: 1.47,
                           ),
                     ),
-                  ].divide(const SizedBox(height: 4.0)),
+                  ].divide(const SizedBox(height: 8.0)),
                 ),
               ].divide(const SizedBox(height: 8.0)),
             ),

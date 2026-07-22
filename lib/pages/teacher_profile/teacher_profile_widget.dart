@@ -360,7 +360,7 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4.0),
+                const SizedBox(height: 8.0),
                 Text(
                   'This profile is managed by the Institutional HR department.',
                   style: FlutterFlowTheme.of(context).bodySmall,
@@ -407,18 +407,20 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
             title: 'Manage Faculty',
             onTap: () => context.pushNamed(FacultyListWidget.routeName),
           ),
+        if (access.canManageFullSettings || access.canManageLimitedSettings)
           _buildListTile(
-          context,
-          icon: Icons.admin_panel_settings_outlined,
-          title: 'Institute Settings',
-          onTap: () => context.pushNamed(InstituteSettingsWidget.routeName),
-        ),
-        _buildListTile(
-          context,
-          icon: Icons.history_rounded,
-          title: 'Audit Logs',
-          onTap: () => context.pushNamed(AuditLogsWidget.routeName),
-        ),
+            context,
+            icon: Icons.admin_panel_settings_outlined,
+            title: 'Institute Settings',
+            onTap: () => context.pushNamed(InstituteSettingsWidget.routeName),
+          ),
+        if (access.canViewAdminReports)
+          _buildListTile(
+            context,
+            icon: Icons.history_rounded,
+            title: 'Audit Logs',
+            onTap: () => context.pushNamed(AuditLogsWidget.routeName),
+          ),
         if (access.canManageTeachers)
           _buildListTile(
             context,

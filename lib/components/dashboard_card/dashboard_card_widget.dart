@@ -120,7 +120,7 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 8),
                       Text(
                         widget.title,
                         textAlign: TextAlign.center,

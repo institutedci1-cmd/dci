@@ -81,7 +81,7 @@ class _ExamsDashboardWidgetState extends ConsumerState<ExamsDashboardWidget> {
                       const Icon(Icons.analytics_outlined, size: 14, color: AppColors.secondary),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   examsAsync.when(
                     data: (exams) {
                       final totalExams = exams.length;
@@ -137,7 +137,7 @@ class _ExamsDashboardWidgetState extends ConsumerState<ExamsDashboardWidget> {
 
                   // Consolidated Action Grid (3 columns)
                   Text('QUICK ACTIONS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   GridView.count(
                     crossAxisCount: 3,
                     crossAxisSpacing: 8,
@@ -228,7 +228,7 @@ class _ExamsDashboardWidgetState extends ConsumerState<ExamsDashboardWidget> {
                   ),
                   child: Icon(icon, size: 12, color: color),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Text(value, style: AppTypography.title.copyWith(fontSize: 18, height: 1.1)),
                 Text(label, style: AppTypography.caption.copyWith(fontSize: 11, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
               ],
@@ -263,7 +263,7 @@ class _ExamsDashboardWidgetState extends ConsumerState<ExamsDashboardWidget> {
                 ),
                 child: Icon(icon, size: 18, color: color),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textPrimary)),
             ],
           ),

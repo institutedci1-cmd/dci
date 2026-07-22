@@ -61,7 +61,7 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
                 children: [
                   // Statistics Section
                   Text('STATISTICS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   reportsAsync.when(
                     data: (reports) {
                       final totalReports = reports.length;
@@ -86,7 +86,7 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
                   
                   // Quick Actions Grid
                   Text('QUICK ACTIONS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       _buildActionBtn(context, 'New Report', Icons.add_circle_outline_rounded, theme.primary, () => context.pushNamed(DailyReportFormWidget.routeName)),
@@ -149,7 +149,7 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
           child: Column(
             children: [
               Icon(icon, size: 14, color: color),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(value, style: AppTypography.label.copyWith(fontSize: 14, color: theme.primaryText, fontWeight: FontWeight.bold)),
               Text(label, style: AppTypography.caption.copyWith(fontSize: 9, color: theme.secondaryText), overflow: TextOverflow.ellipsis),
             ],
@@ -178,7 +178,7 @@ class _ReportsDashboardWidgetState extends ConsumerState<ReportsDashboardWidget>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(icon, size: 20, color: color),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 10, color: color)),
               ],
             ),

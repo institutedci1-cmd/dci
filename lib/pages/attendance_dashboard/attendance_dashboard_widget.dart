@@ -63,7 +63,7 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
                 children: [
                   // Statistics Section
                   Text('STATISTICS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   attendanceLogsAsync.when(
                     data: (records) {
                       final totalMarked = records.length;
@@ -87,7 +87,7 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
 
                   // Quick Actions Grid
                   Text('QUICK ACTIONS', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       _buildActionBtn(context, 'Mark Now', Icons.check_box_rounded, theme.primary, () => context.pushNamed(AttendanceTrackerWidget.routeName)),
@@ -161,7 +161,7 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
           child: Column(
             children: [
               Icon(icon, size: 14, color: color),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(value, style: AppTypography.label.copyWith(fontSize: 14, color: theme.primaryText, fontWeight: FontWeight.bold)),
               Text(label, style: AppTypography.caption.copyWith(fontSize: 9, color: theme.secondaryText), overflow: TextOverflow.ellipsis),
             ],
@@ -190,7 +190,7 @@ class _AttendanceDashboardWidgetState extends ConsumerState<AttendanceDashboardW
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(icon, size: 20, color: color),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 11, color: theme.primaryText)),
               ],
             ),
