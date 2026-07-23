@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/backend/models/daily_report_template.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/interfaces/i_daily_report_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,7 +24,8 @@ class DailyReportRepository implements IDailyReportRepository {
 
   @override
   Future<DailyReport?> getLastReport() async {
-    final reports = await getReports(limit: 1);
+    final user = _auth.currentUser;
+    final reports = await getReports(limit: 1, creatorId: user?.uid);
     return reports.isNotEmpty ? reports.first : null;
   }
 
@@ -96,5 +98,25 @@ class DailyReportRepository implements IDailyReportRepository {
         .get();
 
     return querySnapshot.docs.map((doc) => DailyReport.fromFirestore(doc)).toList();
+  }
+
+  // Templates
+  Future<void> saveTemplate(DailyReportTemplate template) async {
+    await _firestore.collection('daily_report_templates').add(template.toFirestore());
+  }
+
+  Stream<List<DailyReportTemplate>> getTemplatesStream() {
+    final user = _auth.currentUser;
+    if (user == null) return Stream.value([]);
+
+    return _firestore
+        .collection('daily_report_templates')
+        .where('createdBy', isEqualTo: user.uid)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => DailyReportTemplate.fromFirestore(doc)).toList());
+  }
+
+  Future<void> deleteTemplate(String id) async {
+    await _firestore.collection('daily_report_templates').doc(id).delete();
   }
 }

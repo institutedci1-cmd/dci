@@ -1,14 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 
-class AppSearchBar extends StatelessWidget {
+class AppSearchBar extends StatefulWidget {
   final String hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
   final VoidCallback? onFilterTap;
   final bool filterPresent;
   final TextEditingController? controller;
+  final Duration debounceDuration;
 
   const AppSearchBar({
     super.key,
@@ -18,7 +20,28 @@ class AppSearchBar extends StatelessWidget {
     this.onFilterTap,
     this.filterPresent = false,
     this.controller,
+    this.debounceDuration = const Duration(milliseconds: 300),
   });
+
+  @override
+  State<AppSearchBar> createState() => _AppSearchBarState();
+}
+
+class _AppSearchBarState extends State<AppSearchBar> {
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(widget.debounceDuration, () {
+      widget.onChanged?.call(query);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +67,10 @@ class AppSearchBar extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              controller: controller,
-              onChanged: onChanged,
+              controller: widget.controller,
+              onChanged: _onSearchChanged,
               decoration: InputDecoration(
-                hintText: hintText,
+                hintText: widget.hintText,
                 hintStyle: AppTypography.caption.copyWith(color: theme.secondaryText),
                 border: InputBorder.none,
                 isDense: true,
@@ -56,27 +79,28 @@ class AppSearchBar extends StatelessWidget {
               style: AppTypography.body.copyWith(fontSize: 14),
             ),
           ),
-          if (controller != null && controller!.text.isNotEmpty)
+          if (widget.controller != null && widget.controller!.text.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.close_rounded, size: 20),
               onPressed: () {
-                controller?.clear();
-                if (onClear != null) onClear!();
-                if (onChanged != null) onChanged!('');
+                widget.controller?.clear();
+                _debounce?.cancel();
+                widget.onClear?.call();
+                widget.onChanged?.call('');
               },
               color: FlutterFlowTheme.of(context).secondaryText,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             )
-          else if (onClear != null)
+          else if (widget.onClear != null)
             IconButton(
               icon: const Icon(Icons.close_rounded, size: 20),
-              onPressed: onClear,
+              onPressed: widget.onClear,
               color: theme.secondaryText,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
-          if (filterPresent) ...[
+          if (widget.filterPresent) ...[
             VerticalDivider(
               color: theme.alternate,
               width: 24,
@@ -86,7 +110,7 @@ class AppSearchBar extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.filter_list_rounded, color: theme.primary, size: 20),
-              onPressed: onFilterTap,
+              onPressed: widget.onFilterTap,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),

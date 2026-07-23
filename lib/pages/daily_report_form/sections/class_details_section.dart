@@ -14,10 +14,12 @@ class ClassDetailsSection extends StatelessWidget {
     super.key,
     required this.model,
     required this.onChanged,
+    this.showErrors = false,
   });
 
   final DailyReportFormModel model;
   final VoidCallback onChanged;
+  final bool showErrors;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +52,7 @@ class ClassDetailsSection extends StatelessWidget {
               onChanged();
             },
             controller: model.dropdownValueController1,
+            error: showErrors && model.dropdownValue1 == null,
           ),
           _buildDropDownField(
             context,
@@ -62,6 +65,7 @@ class ClassDetailsSection extends StatelessWidget {
               onChanged();
             },
             controller: model.dropdownValueController2,
+            error: showErrors && model.dropdownValue2 == null,
           ),
         ]),
         _buildDropDownField(
@@ -77,6 +81,7 @@ class ClassDetailsSection extends StatelessWidget {
           },
           controller: model.dropdownValueController3,
           fullWidth: true,
+          error: showErrors && model.dropdownValue3 == null,
         ),
         wrapWithModel(
           model: model.textFieldModel3,
@@ -94,6 +99,7 @@ class ClassDetailsSection extends StatelessWidget {
             leadingIconPresent: true,
             hint: 'Enter chapter name',
             variant: 'outlined',
+            onChange: (_) => onChanged(),
           ),
         ),
       ].divide(const SizedBox(height: 12.0)),
@@ -110,6 +116,7 @@ class ClassDetailsSection extends StatelessWidget {
     FormFieldController<String>? controller,
     IconData icon = Icons.arrow_drop_down_rounded,
     bool fullWidth = false,
+    bool error = false,
   }) {
     return DropDownWidget(
       label: label,
@@ -119,6 +126,7 @@ class ClassDetailsSection extends StatelessWidget {
       onChanged: onChanged,
       fullWidth: fullWidth,
       icon: Icon(icon, color: AppColors.textSecondary, size: 24),
+      error: error,
     );
   }
 }

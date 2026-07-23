@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:printing/printing.dart';
 import 'package:uuid/uuid.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/backend/models/exam.dart';
 import 'package:d_c_i_teacher_app/backend/models/student_attendance.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/backend/models/daily_report.dart';
@@ -150,6 +151,39 @@ class ExcelService {
     }
 
     return await _saveAndShare(excel, 'Daily_Reports.xlsx');
+  }
+
+  static Future<bool> exportExams(List<Exam> exams) async {
+    if (exams.isEmpty) return false;
+
+    final excel = Excel.createExcel();
+    final sheet = excel['Exams'];
+    
+    if (excel.tables.containsKey('Sheet1')) {
+      excel.delete('Sheet1');
+    }
+
+    sheet.appendRow([
+      TextCellValue('Date'),
+      TextCellValue('Class'),
+      TextCellValue('Subject'),
+      TextCellValue('Max Marks'),
+      TextCellValue('Venue'),
+      TextCellValue('Status'),
+    ]);
+
+    for (final exam in exams) {
+      sheet.appendRow([
+        TextCellValue(dateTimeFormat('yMMMd', exam.date)),
+        TextCellValue(exam.className),
+        TextCellValue(exam.subject),
+        IntCellValue(exam.totalMarks),
+        TextCellValue(exam.venue),
+        TextCellValue(exam.isPublished ? 'Published' : 'Draft'),
+      ]);
+    }
+
+    return await _saveAndShare(excel, 'Exams_Summary.xlsx');
   }
 
   static Future<List<Map<String, String>>> importStudents() async {

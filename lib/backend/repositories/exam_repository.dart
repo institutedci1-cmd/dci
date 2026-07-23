@@ -45,6 +45,19 @@ class ExamRepository {
         });
   }
 
+  Future<List<Exam>> getExamsByTeacher(String teacherUid) async {
+    final querySnapshot = await _examsCollection
+        .where('createdBy', isEqualTo: teacherUid)
+        .get();
+
+    final exams = querySnapshot.docs
+        .map((doc) => Exam.fromFirestore(doc))
+        .toList();
+    
+    exams.sort((a, b) => b.date.compareTo(a.date));
+    return exams;
+  }
+
   Stream<List<Exam>> getExamsByDateStream(DateTime date) {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
@@ -65,6 +78,11 @@ class ExamRepository {
   Future<void> deleteExam(String examId) async {
     if (examId.isEmpty) return;
     await _examsCollection.doc(examId).delete();
+  }
+
+  Future<void> setExamPublishStatus(String examId, bool isPublished) async {
+    if (examId.isEmpty) return;
+    await _examsCollection.doc(examId).update({'isPublished': isPublished});
   }
 
   Stream<List<Exam>> getExamsByClassStream(String className) {

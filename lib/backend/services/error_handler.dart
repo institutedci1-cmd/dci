@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/audit_repository.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 
@@ -50,19 +51,66 @@ class ErrorHandler {
 
     if (!context.mounted) return;
 
+    final theme = FlutterFlowTheme.of(context);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: FlutterFlowTheme.of(context).error,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
+            if (errorContext != null)
+              Text('Context: $errorContext', style: const TextStyle(fontSize: 10)),
+          ],
+        ),
+        backgroundColor: theme.error,
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 10),
         action: SnackBarAction(
-          label: 'DISMISS',
+          label: 'REPORT',
           textColor: Colors.white,
           onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            _reportToAdmin(error, errorContext);
           },
         ),
       ),
     );
+  }
+
+  static void _reportToAdmin(dynamic error, String? errorContext) async {
+    final String body = '''
+Error Details:
+----------------
+Context: ${errorContext ?? 'N/A'}
+Error: ${error.toString()}
+
+App Version: 1.0.5
+Timestamp: ${DateTime.now()}
+''';
+
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'deshmukhcoachinginstitute@gmail.com',
+      query: encodeQueryParameters({
+        'subject': 'ERP Error Report - ${DateTime.now().millisecondsSinceEpoch}',
+        'body': body,
+      }),
+    );
+
+    try {
+      if (await canLaunchUrl(emailLaunchUri)) {
+        await launchUrl(emailLaunchUri);
+      }
+    } catch (e) {
+      debugPrint('Could not launch email client: $e');
+    }
+  }
+
+  static String? encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map((MapEntry<String, String> e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
   }
 }

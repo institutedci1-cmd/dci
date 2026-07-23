@@ -1,3 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/pages/attendance_tracker/attendance_tracker_widget.dart';
+import 'package:d_c_i_teacher_app/pages/exams/enter_marks_widget.dart';
 import 'package:d_c_i_teacher_app/backend/models/exam_result.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/result_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +16,7 @@ import 'package:d_c_i_teacher_app/backend/models/exam.dart';
 import 'package:d_c_i_teacher_app/backend/models/homework_assignment.dart';
 import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/attendance_repository.dart';
+import 'package:d_c_i_teacher_app/backend/models/daily_report_template.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/daily_report_repository.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/homework_repository.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/exam_repository.dart';
@@ -204,10 +210,66 @@ final recentReportsProvider = StreamProvider.family<List<DailyReport>, int>((ref
   return ref.watch(dailyReportRepositoryProvider).getRecentReports(limit: limit, creatorId: creatorId);
 });
 
+final dailyReportTemplatesStreamProvider = StreamProvider<List<DailyReportTemplate>>((ref) {
+  return ref.watch(dailyReportRepositoryProvider).getTemplatesStream();
+});
+
 final subjectsStreamProvider = StreamProvider<List<String>>((ref) {
   return ref.watch(configRepositoryProvider).getSubjectsStream();
 });
 
 final teacherSubjectsProvider = FutureProvider<List<String>>((ref) async {
   return ref.read(userRepositoryProvider).getAllUserSubjects();
+});
+
+final pendingTasksProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final List<Map<String, dynamic>> tasks = [];
+  final access = ref.watch(accessControlProvider);
+  
+  if (access.isStudent) return tasks;
+
+  final examRepo = ref.read(examRepositoryProvider);
+  final attendanceRepo = ref.read(attendanceRepositoryProvider);
+  
+  // 1. Check for today's attendance
+  final today = DateTime.now();
+  try {
+    final hasAttendance = await attendanceRepo.hasAttendanceForDate(today);
+    if (!hasAttendance) {
+      tasks.add({
+        'type': 'attendance',
+        'title': 'Mark Today\'s Attendance',
+        'subtitle': 'Required for student records',
+        'icon': Icons.fact_check_rounded,
+        'color': AppColors.warning,
+        'route': AttendanceTrackerWidget.routeName,
+      });
+    }
+  } catch (e) {
+    debugPrint('PendingTasks: Error checking attendance: $e');
+  }
+
+  // 2. Check for past exams without published results
+  if (access.canEnterMarks && access.user != null) {
+    try {
+      final myExams = await examRepo.getExamsByTeacher(access.user!.uid);
+      final pastExamsWithoutResults = myExams.where((e) => e.date.isBefore(today) && !e.isPublished).toList();
+      
+      for (final exam in pastExamsWithoutResults) {
+        tasks.add({
+          'type': 'marks',
+          'title': 'Publish Results: ${exam.subject}',
+          'subtitle': 'Exam on ${dateTimeFormat('yMMMd', exam.date)}',
+          'icon': Icons.grade_rounded,
+          'color': AppColors.primary,
+          'route': EnterMarksWidget.routeName,
+          'extra': {'exam': exam},
+        });
+      }
+    } catch (e) {
+      debugPrint('PendingTasks: Error checking exams: $e');
+    }
+  }
+
+  return tasks;
 });

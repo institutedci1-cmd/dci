@@ -20,6 +20,9 @@ import 'package:d_c_i_teacher_app/pages/home_dashboard/home_dashboard_widget.dar
 import 'package:d_c_i_teacher_app/core/services/navigation_service.dart';
 import 'package:d_c_i_teacher_app/core/services/report_card_service.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
+import 'package:d_c_i_teacher_app/pages/staff_analytics/staff_analytics_widget.dart';
+import 'package:d_c_i_teacher_app/pages/ai_chat/ai_chat_widget.dart';
+import 'package:d_c_i_teacher_app/backend/services/excel_service/excel_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'exams_dashboard_model.dart';
@@ -149,11 +152,12 @@ class _ExamsDashboardWidgetState extends ConsumerState<ExamsDashboardWidget> {
                       _buildActionBtn(context, 'Create', Icons.add_task_rounded, theme.primary, () => context.pushNamed(AddExamWidget.routeName)),
                       _buildActionBtn(context, 'Marks', Icons.edit_note_rounded, AppColors.info, () => context.pushNamed(ExamsWidget.routeName)),
                       _buildActionBtn(context, 'Publish', Icons.publish_rounded, AppColors.success, () => context.pushNamed(ExamsWidget.routeName)),
-                      _buildActionBtn(context, 'Monthly', Icons.insights_rounded, theme.primary, () => context.pushNamed(MonthlyReportWidget.routeName)),
+                      _buildActionBtn(context, 'Merit List', Icons.format_list_numbered_rounded, theme.primary, () => _showExamSelectionForMerit(context, ref)),
                       _buildActionBtn(context, 'Class', Icons.grade_rounded, AppColors.info, () => context.pushNamed(ClassWiseReportWidget.routeName)),
-                      _buildActionBtn(context, 'Report', Icons.print_rounded, theme.secondary, () => _showStudentSelectionDialog(context, ref)),
+                      _buildActionBtn(context, 'Print Cards', Icons.print_rounded, theme.secondary, () => _showStudentSelectionDialog(context, ref)),
                       _buildActionBtn(context, 'Faculty', Icons.person_search_rounded, AppColors.warning, () => context.pushNamed(TeacherWiseReportWidget.routeName)),
-                      _buildActionBtn(context, 'Date', Icons.calendar_month_rounded, AppColors.secondary, () => context.pushNamed(DateWiseReportWidget.routeName)),
+                      _buildActionBtn(context, 'Analytics', Icons.bar_chart_rounded, AppColors.success, () => context.pushNamed(StaffAnalyticsWidget.routeName)),
+                      _buildActionBtn(context, 'Export', Icons.file_download_outlined, AppColors.secondary, () => _exportAllExams(ref)),
                     ],
                   ),
 
@@ -299,7 +303,35 @@ class _ExamsDashboardWidgetState extends ConsumerState<ExamsDashboardWidget> {
           ),
           title: Text('${exam.subject} - ${exam.className}', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
           subtitle: Text(dateTimeFormat('yMMMd', exam.date), style: AppTypography.caption.copyWith(fontSize: 11)),
-          trailing: const Icon(Icons.chevron_right_rounded, size: 16),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!exam.isPublished && exam.date.isBefore(DateTime.now()))
+                IconButton(
+                  icon: const Icon(Icons.publish_rounded, color: AppColors.success, size: 18),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Publish Results'),
+                        content: Text('Publish results for ${exam.subject} - ${exam.className}?'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Publish')),
+                        ],
+                      ),
+                    ) ?? false;
+                    if (confirm) {
+                      await ref.read(examRepositoryProvider).setExamPublishStatus(exam.id, true);
+                    }
+                  },
+                ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right_rounded, size: 16),
+            ],
+          ),
           onTap: () => context.pushNamed(ExamsWidget.routeName),
         ),
       ),
@@ -388,6 +420,49 @@ class _ExamsDashboardWidgetState extends ConsumerState<ExamsDashboardWidget> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Future<void> _exportAllExams(WidgetRef ref) async {
+    final exams = await ref.read(examRepositoryProvider).getExamsStream(limit: 500).first;
+    if (exams.isEmpty) return;
+    
+    final success = await ExcelService.exportExams(exams);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(success ? 'Exams summary exported!' : 'Export failed.')),
+      );
+    }
+  }
+
+  Future<void> _showExamSelectionForMerit(BuildContext context, WidgetRef ref) async {
+    final exams = await ref.read(examRepositoryProvider).getExamsStream(limit: 50).first;
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Exam'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: exams.length,
+            separatorBuilder: (_, __) => const Divider(),
+            itemBuilder: (context, index) {
+              final exam = exams[index];
+              return ListTile(
+                title: Text('${exam.subject} - ${exam.className}'),
+                subtitle: Text(dateTimeFormat('yMMMd', exam.date)),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.pushNamed(MeritListWidget.routeName, extra: {'exam': exam});
+                },
+              );
+            },
+          ),
+        ),
       ),
     );
   }

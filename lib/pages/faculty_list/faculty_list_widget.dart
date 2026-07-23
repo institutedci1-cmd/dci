@@ -5,8 +5,10 @@ import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_search_bar.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
+import 'package:d_c_i_teacher_app/pages/add_user/add_user_widget.dart';
 import 'package:d_c_i_teacher_app/pages/edit_profile/edit_profile_widget.dart';
 import 'package:d_c_i_teacher_app/pages/teacher_profile/teacher_profile_widget.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +83,24 @@ class _FacultyListWidgetState extends ConsumerState<FacultyListWidget> {
                   }).toList();
 
                   if (filteredUsers.isEmpty) {
-                    return const Center(child: Text('No faculty members found.'));
+                    return AppEmptyState(
+                      icon: Icons.people_outline_rounded,
+                      title: 'No faculty found',
+                      description: _searchQuery.isEmpty 
+                          ? 'No staff members registered yet.' 
+                          : 'No matching faculty for "$_searchQuery".',
+                      actionLabel: _searchQuery.isNotEmpty ? 'Clear Search' : 'Add Member',
+                      onActionPressed: () {
+                        if (_searchQuery.isNotEmpty) {
+                          setState(() {
+                            _model.searchController?.clear();
+                            _searchQuery = '';
+                          });
+                        } else {
+                          context.pushNamed(AddUserWidget.routeName);
+                        }
+                      },
+                    );
                   }
 
                   return ListView.separated(

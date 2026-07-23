@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "d_c_i_teacher_app",
-      "version": "1.0.4+6",
+      "version": "1.0.5+7",
       "dependencies": [
         "auto_size_text",
         "cached_network_image",

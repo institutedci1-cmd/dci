@@ -5,6 +5,7 @@ import 'package:d_c_i_teacher_app/components/shared/app_search_bar.dart';
 import 'package:d_c_i_teacher_app/components/shared/compact_student_card.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_shimmer.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/excel_service/excel_service.dart';
@@ -107,7 +108,11 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
                     },
                     child: filteredStudentsAsync.when(
                       data: (filteredStudents) => _buildStudentList(context, filteredStudents, allStudents.isEmpty, notifier),
-                      loading: () => const Center(child: CircularProgressIndicator()),
+                      loading: () => ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: 10,
+                        itemBuilder: (context, index) => AppShimmer.listTile(),
+                      ),
                       error: (error, stack) => _buildErrorState(context, error),
                     ),
                   ),

@@ -40,6 +40,19 @@ class AttendanceRepository implements IAttendanceRepository {
     return query.docs.isNotEmpty;
   }
 
+  Future<bool> hasAttendanceForDate(DateTime date) async {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    final query = await _studentAttendanceCollection
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where('date', isLessThan: Timestamp.fromDate(endOfDay))
+        .limit(1)
+        .get();
+
+    return query.docs.isNotEmpty;
+  }
+
   @override
   @override
   @override

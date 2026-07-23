@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:d_c_i_teacher_app/backend/models/student.dart';
 import 'package:d_c_i_teacher_app/backend/models/daily_report.dart';
@@ -83,11 +85,18 @@ class DailyReportNotifier extends AutoDisposeAsyncNotifier<DailyReportFormState>
     final teacherNames = teachers.map((t) => t.displayName).toSet().toList();
     final classNames = allStudents.map((s) => s.className).where((c) => c.isNotEmpty).toSet().toList();
 
+    String? initialTeacher;
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      initialTeacher = teachers.firstWhereOrNull((t) => t.uid == currentUser.uid)?.displayName;
+    }
+
     return DailyReportFormState(
       teacherOptions: teacherNames..sort(),
       subjectOptions: {'English', 'Marathi', 'Math', 'Science', ...subjects}.toList()..sort(),
       classOptions: classNames..sort(),
       lastReport: lastReport,
+      selectedTeacher: initialTeacher,
     );
   }
 

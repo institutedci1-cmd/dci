@@ -84,6 +84,28 @@ class _EnterMarksWidgetState extends ConsumerState<EnterMarksWidget> {
     }
   }
 
+  Future<void> _publishResults(MarksEntryNotifier notifier) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Publish Results'),
+        content: const Text('Are you sure you want to publish results? This will notify students and parents.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Publish')),
+        ],
+      ),
+    ) ?? false;
+
+    if (confirm) {
+      await ref.read(examRepositoryProvider).setExamPublishStatus(widget.exam.id, true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Results published successfully!')));
+        context.safePop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
@@ -191,11 +213,28 @@ class _EnterMarksWidgetState extends ConsumerState<EnterMarksWidget> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: marksEntryStateAsync.when(
-                        data: (state) => AppPrimaryButton(
-                          text: state.isSaving ? 'Saving...' : 'Save All Results',
-                          height: 44,
-                          isLoading: state.isSaving,
-                          onPressed: state.isSaving ? null : () => _saveResults(classStudents, marksEntryNotifier),
+                        data: (state) => Row(
+                          children: [
+                            Expanded(
+                              child: AppPrimaryButton(
+                                text: state.isSaving ? 'Saving...' : 'Save Marks',
+                                height: 44,
+                                isLoading: state.isSaving,
+                                onPressed: state.isSaving ? null : () => _saveResults(classStudents, marksEntryNotifier),
+                              ),
+                            ),
+                            if (!widget.exam.isPublished) ...[
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: AppPrimaryButton(
+                                  text: 'Publish',
+                                  color: AppColors.success,
+                                  height: 44,
+                                  onPressed: state.isSaving ? null : () => _publishResults(marksEntryNotifier),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         loading: () => const CircularProgressIndicator(),
                         error: (err, _) => Text('Error: $err'),

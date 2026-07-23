@@ -12,6 +12,7 @@ class Exam {
   final String venue;
   final String description;
   final String createdBy;
+  final bool isPublished;
   final DateTime? createdAt;
 
   Exam({
@@ -26,6 +27,7 @@ class Exam {
     required this.venue,
     required this.description,
     required this.createdBy,
+    this.isPublished = false,
     this.createdAt,
   });
 
@@ -43,6 +45,7 @@ class Exam {
       venue: data['venue']?.toString() ?? '',
       description: data['description']?.toString() ?? '',
       createdBy: data['createdBy']?.toString() ?? '',
+      isPublished: data['isPublished'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
@@ -59,6 +62,7 @@ class Exam {
       'venue': venue,
       'description': description,
       'createdBy': createdBy,
+      'isPublished': isPublished,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
     };
   }

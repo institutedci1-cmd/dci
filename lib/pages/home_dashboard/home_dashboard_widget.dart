@@ -8,6 +8,8 @@ import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/components/shared/responsive_scaffold.dart';
+import 'package:d_c_i_teacher_app/core/utils/universal_search.dart';
+import 'package:d_c_i_teacher_app/components/shared/app_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,6 +63,8 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildPendingTasks(context),
+                          const SizedBox(height: AppSpacing.xl),
                           _buildSectionTitle('Management Modules'),
                           const SizedBox(height: AppSpacing.md),
                           _buildModulesGrid(context, constraints.maxWidth, isManagement: true),
@@ -90,6 +94,97 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
     return Text(
       title,
       style: AppTypography.section.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildPendingTasks(BuildContext context) {
+    final tasksAsync = ref.watch(pendingTasksProvider);
+
+    return tasksAsync.when(
+      data: (tasks) {
+        if (tasks.isEmpty) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle('Pending Tasks'),
+            const SizedBox(height: AppSpacing.md),
+            SizedBox(
+              height: 100,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: tasks.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  return _buildTaskCard(context, task);
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Pending Tasks'),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              AppShimmer(width: 200, height: 100, borderRadius: 12),
+              const SizedBox(width: 12),
+              AppShimmer(width: 200, height: 100, borderRadius: 12),
+            ],
+          ),
+        ],
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildTaskCard(BuildContext context, Map<String, dynamic> task) {
+    final theme = FlutterFlowTheme.of(context);
+    final color = task['color'] as Color;
+
+    return Container(
+      width: 240,
+      decoration: BoxDecoration(
+        color: theme.secondaryBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withAlpha(50)),
+        boxShadow: AppShadows.low,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.pushNamed(task['route'] as String, extra: task['extra']),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: color.withAlpha(20), shape: BoxShape.circle),
+                  child: Icon(task['icon'] as IconData, color: color, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(task['title'] as String, style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(task['subtitle'] as String, style: AppTypography.caption.copyWith(fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: theme.secondaryText, size: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -162,7 +257,32 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
           ),
         );
       },
-      loading: () => Container(height: 140, color: theme.primary),
+      loading: () => Column(
+        children: [
+          Container(
+            height: 140, 
+            padding: const EdgeInsets.fromLTRB(24, 44, 24, 24),
+            decoration: BoxDecoration(color: theme.primary),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppShimmer(width: 100, height: 12, borderRadius: 4, margin: const EdgeInsets.only(bottom: 8)),
+                      AppShimmer(width: 180, height: 24, borderRadius: 4, margin: const EdgeInsets.only(bottom: 12)),
+                      AppShimmer(width: 140, height: 12, borderRadius: 4),
+                    ],
+                  ),
+                ),
+                AppShimmer(width: 40, height: 40, borderRadius: 12),
+                const SizedBox(width: 12),
+                AppShimmer(width: 40, height: 40, borderRadius: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
       error: (err, _) => Text('Error: $err'),
     );
   }
@@ -171,6 +291,12 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
     final theme = FlutterFlowTheme.of(context);
     return Row(
       children: [
+        FlutterFlowIconButton(
+          borderRadius: 12.0, buttonSize: 40.0, fillColor: theme.onPrimary15,
+          icon: Icon(Icons.search_rounded, color: theme.onPrimary, size: 24.0),
+          onPressed: () => showSearch(context: context, delegate: UniversalSearchDelegate(ref)),
+        ),
+        const SizedBox(width: 12),
         Stack(
           alignment: const AlignmentDirectional(1.0, -1.0),
           children: [
@@ -254,6 +380,17 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
           icon: Icon(module['icon'] as IconData),
         );
       },
+    );
+  }
+
+  Widget _buildGridShimmer(int count, int crossAxisCount) {
+    return GridView.builder(
+      padding: EdgeInsets.zero,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: 1.2,
+      ),
+      itemCount: count, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => AppShimmer.card(height: 100, margin: EdgeInsets.zero),
     );
   }
 
