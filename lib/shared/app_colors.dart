@@ -25,11 +25,4 @@ class AppColors {
   static const Color textSecondary = Color(0xFF757575); // Grey 600
   static const Color textMuted = Color(0xFF9E9E9E); // Grey 500
   static const Color outline = Color(0xFFE0E0E0); // Grey 300
-
-  // Opacity variations for Backgrounds/Badges
-  static Color successSubtle = const Color(0xFFE8F5E9); 
-  static Color warningSubtle = const Color(0xFFFFF3E0); 
-  static Color errorSubtle = const Color(0xFFFFEBEE); 
-  static Color infoSubtle = const Color(0xFFE1F5FE); 
-  static Color primarySubtle = const Color(0xFFE3F2FD); 
 }

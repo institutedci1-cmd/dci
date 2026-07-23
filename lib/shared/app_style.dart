@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 export 'package:d_c_i_teacher_app/shared/app_colors.dart';
-import 'package:d_c_i_teacher_app/shared/app_colors.dart';
 
 class AppSpacing {
   static const double zero = 0.0;
@@ -55,7 +54,7 @@ class AppRadius {
 class AppShadows {
   static List<BoxShadow> get low => [
     BoxShadow(
-      color: const Color(0xFF0F172A).withAlpha(10), // Slate 900
+      color: Colors.black.withAlpha(15), 
       blurRadius: 10,
       offset: const Offset(0, 4),
     ),
@@ -63,7 +62,7 @@ class AppShadows {
 
   static List<BoxShadow> get medium => [
     BoxShadow(
-      color: const Color(0xFF0F172A).withAlpha(15),
+      color: Colors.black.withAlpha(25),
       blurRadius: 20,
       offset: const Offset(0, 8),
     ),
@@ -71,7 +70,7 @@ class AppShadows {
   
   static List<BoxShadow> get high => [
     BoxShadow(
-      color: const Color(0xFF0F172A).withAlpha(20),
+      color: Colors.black.withAlpha(35),
       blurRadius: 30,
       offset: const Offset(0, 12),
     ),
@@ -83,7 +82,6 @@ class AppTypography {
   static TextStyle title = GoogleFonts.plusJakartaSans(
     fontSize: 24.0,
     fontWeight: FontWeight.bold,
-    color: AppColors.textPrimary,
     letterSpacing: -0.5,
   );
 
@@ -91,7 +89,6 @@ class AppTypography {
   static TextStyle section = GoogleFonts.plusJakartaSans(
     fontSize: 18.0,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
     letterSpacing: -0.2,
   );
 
@@ -99,7 +96,6 @@ class AppTypography {
   static TextStyle body = GoogleFonts.inter(
     fontSize: 16.0,
     fontWeight: FontWeight.w400,
-    color: AppColors.textPrimary,
     height: 1.5,
   );
 
@@ -107,14 +103,12 @@ class AppTypography {
   static TextStyle label = GoogleFonts.inter(
     fontSize: 15.0,
     fontWeight: FontWeight.w600,
-    color: AppColors.textSecondary,
   );
 
   // Caption / Smallest Text
   static TextStyle caption = GoogleFonts.inter(
     fontSize: 13.0,
     fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
   );
 
   // Button Text

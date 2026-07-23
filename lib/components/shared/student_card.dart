@@ -53,17 +53,20 @@ class StudentCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        children: [
-                          _buildInfoChip(context, 'Roll', student.rollNo, Icons.tag_rounded),
-                          _buildInfoChip(context, 'Class', student.className, Icons.class_rounded),
-                        ],
-                      ),
+                      LayoutBuilder(builder: (context, constraints) {
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 4,
+                          children: [
+                            _buildInfoChip(context, 'Roll', student.rollNo, Icons.tag_rounded),
+                            _buildInfoChip(context, 'Class', student.className, Icons.class_rounded),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 _buildAttendanceBadge(context),
                 const SizedBox(width: 8),
                 Icon(
@@ -121,11 +124,16 @@ class StudentCard extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: theme.secondaryText),
         const SizedBox(width: 4),
-        Text(
-          value,
-          style: AppTypography.caption.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.primaryText,
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.caption.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.primaryText,
+              fontSize: 11,
+            ),
           ),
         ),
       ],

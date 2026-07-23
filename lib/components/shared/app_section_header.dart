@@ -37,14 +37,17 @@ class AppSectionHeader extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.sm),
           ],
-          Text(
-            title,
-            style: AppTypography.section.copyWith(
-              fontWeight: FontWeight.bold,
-              color: FlutterFlowTheme.of(context).primaryText,
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.section.copyWith(
+                fontWeight: FontWeight.bold,
+                color: FlutterFlowTheme.of(context).primaryText,
+              ),
             ),
           ),
-          const Spacer(),
           if (onActionPressed != null && actionLabel != null)
             TextButton(
               onPressed: onActionPressed,

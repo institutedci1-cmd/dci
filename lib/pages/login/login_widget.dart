@@ -1,7 +1,6 @@
 import 'package:d_c_i_teacher_app/backend/services/app_constants.dart';
 import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/error_handler.dart';
-import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/validation_service.dart';
 import 'package:d_c_i_teacher_app/components/auth_header/auth_header_widget.dart';
 import 'package:d_c_i_teacher_app/components/button/button_widget.dart';

@@ -95,8 +95,8 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
+                    horizontal: 12,
+                    vertical: 12,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -120,16 +120,21 @@ class _DashboardCardWidgetState extends State<DashboardCardWidget> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.title,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.label.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.primaryText,
-                          fontSize: 12,
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            widget.title,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.label.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryText,
+                              fontSize: 12,
+                              height: 1.2,
+                            ),
+                          ),
                         ),
                       ),
                     ],

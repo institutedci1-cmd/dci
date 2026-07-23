@@ -51,6 +51,11 @@ class _DropDownWidgetState extends State<DropDownWidget> {
   late DropDownModel _model;
   bool _isFocused = false;
   final FocusNode _focusNode = FocusNode();
+  FormFieldController<String>? _localController;
+
+  FormFieldController<String> get _effectiveController =>
+      widget.controller ??
+      (_localController ??= FormFieldController<String>(widget.initialValue));
 
   @override
   void initState() {
@@ -68,6 +73,14 @@ class _DropDownWidgetState extends State<DropDownWidget> {
     _focusNode.dispose();
     _model.maybeDispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(DropDownWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialValue != oldWidget.initialValue && _localController != null) {
+      _localController!.value = widget.initialValue;
+    }
   }
 
   @override
@@ -95,13 +108,16 @@ class _DropDownWidgetState extends State<DropDownWidget> {
             ),
           ),
         FlutterFlowDropDown<String>(
-          controller: widget.controller ?? FormFieldController<String>(widget.initialValue),
+          controller: _effectiveController,
           options: widget.options,
           optionLabels: widget.optionLabels,
           onChanged: widget.onChanged,
           width: widget.width ?? (widget.fullWidth ? double.infinity : 200.0),
           height: widget.height,
-          textStyle: AppTypography.body.copyWith(fontSize: 15.0),
+          textStyle: AppTypography.body.copyWith(
+            fontSize: 15.0,
+            color: theme.primaryText,
+          ),
           hintText: widget.hint,
           icon: widget.icon ?? Icon(
             Icons.arrow_drop_down_rounded,

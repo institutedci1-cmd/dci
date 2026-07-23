@@ -1,16 +1,13 @@
-import 'package:d_c_i_teacher_app/components/homework_card/homework_card_widget.dart';
-import 'package:d_c_i_teacher_app/backend/models/homework_assignment.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
+import 'package:d_c_i_teacher_app/components/homework_card/homework_card_widget.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/components/shared/app_empty_state.dart';
-import 'package:d_c_i_teacher_app/components/shared/app_primary_button.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:d_c_i_teacher_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:d_c_i_teacher_app/pages/homework_history/homework_history_model.dart';
 export 'package:d_c_i_teacher_app/pages/homework_history/homework_history_model.dart';
 
 class HomeworkHistoryWidget extends ConsumerStatefulWidget {
@@ -100,7 +97,12 @@ Check the app for details and attachments!
                       updateCallback: () => safeSetState(() {}),
                       child: HomeworkCardWidget(
                         assignment: assignment,
-                        onTap: () async => _showAttachments(context, assignment),
+                        onTap: () async {
+                          context.pushNamed(
+                            'HomeworkDetails',
+                            extra: {'assignment': assignment},
+                          );
+                        },
                         onShare: () => _shareHomework(assignment),
                       ),
                     );
@@ -112,73 +114,6 @@ Check the app for details and attachments!
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showAttachments(BuildContext context, HomeworkAssignment assignment) {
-    if (assignment.attachments.isEmpty) return;
-    final theme = FlutterFlowTheme.of(context);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: theme.secondaryBackground,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24.0),
-            topRight: Radius.circular(24.0),
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.attachment_rounded, color: AppColors.primary),
-                const SizedBox(width: 12),
-                Text(
-                  'Attachments',
-                  style: AppTypography.title.copyWith(fontSize: 20),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ...assignment.attachments.map((url) {
-              final fileName = url.split('%2F').last.split('?').first;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.alternate),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: ListTile(
-                    leading: const Icon(Icons.insert_drive_file_outlined, color: AppColors.primary),
-                    title: Text(
-                      fileName, 
-                      style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: const Icon(Icons.open_in_new_rounded, size: 18),
-                    onTap: () => launchURL(url),
-                  ),
-                ),
-              );
-            }),
-            const SizedBox(height: 16),
-            AppPrimaryButton(
-              text: 'Close',
-              variant: 'outline',
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -75,7 +75,10 @@ class _MyHomeworkWidgetState extends ConsumerState<MyHomeworkWidget> {
                         return HomeworkCardWidget(
                           assignment: assignments[index],
                           onTap: () async {
-                            // Show details logic
+                            context.pushNamed(
+                              'HomeworkDetails',
+                              extra: {'assignment': assignments[index]},
+                            );
                           },
                         );
                       },

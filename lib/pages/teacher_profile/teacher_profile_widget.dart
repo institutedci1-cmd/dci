@@ -170,8 +170,18 @@ class _TeacherProfileWidgetState extends ConsumerState<TeacherProfileWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(value, style: AppTypography.title.copyWith(fontSize: 18, color: theme.primaryText)),
-                  Text(title, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w500, fontSize: 10, color: theme.secondaryText)),
+                  Text(
+                    value, 
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.title.copyWith(fontSize: 18, color: theme.primaryText),
+                  ),
+                  Text(
+                    title, 
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.caption.copyWith(fontWeight: FontWeight.w500, fontSize: 10, color: theme.secondaryText),
+                  ),
                 ],
               ),
             ),

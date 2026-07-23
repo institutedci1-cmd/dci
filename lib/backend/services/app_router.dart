@@ -235,6 +235,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeworkHistoryWidget(),
       ),
       GoRoute(
+        name: 'HomeworkDetails',
+        path: '/homeworkDetails',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return HomeworkDetailsWidget(assignment: extra!['assignment'] as HomeworkAssignment);
+        },
+      ),
+      GoRoute(
         name: AnnouncementsFeedWidget.routeName,
         path: AnnouncementsFeedWidget.routePath,
         builder: (context, state) => const AnnouncementsFeedWidget(),

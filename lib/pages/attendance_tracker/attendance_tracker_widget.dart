@@ -59,6 +59,7 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
   }
 
   Widget _buildScaffold(BuildContext context, AttendanceTrackerState state, AttendanceTrackerNotifier notifier) {
+    _syncModelWithState(state);
     final theme = FlutterFlowTheme.of(context);
     int presentCount = state.students.where((s) => state.attendanceMap[s.id] == 'Present').length;
     int absentCount = state.students.length - presentCount;
@@ -104,6 +105,20 @@ class _AttendanceTrackerWidgetState extends ConsumerState<AttendanceTrackerWidge
         ),
       ),
     );
+  }
+
+  void _syncModelWithState(AttendanceTrackerState state) {
+    if (_model.selectedClass != state.selectedClass) {
+      _model.selectedClass = state.selectedClass;
+      _model.classDropdownController?.value = state.selectedClass;
+    }
+    if (_model.selectedSubject != state.selectedSubject) {
+      _model.selectedSubject = state.selectedSubject;
+      _model.subjectDropdownController?.value = state.selectedSubject;
+    }
+    if (_model.selectedDate != state.selectedDate) {
+      _model.selectedDate = state.selectedDate;
+    }
   }
 
   Future<void> _saveAttendance(AttendanceTrackerState state, AttendanceTrackerNotifier notifier) async {
@@ -247,17 +262,28 @@ Total Students: ${state.students.length}
   Widget _buildQuickActions(AttendanceTrackerNotifier notifier, FlutterFlowTheme theme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 8),
-      child: Row(
-        children: [
-          Expanded(child: _buildActionButton('All Present', Icons.check_circle_rounded, theme.primary, () => notifier.setAllStatus('Present'))),
-          const SizedBox(width: 12),
-          Expanded(child: _buildActionButton('All Absent', Icons.cancel_rounded, theme.secondary, () => notifier.setAllStatus('Absent'))),
-        ],
-      ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth < 360) {
+          return Column(
+            children: [
+              _buildActionButton('All Present', Icons.check_circle_rounded, theme.primary, () => notifier.setAllStatus('Present'), isFullWidth: true),
+              const SizedBox(height: 8),
+              _buildActionButton('All Absent', Icons.cancel_rounded, theme.secondary, () => notifier.setAllStatus('Absent'), isFullWidth: true),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: _buildActionButton('All Present', Icons.check_circle_rounded, theme.primary, () => notifier.setAllStatus('Present'))),
+            const SizedBox(width: 12),
+            Expanded(child: _buildActionButton('All Absent', Icons.cancel_rounded, theme.secondary, () => notifier.setAllStatus('Absent'))),
+          ],
+        );
+      }),
     );
   }
 
-  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap, {bool isFullWidth = false}) {
     return Material(
       color: color.withAlpha(20),
       borderRadius: BorderRadius.circular(8),
@@ -265,7 +291,8 @@ Total Students: ${state.students.length}
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          width: isFullWidth ? double.infinity : null,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: color.withAlpha(40)),
@@ -275,9 +302,13 @@ Total Students: ${state.students.length}
             children: [
               Icon(icon, color: color, size: 18), 
               const SizedBox(width: 8), 
-              Text(
-                label, 
-                style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13),
+              Flexible(
+                child: Text(
+                  label, 
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13),
+                ),
               ),
             ],
           ),
@@ -290,7 +321,7 @@ Total Students: ${state.students.length}
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Container(
-        height: 48,
+        constraints: const BoxConstraints(minHeight: 48),
         decoration: BoxDecoration(
           color: FlutterFlowTheme.of(context).secondaryBackground,
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -304,7 +335,14 @@ Total Students: ${state.students.length}
             visualDensity: VisualDensity.compact,
             value: _sendWhatsAppAlerts,
             onChanged: (val) => setState(() => _sendWhatsAppAlerts = val),
-            title: Text('WhatsApp Alerts for Absentees', style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold, fontSize: 12)),
+            title: Text(
+              'WhatsApp Alerts for Absentees',
+              style: AppTypography.caption.copyWith(
+                fontWeight: FontWeight.bold, 
+                fontSize: 12,
+                height: 1.2,
+              ),
+            ),
             activeTrackColor: FlutterFlowTheme.of(context).primary,
           ),
         ),

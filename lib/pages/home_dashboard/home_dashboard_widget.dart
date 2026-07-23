@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:d_c_i_teacher_app/pages/home_dashboard/home_dashboard_model.dart';
-import 'package:d_c_i_teacher_app/core/services/access_control.dart';
 import 'package:d_c_i_teacher_app/index.dart';
 
 class HomeDashboardWidget extends ConsumerStatefulWidget {
@@ -124,14 +123,34 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Welcome back,', style: theme.bodyMedium.override(font: GoogleFonts.inter(), color: theme.onBackground80, fontSize: 13)),
-                    Text(displayName, style: theme.titleMedium.override(font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold), color: theme.onBackground, fontSize: 24)),
+                    const SizedBox(height: 4),
+                    Text(
+                      displayName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.titleMedium.override(
+                        font: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                        color: theme.onBackground,
+                        fontSize: 24,
+                        lineHeight: 1.1,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Icon(Icons.calendar_today_rounded, color: theme.onBackground, size: 14),
                         const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(dateTimeFormat('MMMMEEEEd', getCurrentTimestamp), style: theme.labelSmall.override(font: GoogleFonts.inter(), color: theme.onBackground, fontSize: 12)),
+                        Flexible(
+                          child: Text(
+                            dateTimeFormat('MMMMEEEEd', getCurrentTimestamp), 
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.labelSmall.override(
+                              font: GoogleFonts.inter(), 
+                              color: theme.onBackground, 
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
                       ],
                     ),

@@ -44,81 +44,112 @@ class AttendanceSelectionSection extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 4),
-      child: Column(
-        children: [
-          Row(
+      child: LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth < 400) {
+          // Stack them for small screens
+          return Column(
             children: [
-              Expanded(
-                flex: 3,
-                child: InkWell(
-                  onTap: onDateChanged,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: FlutterFlowTheme.of(context).alternate),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_today_rounded, size: 14, color: FlutterFlowTheme.of(context).primary),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            dateTimeFormat('yMMMd', model.selectedDate),
-                            style: FlutterFlowTheme.of(context).bodySmall.override(
-                              font: GoogleFonts.inter(),
-                              fontSize: 12,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ],
-                    ),
+              _buildDatePicker(context),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildClassDropDown(isLoadingClasses, effectiveClassOptions),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: DropDownWidget(
-                  label: 'Class',
-                  labelPresent: false,
-                  controller: model.classDropdownController!,
-                  options: effectiveClassOptions,
-                  onChanged: (val) {
-                    if (val == 'Loading Classes...') return;
-                    model.selectedClass = val;
-                    onClassChanged();
-                  },
-                  disabled: isLoadingClasses,
-                  height: 40,
-                  hint: 'Class',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 4,
-                child: DropDownWidget(
-                  label: 'Subject',
-                  labelPresent: false,
-                  controller: model.subjectDropdownController!,
-                  options: effectiveSubjectOptions,
-                  onChanged: (val) {
-                    model.selectedSubject = val;
-                    onSubjectChanged();
-                  },
-                  height: 40,
-                  hint: 'Subject',
-                ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildSubjectDropDown(effectiveSubjectOptions),
+                  ),
+                ],
               ),
             ],
-          ),
-        ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: _buildDatePicker(context),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _buildClassDropDown(isLoadingClasses, effectiveClassOptions),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 4,
+              child: _buildSubjectDropDown(effectiveSubjectOptions),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildDatePicker(BuildContext context) {
+    return InkWell(
+      onTap: onDateChanged,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: FlutterFlowTheme.of(context).alternate),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today_rounded, size: 14, color: FlutterFlowTheme.of(context).primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                dateTimeFormat('yMMMd', model.selectedDate),
+                style: FlutterFlowTheme.of(context).bodySmall.override(
+                  font: GoogleFonts.inter(),
+                  fontSize: 12,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildClassDropDown(bool isLoading, List<String> options) {
+    return DropDownWidget(
+      label: 'Class',
+      labelPresent: false,
+      controller: model.classDropdownController!,
+      options: options,
+      onChanged: (val) {
+        if (val == 'Loading Classes...') return;
+        model.selectedClass = val;
+        onClassChanged();
+      },
+      disabled: isLoading,
+      height: 40,
+      hint: 'Class',
+    );
+  }
+
+  Widget _buildSubjectDropDown(List<String> options) {
+    return DropDownWidget(
+      label: 'Subject',
+      labelPresent: false,
+      controller: model.subjectDropdownController!,
+      options: options,
+      onChanged: (val) {
+        model.selectedSubject = val;
+        onSubjectChanged();
+      },
+      height: 40,
+      hint: 'Subject',
     );
   }
 }

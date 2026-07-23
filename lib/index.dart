@@ -35,6 +35,7 @@ export 'package:d_c_i_teacher_app/pages/homework_dashboard/homework_dashboard_wi
 export 'package:d_c_i_teacher_app/pages/my_homework/my_homework_widget.dart';
 export 'package:d_c_i_teacher_app/pages/homework_dashboard/homework_dashboard_model.dart';
 export 'package:d_c_i_teacher_app/pages/homework_history/homework_history_widget.dart';
+export 'package:d_c_i_teacher_app/pages/homework_history/homework_details_widget.dart';
 export 'package:d_c_i_teacher_app/pages/announcements_feed/announcements_feed_widget.dart';
 export 'package:d_c_i_teacher_app/pages/teacher_profile/teacher_profile_widget.dart';
 export 'package:d_c_i_teacher_app/pages/edit_profile/edit_profile_widget.dart';

@@ -118,7 +118,7 @@ class _Sidebar extends ConsumerWidget {
                     onTap: () => context.goNamed(access.isStudent ? StudentDashboardWidget.routeName : HomeDashboardWidget.routeName),
                   ),
                   if (!access.isStudent) ...[
-                    if (access.canSubmitDailyReport)
+                    if (access.canViewDailyReports)
                       _SidebarItem(
                         title: 'Daily Report',
                         icon: Icons.edit_document,

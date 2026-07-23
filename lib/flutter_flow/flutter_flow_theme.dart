@@ -81,6 +81,11 @@ abstract class FlutterFlowTheme {
   late Color onPrimary70;
   late Color onBackground90;
 
+  late Color successSubtle;
+  late Color warningSubtle;
+  late Color errorSubtle;
+  late Color infoSubtle;
+
   FFDesignTokens get designToken => FFDesignTokens(this);
 
   String get displayLargeFamily => typography.displayLargeFamily;
@@ -166,6 +171,11 @@ class LightModeTheme extends FlutterFlowTheme {
   late Color onSurface80 = const Color(0xCC0F172A);
   late Color onPrimary70 = const Color(0xB3FFFFFF);
   late Color onBackground90 = const Color(0xE60F172A);
+
+  late Color successSubtle = const Color(0xFFE8F5E9);
+  late Color warningSubtle = const Color(0xFFFFF3E0);
+  late Color errorSubtle = const Color(0xFFFFEBEE);
+  late Color infoSubtle = const Color(0xFFE1F5FE);
 }
 
 abstract class Typography {
@@ -314,54 +324,59 @@ class ThemeTypography extends Typography {
 }
 
 class DarkModeTheme extends FlutterFlowTheme {
-  late Color primary = const Color(0xFF1E88E5); // Royal Blue 600
-  late Color secondary = const Color(0xFFFFA726); // Orange 400
-  late Color tertiary = const Color(0xFFF5F7FA); // Soft Grey
-  late Color alternate = const Color(0xFF263238); // Blue Grey 900
-  late Color primaryText = const Color(0xFFF5F7FA); // Soft Grey
-  late Color secondaryText = const Color(0xFFB0BEC5); // Blue Grey 200
-  late Color primaryBackground = const Color(0xFF0D1B2A); // Deep Navy
-  late Color secondaryBackground = const Color(0xFF1B263B); // Navy Slate
+  late Color primary = const Color(0xFF3B82F6); // Brighter blue for dark mode
+  late Color secondary = const Color(0xFFF59E0B); // Amber
+  late Color tertiary = const Color(0xFFF1F5F9); 
+  late Color alternate = const Color(0xFF334155); // Slate 700 (Border)
+  late Color primaryText = const Color(0xFFF8FAFC); // Slate 50
+  late Color secondaryText = const Color(0xFF94A3B8); // Slate 400
+  late Color primaryBackground = const Color(0xFF0F172A); // Slate 900
+  late Color secondaryBackground = const Color(0xFF1E293B); // Slate 800
   late Color accent1 = const Color(0x1A1E88E5);
   late Color accent2 = const Color(0x1AFFA726);
   late Color accent3 = const Color(0x1AF5F7FA);
-  late Color accent4 = const Color(0xB20D1B2A);
-  late Color success = const Color(0xFF2E7D32);
-  late Color warning = const Color(0xFFFB8C00);
-  late Color error = const Color(0xFFC62828);
-  late Color info = const Color(0xFF0277BD);
+  late Color accent4 = const Color(0xB20F172A);
+  late Color success = const Color(0xFF22C55E); // Green 500
+  late Color warning = const Color(0xFFF59E0B); // Amber 500
+  late Color error = const Color(0xFFEF4444); // Red 500
+  late Color info = const Color(0xFF3B82F6); // Blue 500
 
-  late Color primaryDark = const Color(0xFF1565C0);
-  late Color primaryLight = const Color(0xFF42A5F5);
+  late Color primaryDark = const Color(0xFF1D4ED8);
+  late Color primaryLight = const Color(0xFF60A5FA);
 
-  late Color onPrimary = const Color(0xFF000000);
-  late Color primaryContainer = const Color(0xFF065F46);
-  late Color onPrimaryContainer = const Color(0xFFD1FAE5);
-  late Color onSecondary = const Color(0xFF000000);
+  late Color onPrimary = const Color(0xFFFFFFFF);
+  late Color primaryContainer = const Color(0xFF1E3A8A);
+  late Color onPrimaryContainer = const Color(0xFFDBEAFE);
+  late Color onSecondary = const Color(0xFFFFFFFF);
   late Color secondaryContainer = const Color(0xFF334155);
   late Color onSecondaryContainer = const Color(0xFFF1F5F9);
-  late Color onAccent = const Color(0xFF000000);
+  late Color onAccent = const Color(0xFFFFFFFF);
   late Color accentContainer = const Color(0xFF1E293B);
   late Color onAccentContainer = const Color(0xFFF1F5F9);
-  late Color onBackground = const Color(0xFFE2E8F0);
-  late Color onSurface = const Color(0xFFE2E8F0);
+  late Color onBackground = const Color(0xFFF8FAFC);
+  late Color onSurface = const Color(0xFFF8FAFC);
   late Color surfaceVariant = const Color(0xFF334155);
-  late Color onSurfaceVariant = const Color(0xFF94A3B8);
-  late Color onSuccess = const Color(0xFF000000);
-  late Color onWarning = const Color(0xFF000000);
+  late Color onSurfaceVariant = const Color(0xFFCBD5E1);
+  late Color onSuccess = const Color(0xFFFFFFFF);
+  late Color onWarning = const Color(0xFFFFFFFF);
   late Color onError = const Color(0xFFFFFFFF);
   late Color onInfo = const Color(0xFFFFFFFF);
   late Color transparent = const Color(0x00000000);
   late Color fullContrast = const Color(0xFFFFFFFF);
-  late Color onBackground80 = const Color(0xCCE2E8F0);
+  late Color onBackground80 = const Color(0xCCF8FAFC);
   late Color onPrimary15 = const Color(0x26FFFFFF);
   late Color primary10 = const Color(0x1A10B981);
   late Color onPrimary20 = const Color(0x33FFFFFF);
   late Color onPrimary80 = const Color(0xCCFFFFFF);
-  late Color error10 = const Color(0x1AF28B82);
-  late Color onSurface80 = const Color(0xCCE2E8F0);
+  late Color error10 = const Color(0x1AFE7171);
+  late Color onSurface80 = const Color(0xCCF8FAFC);
   late Color onPrimary70 = const Color(0xB3FFFFFF);
-  late Color onBackground90 = const Color(0xE6E2E8F0);
+  late Color onBackground90 = const Color(0xE6F8FAFC);
+
+  late Color successSubtle = const Color(0x1A22C55E);
+  late Color warningSubtle = const Color(0x1AF59E0B);
+  late Color errorSubtle = const Color(0x1AEF4444);
+  late Color infoSubtle = const Color(0x1A3B82F6);
 }
 
 class FFDesignTokens {

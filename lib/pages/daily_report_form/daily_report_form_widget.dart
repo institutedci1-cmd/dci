@@ -60,6 +60,10 @@ class _DailyReportFormWidgetState extends ConsumerState<DailyReportFormWidget> {
   }
 
   void _syncModelWithState(DailyReportFormState state) {
+    _model.classOptions = state.classOptions;
+    _model.subjectOptions = state.subjectOptions;
+    _model.teacherOptions = state.teacherOptions;
+
     if (_model.dropdownValue1 != state.selectedClass) {
        _model.dropdownValue1 = state.selectedClass;
        _model.dropdownValueController1?.value = state.selectedClass;

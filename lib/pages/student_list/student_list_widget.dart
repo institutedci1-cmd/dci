@@ -154,55 +154,68 @@ class _StudentListWidgetState extends ConsumerState<StudentListWidget> {
     final access = ref.read(accessControlProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: AppPrimaryButton(
-              text: 'Export Excel',
-              color: AppColors.secondary,
-              icon: Icons.file_download_outlined,
-              height: 44,
-              onPressed: () async {
-                if (filteredStudents.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No students to export.')),
-                  );
-                  return;
-                }
-                await ExcelService.exportStudents(filteredStudents);
-              },
-            ),
-          ),
-          if (access.canManageStudents) ...[
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: AppPrimaryButton(
-                text: 'Bulk Import',
-                isLoading: _isImporting,
-                icon: Icons.file_upload_outlined,
-                height: 44,
-                onPressed: () async {
-                  safeSetState(() => _isImporting = true);
-                  try {
-                    final data = await ExcelService.importStudents();
-                    if (data.isNotEmpty) {
-                      await ref.read(studentServiceProvider).bulkImport(data);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Imported ${data.length} students successfully!')),
-                        );
-                      }
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 360;
+          return Flex(
+            direction: isNarrow ? Axis.vertical : Axis.horizontal,
+            children: [
+              Flexible(
+                flex: isNarrow ? 0 : 1,
+                child: AppPrimaryButton(
+                  text: 'Export Excel',
+                  color: AppColors.secondary,
+                  icon: Icons.file_download_outlined,
+                  height: 44,
+                  width: isNarrow ? double.infinity : null,
+                  onPressed: () async {
+                    if (filteredStudents.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No students to export.')),
+                      );
+                      return;
                     }
-                  } catch (e) {
-                    if (context.mounted) ErrorHandler.show(context, e);
-                  } finally {
-                    safeSetState(() => _isImporting = false);
-                  }
-                },
+                    await ExcelService.exportStudents(filteredStudents);
+                  },
+                ),
               ),
-            ),
-          ],
-        ],
+              if (access.canManageStudents) ...[
+                SizedBox(
+                  width: isNarrow ? 0 : AppSpacing.md,
+                  height: isNarrow ? AppSpacing.sm : 0,
+                ),
+                Flexible(
+                  flex: isNarrow ? 0 : 1,
+                  child: AppPrimaryButton(
+                    text: 'Bulk Import',
+                    isLoading: _isImporting,
+                    icon: Icons.file_upload_outlined,
+                    height: 44,
+                    width: isNarrow ? double.infinity : null,
+                    onPressed: () async {
+                      safeSetState(() => _isImporting = true);
+                      try {
+                        final data = await ExcelService.importStudents();
+                        if (data.isNotEmpty) {
+                          await ref.read(studentServiceProvider).bulkImport(data);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Imported ${data.length} students successfully!')),
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        if (context.mounted) ErrorHandler.show(context, e);
+                      } finally {
+                        safeSetState(() => _isImporting = false);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
       ),
     );
   }

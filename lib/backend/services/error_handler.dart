@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:d_c_i_teacher_app/backend/repositories/audit_repository.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';

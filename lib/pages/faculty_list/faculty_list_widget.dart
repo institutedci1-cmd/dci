@@ -11,7 +11,6 @@ import 'package:d_c_i_teacher_app/pages/edit_profile/edit_profile_widget.dart';
 import 'package:d_c_i_teacher_app/pages/teacher_profile/teacher_profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:d_c_i_teacher_app/pages/faculty_list/faculty_list_model.dart';
 export 'package:d_c_i_teacher_app/pages/faculty_list/faculty_list_model.dart';
 

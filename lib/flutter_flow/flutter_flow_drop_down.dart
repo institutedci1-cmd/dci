@@ -137,11 +137,11 @@ class _FlutterFlowDropDownState<T> extends State<FlutterFlowDropDown<T>> {
   void initState() {
     super.initState();
     if (isMultiSelect) {
-      _listener =
-          () => widget.onMultiSelectChanged!(multiSelectController.value);
+      _listener = () =>
+          widget.onMultiSelectChanged?.call(multiSelectController.value);
       multiSelectController.addListener(_listener);
     } else {
-      _listener = () => widget.onChanged!(controller.value);
+      _listener = () => widget.onChanged?.call(controller.value);
       controller.addListener(_listener);
     }
   }
@@ -311,12 +311,12 @@ class _FlutterFlowDropDownState<T> extends State<FlutterFlowDropDown<T>> {
       dropdownStyleData: DropdownStyleData(
         elevation: widget.elevation.toInt(),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4.0),
+          borderRadius: BorderRadius.circular(12.0),
           color: widget.fillColor,
         ),
         isOverButton: widget.isOverButton,
         offset: widget.menuOffset ?? Offset.zero,
-        maxHeight: widget.maxHeight,
+        maxHeight: widget.maxHeight ?? 400.0,
         padding: EdgeInsets.zero,
       ),
       onChanged: widget.disabled

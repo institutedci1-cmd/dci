@@ -16,11 +16,12 @@ class RootDashboardWidget extends ConsumerWidget {
       data: (userData) {
         if (userData == null) return const LoginWidget();
         
-        return switch (userData.role) {
-          'Admin' => const HomeDashboardWidget(),
-          'Director' => const HomeDashboardWidget(),
-          'Teacher' => const HomeDashboardWidget(),
-          'Student' => const StudentDashboardWidget(),
+        final role = userData.role.trim().toLowerCase();
+        return switch (role) {
+          'admin' => const HomeDashboardWidget(),
+          'director' => const HomeDashboardWidget(),
+          'teacher' => const HomeDashboardWidget(),
+          'student' => const StudentDashboardWidget(),
           _ => const HomeDashboardWidget(),
         };
       },

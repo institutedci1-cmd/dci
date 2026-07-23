@@ -81,16 +81,16 @@ class _StudentCounterWidgetState extends State<StudentCounterWidget> {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.body.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                      fontSize: 13,
                     ),
                   ),
                   Text(
                     widget.subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.caption,
+                    style: AppTypography.caption.copyWith(fontSize: 10),
                   ),
-                ].divide(const SizedBox(height: 8.0)),
+                ],
               ),
             ),
             const SizedBox(width: 4),
@@ -102,13 +102,15 @@ class _StudentCounterWidgetState extends State<StudentCounterWidget> {
                   color: theme.secondaryText,
                   onPressed: widget.onDecrement,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                Container(
+                  constraints: const BoxConstraints(minWidth: 24),
+                  alignment: Alignment.center,
                   child: Text(
                     widget.value,
                     style: AppTypography.section.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.primaryText,
+                      fontSize: 16,
                     ),
                   ),
                 ),
@@ -132,12 +134,12 @@ class _StudentCounterWidgetState extends State<StudentCounterWidget> {
   }) {
     return FlutterFlowIconButton(
       borderRadius: 8.0,
-      buttonSize: 36.0,
+      buttonSize: 32.0,
       fillColor: Colors.transparent,
       icon: Icon(
         icon,
         color: color,
-        size: 24.0,
+        size: 20.0,
       ),
       onPressed: onPressed,
     );

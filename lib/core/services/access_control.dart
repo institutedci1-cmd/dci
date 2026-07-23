@@ -11,11 +11,12 @@ class AccessControl {
 
   UserRole get role {
     if (user == null) return UserRole.unknown;
-    return switch (user!.role) {
-      'Director' => UserRole.director,
-      'Admin' => UserRole.admin,
-      'Teacher' => UserRole.teacher,
-      'Student' => UserRole.student,
+    final roleStr = user!.role.trim().toLowerCase();
+    return switch (roleStr) {
+      'director' => UserRole.director,
+      'admin' => UserRole.admin,
+      'teacher' => UserRole.teacher,
+      'student' => UserRole.student,
       _ => UserRole.unknown,
     };
   }

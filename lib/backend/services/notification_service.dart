@@ -7,40 +7,49 @@ class NotificationService {
   static final FirebaseMessaging _fcm = FirebaseMessaging.instance;
 
   static Future<void> initialize() async {
-    // Request permissions for iOS
-    NotificationSettings settings = await _fcm.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      // Request permissions for iOS/Android
+      NotificationSettings settings = await _fcm.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      debugPrint('User granted permission');
-      
-      // Get the token and save it to the user profile
-      String? token = await _fcm.getToken();
-      if (token != null) {
-        await _saveTokenToFirestore(token);
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        debugPrint('User granted permission');
+        
+        // Get the token and save it to the user profile
+        // We use a timeout to prevent hanging on devices without Play Services
+        String? token = await _fcm.getToken().timeout(
+          const Duration(seconds: 5),
+          onTimeout: () => null,
+        );
+        
+        if (token != null) {
+          await _saveTokenToFirestore(token);
+        }
       }
+
+      // Listen for token refreshes
+      _fcm.onTokenRefresh.listen((newToken) {
+        _saveTokenToFirestore(newToken);
+      });
+
+      // Handle background messages
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+      // Handle foreground messages
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        debugPrint('Got a message whilst in the foreground!');
+        debugPrint('Message data: ${message.data}');
+
+        if (message.notification != null) {
+          debugPrint('Message also contained a notification: ${message.notification}');
+        }
+      });
+    } catch (e) {
+      debugPrint('Error initializing notifications: $e');
     }
-
-    // Listen for token refreshes
-    _fcm.onTokenRefresh.listen((newToken) {
-      _saveTokenToFirestore(newToken);
-    });
-
-    // Handle background messages
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('Got a message whilst in the foreground!');
-      debugPrint('Message data: ${message.data}');
-
-      if (message.notification != null) {
-        debugPrint('Message also contained a notification: ${message.notification}');
-      }
-    });
   }
 
   static Future<void> _saveTokenToFirestore(String token) async {

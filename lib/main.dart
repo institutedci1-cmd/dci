@@ -19,17 +19,33 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
 
-  await initFirebase();
+  try {
+    await initFirebase();
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+  }
 
-  // Initialize Notifications
-  await NotificationService.initialize();
+  try {
+    // Initialize Notifications
+    await NotificationService.initialize();
+  } catch (e) {
+    debugPrint('Notification initialization failed: $e');
+  }
 
   // Initialize Crashlytics
   if (!kIsWeb) {
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    try {
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    } catch (e) {
+      debugPrint('Crashlytics initialization failed: $e');
+    }
   }
 
-  await FlutterFlowTheme.initialize();
+  try {
+    await FlutterFlowTheme.initialize();
+  } catch (e) {
+    debugPrint('FlutterFlowTheme initialization failed: $e');
+  }
 
   runApp(const ProviderScope(child: MyApp()));
 }
