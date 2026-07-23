@@ -130,7 +130,9 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
                       children: [
                         Icon(Icons.calendar_today_rounded, color: theme.onBackground, size: 14),
                         const SizedBox(width: 8),
-                        Text(dateTimeFormat('MMMMEEEEd', getCurrentTimestamp), style: theme.labelSmall.override(font: GoogleFonts.inter(), color: theme.onBackground, fontSize: 12)),
+                        Expanded(
+                          child: Text(dateTimeFormat('MMMMEEEEd', getCurrentTimestamp), style: theme.labelSmall.override(font: GoogleFonts.inter(), color: theme.onBackground, fontSize: 12)),
+                        ),
                       ],
                     ),
                   ],

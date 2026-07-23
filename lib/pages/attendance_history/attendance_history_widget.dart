@@ -120,7 +120,7 @@ class _AttendanceHistoryWidgetState extends ConsumerState<AttendanceHistoryWidge
                                   'Class: ${record.className} • Subject: ${record.subject}',
                                   style: AppTypography.caption.copyWith(fontSize: 12),
                                 ),
-                                const SizedBox(height: 2),
+                                const SizedBox(height: 8),
                                 Text(
                                   dateTimeFormat('yMMMd', record.date),
                                   style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, fontSize: 11),

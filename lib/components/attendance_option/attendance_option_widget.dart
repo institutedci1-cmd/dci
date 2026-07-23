@@ -122,7 +122,7 @@ class _AttendanceOptionWidgetState extends State<AttendanceOptionWidget> {
                       lineHeight: 1.38,
                     ),
               ),
-            ].divide(const SizedBox(height: 4.0)),
+            ].divide(const SizedBox(height: 8.0)),
           ),
         ),
       ),

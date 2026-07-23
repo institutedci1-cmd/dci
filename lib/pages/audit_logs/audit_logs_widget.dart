@@ -100,7 +100,7 @@ class _AuditLogsWidgetState extends ConsumerState<AuditLogsWidget> {
                 ),
                 const SizedBox(height: 4),
                 Text(log['action'] ?? 'Unknown action', style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(height: 2),
+                const SizedBox(height: 8),
                 Text('By: ${log['userEmail'] ?? 'anonymous'}', style: AppTypography.caption.copyWith(fontSize: 11)),
               ],
             ),

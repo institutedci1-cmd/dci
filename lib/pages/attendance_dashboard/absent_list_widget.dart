@@ -146,7 +146,7 @@ class _AbsentListWidgetState extends ConsumerState<AbsentListWidget> {
               children: [
                 Text(log.studentName, style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, fontSize: 15)),
                 Text('${log.className} • Subject: ${log.subject}', style: AppTypography.caption.copyWith(fontSize: 12)),
-                const SizedBox(height: 2),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(Icons.phone_rounded, size: 12, color: theme.secondaryText),

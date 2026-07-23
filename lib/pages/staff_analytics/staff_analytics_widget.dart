@@ -104,7 +104,7 @@ class _StaffAnalyticsWidgetState extends ConsumerState<StaffAnalyticsWidget> {
               return Column(
                 children: [
                   Text(count.toString(), style: AppTypography.caption.copyWith(fontSize: 10, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Container(
                     width: 24,
                     height: height.clamp(4.0, 100.0),

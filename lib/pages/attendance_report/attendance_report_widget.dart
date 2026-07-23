@@ -254,7 +254,7 @@ class _AttendanceReportWidgetState extends ConsumerState<AttendanceReportWidget>
                         'Roll ${student.rollNo} • ${student.name}',
                         style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
                         'Student ID: ${student.id}',
                         style: AppTypography.caption,

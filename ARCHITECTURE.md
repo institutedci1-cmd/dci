@@ -1,37 +1,51 @@
-# DCI Teachers App - Architecture & Module Specifications
+# Architecture & Module Specifications
 
-## Overview
-The DCI Teachers App is built using a **Feature-First Architecture** combined with **Riverpod** for state management and **Repository Pattern** for data access. This ensures a scalable, testable, and maintainable codebase.
+This document outlines the architectural patterns and technical standards governing the DCI Teachers App.
 
-## Directory Structure
-- `lib/core/`: Global utilities, design system, and shared services.
-- `lib/features/`: Feature-specific modules (e.g., attendance, reports).
-  - `data/`: Repositories and data providers.
-  - `domain/`: Business logic models and entities.
-  - `presentation/`: Widgets, screens, and view models (providers).
-- `lib/shared/`: Reusable UI components and global constants.
+## 🏛 Core Architecture
 
-## Role-Based Access Control (RBAC)
-The app supports three distinct roles:
-1. **Admin**: Full access to user management, institute configuration, and all reports.
-2. **Director**: View-only access to all institute-wide reports and analytics.
-3. **Teacher**: Access to manage their specific classes, mark attendance, and submit daily reports.
+The application follows a **Layered Feature-First Architecture**, ensuring that logic related to specific modules (Attendance, Exams, etc.) remains cohesive and easy to navigate.
 
-## Data Access Layer
-All Firestore interactions must be abstracted behind **Repositories**. Repositories are exposed via **Riverpod Providers**.
-- **Direct Firestore calls in UI components are strictly prohibited.**
-- Use `AsyncValue` for handling loading and error states in the UI.
+### Layers
+1. **Data Layer**: Repositories (`lib/backend/repositories/`) that abstract Firestore and other external APIs.
+2. **Domain Layer**: Pure Dart models and entities (`lib/backend/models/`).
+3. **Presentation Layer**: 
+   - **Widgets**: Reusable components (`lib/components/`) and full-screen pages (`lib/pages/`).
+   - **Notifiers**: Riverpod `Notifier` classes (`lib/features/.../application/`) that manage UI state and interact with repositories.
 
-## UI & Design System
-- **Responsiveness**: Use `Expanded`, `Flexible`, `LayoutBuilder`, and `MediaQuery` to ensure the app works on all screen sizes.
-- **Components**: Reusable components are located in `lib/components/shared/`.
-- **Theme**: Centralized theme settings in `lib/shared/app_style.dart`.
+## 🛠 State Management (Riverpod)
 
-## Error Handling & Logging
-- Use `ErrorHandler.show()` for consistent user feedback.
-- Audit logs are stored in the `audit_logs` collection in Firestore.
-- Critical errors are logged in the `error_logs` collection.
+We use **Riverpod 2.0+** for all state management.
+- **Providers**: Global access to services and configuration.
+- **StreamProviders**: Real-time synchronization with Firestore collections.
+- **Notifiers**: Encapsulate complex UI logic (e.g., Attendance selection, Exam result entry).
 
-## Form Validation
-- Standardized validation patterns are available in `lib/backend/services/validation_service.dart`.
-- Always use `GlobalKey<FormState>` for form validation before submission.
+## 🔐 Security & RBAC
+
+The app implements **Role-Based Access Control (RBAC)** via the `AccessControl` service.
+
+### Roles
+- **Director**: Full visibility of institute-wide data and financial/performance reports.
+- **Admin**: Full management capabilities for users, students, and settings.
+- **Teacher**: Restricted to assigned classes, attendance tracking, and reporting.
+
+### Implementation
+- Access is checked at the UI level (conditional rendering) and the service level (method protection).
+- Firestore Rules are used to enforce these roles at the database level.
+
+## 🎨 UI & Design System
+
+### Design Tokens
+- **Colors**: Defined in `lib/shared/app_colors.dart`. Use `AppColors` for consistency.
+- **Spacing/Typography**: Centralized in `lib/shared/app_style.dart`.
+- **Standard Radius**: All interactive elements (Inputs, Buttons) use `AppRadius.md` (12px).
+
+### Responsiveness
+- The app uses a `ResponsiveScaffold` that automatically switches between a Bottom Navigation Bar (Mobile) and a persistent Sidebar (Tablet/Desktop).
+- Breakpoints are defined in `AppSpacing`.
+
+## 📈 Performance & Quality
+
+- **Error Handling**: Use the centralized `ErrorHandler.show()` for all user-facing errors.
+- **Logging**: All administrative actions must be logged via the `AuditRepository`.
+- **Validation**: Shared validation logic resides in `ValidationService`.

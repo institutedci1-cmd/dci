@@ -117,7 +117,7 @@ class _AuthHeaderWidgetState extends ConsumerState<AuthHeaderWidget> {
                         lineHeight: 1.47,
                       ),
                 ),
-              ].divide(const SizedBox(height: 4.0)),
+              ].divide(const SizedBox(height: 8.0)),
             ),
           ].divide(const SizedBox(height: 24.0)),
         );

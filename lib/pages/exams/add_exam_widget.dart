@@ -301,7 +301,7 @@ class _AddExamWidgetState extends ConsumerState<AddExamWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label, style: AppTypography.label.copyWith(color: theme.secondaryText, fontSize: 13)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 8),
                   Text(value, style: AppTypography.body.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),

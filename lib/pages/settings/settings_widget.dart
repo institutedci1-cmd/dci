@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/backend/services/app_constants.dart';
 import 'package:d_c_i_teacher_app/components/header_section/header_section_widget.dart';
 import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
@@ -99,7 +100,7 @@ class _SettingsWidgetState extends ConsumerState<SettingsWidget> {
                 _buildSettingsTile(
                   Icons.info_outline_rounded,
                   'About App',
-                  'Version 1.0.4',
+                  'Version ${AppConstants.appVersion}',
                   onTap: () {},
                 ),
               ],

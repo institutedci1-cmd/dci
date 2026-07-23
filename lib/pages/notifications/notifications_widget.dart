@@ -164,7 +164,7 @@ class _NotificationsWidgetState extends ConsumerState<NotificationsWidget> {
                                     color: theme.primaryText,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 8),
                                 Text(
                                   item.body, 
                                   style: AppTypography.caption.copyWith(

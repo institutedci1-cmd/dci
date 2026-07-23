@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/shared/app_style.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_theme.dart';
 import 'package:d_c_i_teacher_app/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -130,13 +131,13 @@ class _ButtonWidgetState extends State<ButtonWidget> {
       opacity: isDisabled ? 0.6 : 1.0,
       child: InkWell(
         onTap: isDisabled ? null : widget.onPressed,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           width: widget.fullWidth ? double.infinity : null,
           height: height,
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.fromBorderSide(borderSide),
           ),
           padding: padding,

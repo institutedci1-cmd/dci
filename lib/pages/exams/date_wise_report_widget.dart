@@ -119,7 +119,7 @@ class _DateWiseReportWidgetState extends ConsumerState<DateWiseReportWidget> {
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text('Venue: ${exam.venue}', style: AppTypography.caption.copyWith(fontSize: 10)),
             const Padding(padding: EdgeInsets.symmetric(vertical: 4), child: Divider(height: 1)),
             resultsAsync.when(

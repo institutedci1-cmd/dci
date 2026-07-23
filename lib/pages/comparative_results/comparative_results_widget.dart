@@ -110,7 +110,7 @@ class _ComparativeResultsWidgetState extends ConsumerState<ComparativeResultsWid
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(subject, style: AppTypography.body.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(

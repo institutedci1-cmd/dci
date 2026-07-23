@@ -136,7 +136,7 @@ class _ProfileInfoTileWidgetState extends State<ProfileInfoTileWidget> {
                             lineHeight: 1.5,
                           ),
                     ),
-                  ].divide(const SizedBox(height: 2.0)),
+                  ].divide(const SizedBox(height: 8.0)),
                 ),
               ),
             ].divide(const SizedBox(width: 16.0)),

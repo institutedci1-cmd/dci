@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/backend/services/app_constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:d_c_i_teacher_app/components/contact_item/contact_item_widget.dart';
 import 'package:d_c_i_teacher_app/components/info_section/info_section_widget.dart';
@@ -285,7 +286,7 @@ class _AboutDCIWidgetState extends ConsumerState<AboutDCIWidget> {
     return Column(
       children: [
         Text(
-          'Deshmukh Teachers App ${info?['version'] ?? 'v1.0.4'}',
+          'Deshmukh Teachers App ${info?['version'] ?? 'v${AppConstants.appVersion}'}',
           style: FlutterFlowTheme.of(context).labelSmall.override(
                 font: GoogleFonts.inter(fontWeight: FontWeight.w600),
               ),

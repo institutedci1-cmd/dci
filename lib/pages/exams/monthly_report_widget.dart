@@ -210,7 +210,7 @@ class _MonthlyReportWidgetState extends ConsumerState<MonthlyReportWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('AI Insight', style: AppTypography.label.copyWith(color: AppColors.info, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
                   'Mathematics performance has improved by 5% since last month. Consider focusing on Science fundamentals for upcoming mid-terms.',
                   style: AppTypography.caption.copyWith(height: 1.4),

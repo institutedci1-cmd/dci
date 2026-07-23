@@ -1,3 +1,4 @@
+import 'package:d_c_i_teacher_app/backend/services/app_constants.dart';
 import 'package:d_c_i_teacher_app/backend/providers/service_providers.dart';
 import 'package:d_c_i_teacher_app/backend/services/error_handler.dart';
 import 'package:d_c_i_teacher_app/backend/providers/repository_providers.dart';
@@ -226,7 +227,7 @@ class _LoginWidgetState extends ConsumerState<LoginWidget> {
     return Column(
       children: [
         const SizedBox(height: 20),
-        Text('Version 1.0.4 (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
+        Text('Version ${AppConstants.appVersion} (Stable)', style: FlutterFlowTheme.of(context).labelSmall),
       ],
     );
   }

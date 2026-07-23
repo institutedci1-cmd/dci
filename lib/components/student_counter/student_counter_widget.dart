@@ -90,7 +90,7 @@ class _StudentCounterWidgetState extends State<StudentCounterWidget> {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.caption,
                   ),
-                ].divide(const SizedBox(height: 2.0)),
+                ].divide(const SizedBox(height: 8.0)),
               ),
             ),
             const SizedBox(width: 4),

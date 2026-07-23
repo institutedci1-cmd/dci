@@ -136,7 +136,7 @@ class _ReportHistoryWidgetState extends ConsumerState<ReportHistoryWidget> {
                                       padding: const EdgeInsets.only(top: 2),
                                       child: Text('By: ${report.teacher}', style: AppTypography.caption.copyWith(fontSize: 10)),
                                     ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 8),
                                   Text(
                                     dateTimeFormat('yMMMd', report.createdAt),
                                     style: AppTypography.caption.copyWith(color: FlutterFlowTheme.of(context).primary, fontWeight: FontWeight.bold, fontSize: 10),

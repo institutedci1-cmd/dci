@@ -100,7 +100,7 @@ class _HomeworkCardWidgetState extends State<HomeworkCardWidget> {
                     ],
                   ),
                 ),
-            ].divide(const SizedBox(height: 2.0)),
+            ].divide(const SizedBox(height: 8.0)),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,

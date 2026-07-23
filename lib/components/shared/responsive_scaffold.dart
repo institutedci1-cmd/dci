@@ -92,7 +92,13 @@ class _Sidebar extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.xl),
             child: Row(
               children: [
-                Image.asset('assets/images/logo.png', height: 60, errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, color: AppColors.primary, size: 60)),
+                Image.asset(
+                  'assets/images/logo.png',
+                  height: 60,
+                  width: 60,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, color: AppColors.primary, size: 60),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text('Deshmukh ERP', style: AppTypography.title.copyWith(fontSize: 20)),
