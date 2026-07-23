@@ -94,7 +94,9 @@ class _Sidebar extends ConsumerWidget {
               children: [
                 Image.asset('assets/images/logo.png', height: 60, errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, color: AppColors.primary, size: 60)),
                 const SizedBox(width: 12),
-                Text('Deshmukh ERP', style: AppTypography.title.copyWith(fontSize: 20)),
+                Expanded(
+                  child: Text('Deshmukh ERP', style: AppTypography.title.copyWith(fontSize: 20)),
+                ),
               ],
             ),
           ),
@@ -251,11 +253,13 @@ class _SidebarItem extends StatelessWidget {
               children: [
                 Icon(icon, color: isActive ? theme.primary : theme.secondaryText, size: 24),
                 const SizedBox(width: 16),
-                Text(title, style: AppTypography.body.copyWith(
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                  color: isActive ? theme.primary : theme.primaryText,
-                  fontSize: 14,
-                )),
+                Expanded(
+                  child: Text(title, style: AppTypography.body.copyWith(
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                    color: isActive ? theme.primary : theme.primaryText,
+                    fontSize: 14,
+                  )),
+                ),
               ],
             ),
           ),

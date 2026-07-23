@@ -248,7 +248,9 @@ class _HomeDashboardWidgetState extends ConsumerState<HomeDashboardWidget> {
             children: [
               const Icon(Icons.auto_awesome_rounded, color: AppColors.primary, size: 24),
               const SizedBox(width: 12),
-              Text(config?['ai_title'] ?? 'Deshmukh AI Assistant', style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary)),
+              Expanded(
+                child: Text(config?['ai_title'] ?? 'Deshmukh AI Assistant', style: AppTypography.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary)),
+              ),
             ],
           ),
           const SizedBox(height: 12),
